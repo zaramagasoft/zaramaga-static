@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"/home/alb/zaramaga-static/build/libpng/cmake_install.cmake"
+	],
+	"Parallel" : false
+}

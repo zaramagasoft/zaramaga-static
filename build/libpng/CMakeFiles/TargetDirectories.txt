@@ -1,0 +1,9 @@
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/png_genprebuilt.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/png_genfiles.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/png_static.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/edit_cache.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/rebuild_cache.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/list_install_components.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/install.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/install/local.dir
+/home/alb/zaramaga-static/build/libpng/CMakeFiles/install/strip.dir

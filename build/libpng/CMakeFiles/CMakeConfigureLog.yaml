@@ -1,0 +1,1481 @@
+
+---
+events:
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:12 (find_program)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_UNAME"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "uname"
+    candidate_directories:
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+      - "/bin/"
+    searched_directories:
+      - "/home/alb/.local/bin/uname"
+      - "/home/alb/.deno/bin/uname"
+      - "/usr/local/sbin/uname"
+      - "/usr/local/bin/uname"
+    found: "/usr/bin/uname"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineSystem.cmake:218 (message)"
+      - "CMakeLists.txt:28 (project)"
+    message: |
+      The system is: Linux - 6.18.40-2-lts - x86_64
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeUnixFindMake.cmake:5 (find_program)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_MAKE_PROGRAM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gmake"
+      - "make"
+      - "smake"
+    candidate_directories:
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/.local/bin/gmake"
+      - "/home/alb/.deno/bin/gmake"
+      - "/usr/local/sbin/gmake"
+      - "/usr/local/bin/gmake"
+      - "/usr/bin/gmake"
+      - "/usr/lib/jvm/default/bin/gmake"
+      - "/usr/bin/site_perl/gmake"
+      - "/usr/bin/vendor_perl/gmake"
+      - "/usr/bin/core_perl/gmake"
+      - "/opt/rocm/bin/gmake"
+      - "/home/alb/.local/bin/make"
+      - "/home/alb/.deno/bin/make"
+      - "/usr/local/sbin/make"
+      - "/usr/local/bin/make"
+    found: "/usr/bin/make"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:501 (find_file)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:538 (CMAKE_DETERMINE_COMPILER_ID_WRITE)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:8 (CMAKE_DETERMINE_COMPILER_ID_BUILD)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "file"
+    variable: "src_in"
+    description: "Path to a file."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "CMakeCCompilerId.c.in"
+    candidate_directories:
+      - "/usr/share/cmake/Modules/"
+    found: "/usr/share/cmake/Modules/CMakeCCompilerId.c.in"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:17 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerId.cmake:64 (__determine_compiler_id_test)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:122 (CMAKE_DETERMINE_COMPILER_ID)"
+      - "CMakeLists.txt:28 (project)"
+    message: |
+      Compiling the C compiler identification source file "CMakeCCompilerId.c" succeeded.
+      Compiler: /home/alb/zaramaga-static/install/bin/musl-gcc 
+      Build flags: 
+      Id flags:  
+      
+      The output was:
+      0
+      
+      
+      Compilation of the C compiler identification source "CMakeCCompilerId.c" produced "a.out"
+      
+      The C compiler identification is GNU, found in:
+        /home/alb/zaramaga-static/build/libpng/CMakeFiles/4.4.0/CompilerIdC/a.out
+      
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_AR"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-ar"
+      - "ar"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-ar"
+      - "/home/alb/.local/bin/musl-ar"
+      - "/home/alb/.deno/bin/musl-ar"
+      - "/usr/local/sbin/musl-ar"
+      - "/usr/local/bin/musl-ar"
+      - "/usr/bin/musl-ar"
+      - "/usr/lib/jvm/default/bin/musl-ar"
+      - "/usr/bin/site_perl/musl-ar"
+      - "/usr/bin/vendor_perl/musl-ar"
+      - "/usr/bin/core_perl/musl-ar"
+      - "/opt/rocm/bin/musl-ar"
+      - "/home/alb/zaramaga-static/install/bin/ar"
+      - "/home/alb/.local/bin/ar"
+      - "/home/alb/.deno/bin/ar"
+      - "/usr/local/sbin/ar"
+      - "/usr/local/bin/ar"
+    found: "/usr/bin/ar"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_RANLIB"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-ranlib"
+      - "ranlib"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-ranlib"
+      - "/home/alb/.local/bin/musl-ranlib"
+      - "/home/alb/.deno/bin/musl-ranlib"
+      - "/usr/local/sbin/musl-ranlib"
+      - "/usr/local/bin/musl-ranlib"
+      - "/usr/bin/musl-ranlib"
+      - "/usr/lib/jvm/default/bin/musl-ranlib"
+      - "/usr/bin/site_perl/musl-ranlib"
+      - "/usr/bin/vendor_perl/musl-ranlib"
+      - "/usr/bin/core_perl/musl-ranlib"
+      - "/opt/rocm/bin/musl-ranlib"
+      - "/home/alb/zaramaga-static/install/bin/ranlib"
+      - "/home/alb/.local/bin/ranlib"
+      - "/home/alb/.deno/bin/ranlib"
+      - "/usr/local/sbin/ranlib"
+      - "/usr/local/bin/ranlib"
+    found: "/usr/bin/ranlib"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_STRIP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-strip"
+      - "strip"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-strip"
+      - "/home/alb/.local/bin/musl-strip"
+      - "/home/alb/.deno/bin/musl-strip"
+      - "/usr/local/sbin/musl-strip"
+      - "/usr/local/bin/musl-strip"
+      - "/usr/bin/musl-strip"
+      - "/usr/lib/jvm/default/bin/musl-strip"
+      - "/usr/bin/site_perl/musl-strip"
+      - "/usr/bin/vendor_perl/musl-strip"
+      - "/usr/bin/core_perl/musl-strip"
+      - "/opt/rocm/bin/musl-strip"
+      - "/home/alb/zaramaga-static/install/bin/strip"
+      - "/home/alb/.local/bin/strip"
+      - "/home/alb/.deno/bin/strip"
+      - "/usr/local/sbin/strip"
+      - "/usr/local/bin/strip"
+    found: "/usr/bin/strip"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_LINKER"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-ld"
+      - "ld"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-ld"
+      - "/home/alb/.local/bin/musl-ld"
+      - "/home/alb/.deno/bin/musl-ld"
+      - "/usr/local/sbin/musl-ld"
+      - "/usr/local/bin/musl-ld"
+      - "/usr/bin/musl-ld"
+      - "/usr/lib/jvm/default/bin/musl-ld"
+      - "/usr/bin/site_perl/musl-ld"
+      - "/usr/bin/vendor_perl/musl-ld"
+      - "/usr/bin/core_perl/musl-ld"
+      - "/opt/rocm/bin/musl-ld"
+      - "/home/alb/zaramaga-static/install/bin/ld"
+      - "/home/alb/.local/bin/ld"
+      - "/home/alb/.deno/bin/ld"
+      - "/usr/local/sbin/ld"
+      - "/usr/local/bin/ld"
+    found: "/usr/bin/ld"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_NM"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-nm"
+      - "nm"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-nm"
+      - "/home/alb/.local/bin/musl-nm"
+      - "/home/alb/.deno/bin/musl-nm"
+      - "/usr/local/sbin/musl-nm"
+      - "/usr/local/bin/musl-nm"
+      - "/usr/bin/musl-nm"
+      - "/usr/lib/jvm/default/bin/musl-nm"
+      - "/usr/bin/site_perl/musl-nm"
+      - "/usr/bin/vendor_perl/musl-nm"
+      - "/usr/bin/core_perl/musl-nm"
+      - "/opt/rocm/bin/musl-nm"
+      - "/home/alb/zaramaga-static/install/bin/nm"
+      - "/home/alb/.local/bin/nm"
+      - "/home/alb/.deno/bin/nm"
+      - "/usr/local/sbin/nm"
+      - "/usr/local/bin/nm"
+    found: "/usr/bin/nm"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJDUMP"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-objdump"
+      - "objdump"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-objdump"
+      - "/home/alb/.local/bin/musl-objdump"
+      - "/home/alb/.deno/bin/musl-objdump"
+      - "/usr/local/sbin/musl-objdump"
+      - "/usr/local/bin/musl-objdump"
+      - "/usr/bin/musl-objdump"
+      - "/usr/lib/jvm/default/bin/musl-objdump"
+      - "/usr/bin/site_perl/musl-objdump"
+      - "/usr/bin/vendor_perl/musl-objdump"
+      - "/usr/bin/core_perl/musl-objdump"
+      - "/opt/rocm/bin/musl-objdump"
+      - "/home/alb/zaramaga-static/install/bin/objdump"
+      - "/home/alb/.local/bin/objdump"
+      - "/home/alb/.deno/bin/objdump"
+      - "/usr/local/sbin/objdump"
+      - "/usr/local/bin/objdump"
+    found: "/usr/bin/objdump"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_OBJCOPY"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-objcopy"
+      - "objcopy"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-objcopy"
+      - "/home/alb/.local/bin/musl-objcopy"
+      - "/home/alb/.deno/bin/musl-objcopy"
+      - "/usr/local/sbin/musl-objcopy"
+      - "/usr/local/bin/musl-objcopy"
+      - "/usr/bin/musl-objcopy"
+      - "/usr/lib/jvm/default/bin/musl-objcopy"
+      - "/usr/bin/site_perl/musl-objcopy"
+      - "/usr/bin/vendor_perl/musl-objcopy"
+      - "/usr/bin/core_perl/musl-objcopy"
+      - "/opt/rocm/bin/musl-objcopy"
+      - "/home/alb/zaramaga-static/install/bin/objcopy"
+      - "/home/alb/.local/bin/objcopy"
+      - "/home/alb/.deno/bin/objcopy"
+      - "/usr/local/sbin/objcopy"
+      - "/usr/local/bin/objcopy"
+    found: "/usr/bin/objcopy"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_READELF"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-readelf"
+      - "readelf"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-readelf"
+      - "/home/alb/.local/bin/musl-readelf"
+      - "/home/alb/.deno/bin/musl-readelf"
+      - "/usr/local/sbin/musl-readelf"
+      - "/usr/local/bin/musl-readelf"
+      - "/usr/bin/musl-readelf"
+      - "/usr/lib/jvm/default/bin/musl-readelf"
+      - "/usr/bin/site_perl/musl-readelf"
+      - "/usr/bin/vendor_perl/musl-readelf"
+      - "/usr/bin/core_perl/musl-readelf"
+      - "/opt/rocm/bin/musl-readelf"
+      - "/home/alb/zaramaga-static/install/bin/readelf"
+      - "/home/alb/.local/bin/readelf"
+      - "/home/alb/.deno/bin/readelf"
+      - "/usr/local/sbin/readelf"
+      - "/usr/local/bin/readelf"
+    found: "/usr/bin/readelf"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_DLLTOOL"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-dlltool"
+      - "dlltool"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-dlltool"
+      - "/home/alb/.local/bin/musl-dlltool"
+      - "/home/alb/.deno/bin/musl-dlltool"
+      - "/usr/local/sbin/musl-dlltool"
+      - "/usr/local/bin/musl-dlltool"
+      - "/usr/bin/musl-dlltool"
+      - "/usr/lib/jvm/default/bin/musl-dlltool"
+      - "/usr/bin/site_perl/musl-dlltool"
+      - "/usr/bin/vendor_perl/musl-dlltool"
+      - "/usr/bin/core_perl/musl-dlltool"
+      - "/opt/rocm/bin/musl-dlltool"
+      - "/home/alb/zaramaga-static/install/bin/dlltool"
+      - "/home/alb/.local/bin/dlltool"
+      - "/home/alb/.deno/bin/dlltool"
+      - "/usr/local/sbin/dlltool"
+      - "/usr/local/bin/dlltool"
+      - "/usr/bin/dlltool"
+      - "/usr/lib/jvm/default/bin/dlltool"
+      - "/usr/bin/site_perl/dlltool"
+      - "/usr/bin/vendor_perl/dlltool"
+      - "/usr/bin/core_perl/dlltool"
+      - "/opt/rocm/bin/dlltool"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_ADDR2LINE"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-addr2line"
+      - "addr2line"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-addr2line"
+      - "/home/alb/.local/bin/musl-addr2line"
+      - "/home/alb/.deno/bin/musl-addr2line"
+      - "/usr/local/sbin/musl-addr2line"
+      - "/usr/local/bin/musl-addr2line"
+      - "/usr/bin/musl-addr2line"
+      - "/usr/lib/jvm/default/bin/musl-addr2line"
+      - "/usr/bin/site_perl/musl-addr2line"
+      - "/usr/bin/vendor_perl/musl-addr2line"
+      - "/usr/bin/core_perl/musl-addr2line"
+      - "/opt/rocm/bin/musl-addr2line"
+      - "/home/alb/zaramaga-static/install/bin/addr2line"
+      - "/home/alb/.local/bin/addr2line"
+      - "/home/alb/.deno/bin/addr2line"
+      - "/usr/local/sbin/addr2line"
+      - "/usr/local/bin/addr2line"
+    found: "/usr/bin/addr2line"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeFindBinUtils.cmake:247 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:200 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_TAPI"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-tapi"
+      - "tapi"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-tapi"
+      - "/home/alb/.local/bin/musl-tapi"
+      - "/home/alb/.deno/bin/musl-tapi"
+      - "/usr/local/sbin/musl-tapi"
+      - "/usr/local/bin/musl-tapi"
+      - "/usr/bin/musl-tapi"
+      - "/usr/lib/jvm/default/bin/musl-tapi"
+      - "/usr/bin/site_perl/musl-tapi"
+      - "/usr/bin/vendor_perl/musl-tapi"
+      - "/usr/bin/core_perl/musl-tapi"
+      - "/opt/rocm/bin/musl-tapi"
+      - "/home/alb/zaramaga-static/install/bin/tapi"
+      - "/home/alb/.local/bin/tapi"
+      - "/home/alb/.deno/bin/tapi"
+      - "/usr/local/sbin/tapi"
+      - "/usr/local/bin/tapi"
+      - "/usr/bin/tapi"
+      - "/usr/lib/jvm/default/bin/tapi"
+      - "/usr/bin/site_perl/tapi"
+      - "/usr/bin/vendor_perl/tapi"
+      - "/usr/bin/core_perl/tapi"
+      - "/opt/rocm/bin/tapi"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/GNU-FindBinUtils.cmake:18 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_AR"
+    description: "A wrapper around 'ar' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-gcc-ar-16.1"
+      - "musl-gcc-ar-16"
+      - "musl-gcc-ar16"
+      - "musl-gcc-ar"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ar-16.1"
+      - "/home/alb/.local/bin/musl-gcc-ar-16.1"
+      - "/home/alb/.deno/bin/musl-gcc-ar-16.1"
+      - "/usr/local/sbin/musl-gcc-ar-16.1"
+      - "/usr/local/bin/musl-gcc-ar-16.1"
+      - "/usr/bin/musl-gcc-ar-16.1"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ar-16.1"
+      - "/usr/bin/site_perl/musl-gcc-ar-16.1"
+      - "/usr/bin/vendor_perl/musl-gcc-ar-16.1"
+      - "/usr/bin/core_perl/musl-gcc-ar-16.1"
+      - "/opt/rocm/bin/musl-gcc-ar-16.1"
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ar-16"
+      - "/home/alb/.local/bin/musl-gcc-ar-16"
+      - "/home/alb/.deno/bin/musl-gcc-ar-16"
+      - "/usr/local/sbin/musl-gcc-ar-16"
+      - "/usr/local/bin/musl-gcc-ar-16"
+      - "/usr/bin/musl-gcc-ar-16"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ar-16"
+      - "/usr/bin/site_perl/musl-gcc-ar-16"
+      - "/usr/bin/vendor_perl/musl-gcc-ar-16"
+      - "/usr/bin/core_perl/musl-gcc-ar-16"
+      - "/opt/rocm/bin/musl-gcc-ar-16"
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ar16"
+      - "/home/alb/.local/bin/musl-gcc-ar16"
+      - "/home/alb/.deno/bin/musl-gcc-ar16"
+      - "/usr/local/sbin/musl-gcc-ar16"
+      - "/usr/local/bin/musl-gcc-ar16"
+      - "/usr/bin/musl-gcc-ar16"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ar16"
+      - "/usr/bin/site_perl/musl-gcc-ar16"
+      - "/usr/bin/vendor_perl/musl-gcc-ar16"
+      - "/usr/bin/core_perl/musl-gcc-ar16"
+      - "/opt/rocm/bin/musl-gcc-ar16"
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ar"
+      - "/home/alb/.local/bin/musl-gcc-ar"
+      - "/home/alb/.deno/bin/musl-gcc-ar"
+      - "/usr/local/sbin/musl-gcc-ar"
+      - "/usr/local/bin/musl-gcc-ar"
+      - "/usr/bin/musl-gcc-ar"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ar"
+      - "/usr/bin/site_perl/musl-gcc-ar"
+      - "/usr/bin/vendor_perl/musl-gcc-ar"
+      - "/usr/bin/core_perl/musl-gcc-ar"
+      - "/opt/rocm/bin/musl-gcc-ar"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "find-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Compiler/GNU-FindBinUtils.cmake:30 (find_program)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCCompiler.cmake:201 (include)"
+      - "CMakeLists.txt:28 (project)"
+    mode: "program"
+    variable: "CMAKE_C_COMPILER_RANLIB"
+    description: "A wrapper around 'ranlib' adding the appropriate '--plugin' option for the GCC compiler"
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: false
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: false
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "musl-gcc-ranlib-16.1"
+      - "musl-gcc-ranlib-16"
+      - "musl-gcc-ranlib16"
+      - "musl-gcc-ranlib"
+    candidate_directories:
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+    searched_directories:
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ranlib-16.1"
+      - "/home/alb/.local/bin/musl-gcc-ranlib-16.1"
+      - "/home/alb/.deno/bin/musl-gcc-ranlib-16.1"
+      - "/usr/local/sbin/musl-gcc-ranlib-16.1"
+      - "/usr/local/bin/musl-gcc-ranlib-16.1"
+      - "/usr/bin/musl-gcc-ranlib-16.1"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ranlib-16.1"
+      - "/usr/bin/site_perl/musl-gcc-ranlib-16.1"
+      - "/usr/bin/vendor_perl/musl-gcc-ranlib-16.1"
+      - "/usr/bin/core_perl/musl-gcc-ranlib-16.1"
+      - "/opt/rocm/bin/musl-gcc-ranlib-16.1"
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ranlib-16"
+      - "/home/alb/.local/bin/musl-gcc-ranlib-16"
+      - "/home/alb/.deno/bin/musl-gcc-ranlib-16"
+      - "/usr/local/sbin/musl-gcc-ranlib-16"
+      - "/usr/local/bin/musl-gcc-ranlib-16"
+      - "/usr/bin/musl-gcc-ranlib-16"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ranlib-16"
+      - "/usr/bin/site_perl/musl-gcc-ranlib-16"
+      - "/usr/bin/vendor_perl/musl-gcc-ranlib-16"
+      - "/usr/bin/core_perl/musl-gcc-ranlib-16"
+      - "/opt/rocm/bin/musl-gcc-ranlib-16"
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ranlib16"
+      - "/home/alb/.local/bin/musl-gcc-ranlib16"
+      - "/home/alb/.deno/bin/musl-gcc-ranlib16"
+      - "/usr/local/sbin/musl-gcc-ranlib16"
+      - "/usr/local/bin/musl-gcc-ranlib16"
+      - "/usr/bin/musl-gcc-ranlib16"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ranlib16"
+      - "/usr/bin/site_perl/musl-gcc-ranlib16"
+      - "/usr/bin/vendor_perl/musl-gcc-ranlib16"
+      - "/usr/bin/core_perl/musl-gcc-ranlib16"
+      - "/opt/rocm/bin/musl-gcc-ranlib16"
+      - "/home/alb/zaramaga-static/install/bin/musl-gcc-ranlib"
+      - "/home/alb/.local/bin/musl-gcc-ranlib"
+      - "/home/alb/.deno/bin/musl-gcc-ranlib"
+      - "/usr/local/sbin/musl-gcc-ranlib"
+      - "/usr/local/bin/musl-gcc-ranlib"
+      - "/usr/bin/musl-gcc-ranlib"
+      - "/usr/lib/jvm/default/bin/musl-gcc-ranlib"
+      - "/usr/bin/site_perl/musl-gcc-ranlib"
+      - "/usr/bin/vendor_perl/musl-gcc-ranlib"
+      - "/usr/bin/core_perl/musl-gcc-ranlib"
+      - "/opt/rocm/bin/musl-gcc-ranlib"
+    found: false
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:123 (try_compile)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:28 (project)"
+    checks:
+      - "Detecting C compiler ABI info"
+    directories:
+      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p"
+      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "CMAKE_C_ABI_COMPILED"
+      cached: false
+      stdout: |
+        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_da90d/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_da90d.dir/build.make CMakeFiles/cmTC_da90d.dir/build
+        make[1]: Entering directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p'
+        Building C object CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o
+        /home/alb/zaramaga-static/install/bin/musl-gcc   -v -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+        Using built-in specs.
+        Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs
+        rename spec cpp_options to old_cpp_options
+        COLLECT_GCC=gcc
+        Target: x86_64-pc-linux-gnu
+        Configured with: ../gcc/configure --enable-languages=ada,c,c++,d,fortran,go,lto,m2,objc,obj-c++,rust,cobol --enable-bootstrap --prefix=/usr --libdir=/usr/lib --libexecdir=/usr/lib --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://gitlab.archlinux.org/archlinux/packaging/packages/gcc/-/issues --with-build-config=bootstrap-lto --with-gcc-major-version-only --with-linker-hash-style=gnu --with-system-zlib --enable-cet=auto --enable-checking=release --enable-clocale=gnu --enable-default-pie --enable-default-ssp --enable-gnu-indirect-function --enable-gnu-unique-object --enable-libstdcxx-backtrace --enable-link-serialization=1 --enable-linker-build-id --enable-lto --enable-multilib --enable-plugin --enable-shared --enable-threads=posix --disable-fixincludes --disable-libssp --disable-libstdcxx-pch --disable-werror
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 16.1.1 20260725 (GCC) 
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/'
+         /usr/lib/gcc/x86_64-pc-linux-gnu/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -nostdinc -isystem /home/alb/zaramaga-static/install/include -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/16/include -quiet -dumpdir CMakeFiles/cmTC_da90d.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -o /tmp/cc6gBF5W.s
+        GNU C23 (GCC) version 16.1.1 20260725 (x86_64-pc-linux-gnu)
+        	compiled by GNU C version 16.1.1 20260725, GMP version 6.3.0, MPFR version 4.2.2, MPC version 1.4.1, isl version isl-0.28-GMP
+        
+        GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072
+        #include "..." search starts here:
+        #include <...> search starts here:
+         /home/alb/zaramaga-static/install/include
+         /usr/lib/gcc/x86_64-pc-linux-gnu/16/include
+        End of search list.
+        Compiler executable checksum: db10c97d0af95f39aefcba55b4ba5dcc
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/'
+         as -v --64 -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /tmp/cc6gBF5W.s
+        GNU assembler version 2.46.1 (x86_64-pc-linux-gnu) using BFD version (GNU Binutils) 2.46.1
+        COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_da90d
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_da90d.dir/link.txt --verbose=1
+        Using built-in specs.
+        Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs
+        rename spec cpp_options to old_cpp_options
+        COLLECT_GCC=gcc
+        COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper
+        Target: x86_64-pc-linux-gnu
+        Configured with: ../gcc/configure --enable-languages=ada,c,c++,d,fortran,go,lto,m2,objc,obj-c++,rust,cobol --enable-bootstrap --prefix=/usr --libdir=/usr/lib --libexecdir=/usr/lib --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://gitlab.archlinux.org/archlinux/packaging/packages/gcc/-/issues --with-build-config=bootstrap-lto --with-gcc-major-version-only --with-linker-hash-style=gnu --with-system-zlib --enable-cet=auto --enable-checking=release --enable-clocale=gnu --enable-default-pie --enable-default-ssp --enable-gnu-indirect-function --enable-gnu-unique-object --enable-libstdcxx-backtrace --enable-link-serialization=1 --enable-linker-build-id --enable-lto --enable-multilib --enable-plugin --enable-shared --enable-threads=posix --disable-fixincludes --disable-libssp --disable-libstdcxx-pch --disable-werror
+        Thread model: posix
+        Supported LTO compression algorithms: zlib zstd
+        gcc version 16.1.1 20260725 (GCC) 
+        COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/
+        LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_da90d' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_da90d.'
+         /usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o
+        collect2 version 16.1.1 20260725
+        /usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o
+        GNU ld (GNU Binutils) 2.46.1
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_da90d' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_da90d.'
+        /home/alb/zaramaga-static/install/bin/musl-gcc -v -Wl,-v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o -o cmTC_da90d
+        make[1]: Leaving directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p'
+        
+      exitCode: 0
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:255 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:28 (project)"
+    message: |
+      Parsed C implicit include dir info: rv=done
+        found start of include info
+        found start of implicit include info
+          add: [/home/alb/zaramaga-static/install/include]
+          add: [/usr/lib/gcc/x86_64-pc-linux-gnu/16/include]
+        end of search list found
+        collapse include dir [/home/alb/zaramaga-static/install/include] ==> [/home/alb/zaramaga-static/install/include]
+        collapse include dir [/usr/lib/gcc/x86_64-pc-linux-gnu/16/include] ==> [/usr/lib/gcc/x86_64-pc-linux-gnu/16/include]
+        implicit include dirs: [/home/alb/zaramaga-static/install/include;/usr/lib/gcc/x86_64-pc-linux-gnu/16/include]
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:291 (message)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:28 (project)"
+    message: |
+      Parsed C implicit link information:
+        link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|wild|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
+        linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|wild))("|,| |$)]
+        ignore line: [Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p']
+        ignore line: []
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_da90d/fast]
+        ignore line: [/usr/bin/make  -f CMakeFiles/cmTC_da90d.dir/build.make CMakeFiles/cmTC_da90d.dir/build]
+        ignore line: [make[1]: Entering directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p']
+        ignore line: [Building C object CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/home/alb/zaramaga-static/install/bin/musl-gcc   -v -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [Using built-in specs.]
+        ignore line: [Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs]
+        ignore line: [rename spec cpp_options to old_cpp_options]
+        ignore line: [COLLECT_GCC=gcc]
+        ignore line: [Target: x86_64-pc-linux-gnu]
+        ignore line: [Configured with: ../gcc/configure --enable-languages=ada c c++ d fortran go lto m2 objc obj-c++ rust cobol --enable-bootstrap --prefix=/usr --libdir=/usr/lib --libexecdir=/usr/lib --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://gitlab.archlinux.org/archlinux/packaging/packages/gcc/-/issues --with-build-config=bootstrap-lto --with-gcc-major-version-only --with-linker-hash-style=gnu --with-system-zlib --enable-cet=auto --enable-checking=release --enable-clocale=gnu --enable-default-pie --enable-default-ssp --enable-gnu-indirect-function --enable-gnu-unique-object --enable-libstdcxx-backtrace --enable-link-serialization=1 --enable-linker-build-id --enable-lto --enable-multilib --enable-plugin --enable-shared --enable-threads=posix --disable-fixincludes --disable-libssp --disable-libstdcxx-pch --disable-werror]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 16.1.1 20260725 (GCC) ]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/']
+        ignore line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -nostdinc -isystem /home/alb/zaramaga-static/install/include -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/16/include -quiet -dumpdir CMakeFiles/cmTC_da90d.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -o /tmp/cc6gBF5W.s]
+        ignore line: [GNU C23 (GCC) version 16.1.1 20260725 (x86_64-pc-linux-gnu)]
+        ignore line: [	compiled by GNU C version 16.1.1 20260725  GMP version 6.3.0  MPFR version 4.2.2  MPC version 1.4.1  isl version isl-0.28-GMP]
+        ignore line: []
+        ignore line: [GGC heuristics: --param ggc-min-expand=100 --param ggc-min-heapsize=131072]
+        ignore line: [#include "..." search starts here:]
+        ignore line: [#include <...> search starts here:]
+        ignore line: [ /home/alb/zaramaga-static/install/include]
+        ignore line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/include]
+        ignore line: [End of search list.]
+        ignore line: [Compiler executable checksum: db10c97d0af95f39aefcba55b4ba5dcc]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /tmp/cc6gBF5W.s]
+        ignore line: [GNU assembler version 2.46.1 (x86_64-pc-linux-gnu) using BFD version (GNU Binutils) 2.46.1]
+        ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_da90d]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_da90d.dir/link.txt --verbose=1]
+        ignore line: [Using built-in specs.]
+        ignore line: [Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs]
+        ignore line: [rename spec cpp_options to old_cpp_options]
+        ignore line: [COLLECT_GCC=gcc]
+        ignore line: [COLLECT_LTO_WRAPPER=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper]
+        ignore line: [Target: x86_64-pc-linux-gnu]
+        ignore line: [Configured with: ../gcc/configure --enable-languages=ada c c++ d fortran go lto m2 objc obj-c++ rust cobol --enable-bootstrap --prefix=/usr --libdir=/usr/lib --libexecdir=/usr/lib --mandir=/usr/share/man --infodir=/usr/share/info --with-bugurl=https://gitlab.archlinux.org/archlinux/packaging/packages/gcc/-/issues --with-build-config=bootstrap-lto --with-gcc-major-version-only --with-linker-hash-style=gnu --with-system-zlib --enable-cet=auto --enable-checking=release --enable-clocale=gnu --enable-default-pie --enable-default-ssp --enable-gnu-indirect-function --enable-gnu-unique-object --enable-libstdcxx-backtrace --enable-link-serialization=1 --enable-linker-build-id --enable-lto --enable-multilib --enable-plugin --enable-shared --enable-threads=posix --disable-fixincludes --disable-libssp --disable-libstdcxx-pch --disable-werror]
+        ignore line: [Thread model: posix]
+        ignore line: [Supported LTO compression algorithms: zlib zstd]
+        ignore line: [gcc version 16.1.1 20260725 (GCC) ]
+        ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/]
+        ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_da90d' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_da90d.']
+        link line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o]
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2] ==> ignore
+          arg [-plugin] ==> ignore
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so] ==> ignore
+          arg [-plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/cc3YwNOp.res] ==> ignore
+          arg [-plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a] ==> ignore
+          arg [-plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a] ==> ignore
+          arg [-plugin-opt=-pass-through=-latomic_asneeded] ==> ignore
+          arg [-plugin-opt=-pass-through=-lc] ==> ignore
+          arg [-plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a] ==> ignore
+          arg [-plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a] ==> ignore
+          arg [-dynamic-linker] ==> ignore
+          arg [/lib/ld-musl-x86_64.so.1] ==> ignore
+          arg [-nostdlib] ==> ignore
+          arg [-pie] ==> ignore
+          arg [-o] ==> ignore
+          arg [cmTC_da90d] ==> ignore
+          arg [/home/alb/zaramaga-static/install/lib/Scrt1.o] ==> obj [/home/alb/zaramaga-static/install/lib/Scrt1.o]
+          arg [/home/alb/zaramaga-static/install/lib/crti.o] ==> obj [/home/alb/zaramaga-static/install/lib/crti.o]
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o]
+          arg [-L/home/alb/zaramaga-static/install/lib] ==> dir [/home/alb/zaramaga-static/install/lib]
+          arg [-L/usr/lib/gcc/x86_64-pc-linux-gnu/16/.] ==> dir [/usr/lib/gcc/x86_64-pc-linux-gnu/16/.]
+          arg [-v] ==> ignore
+          arg [CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a] ==> lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a]
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a] ==> lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a]
+          arg [-latomic_asneeded] ==> lib [atomic_asneeded]
+          arg [-lc] ==> lib [c]
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a] ==> lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a]
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a] ==> lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a]
+          arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o]
+          arg [/home/alb/zaramaga-static/install/lib/crtn.o] ==> obj [/home/alb/zaramaga-static/install/lib/crtn.o]
+        ignore line: [collect2 version 16.1.1 20260725]
+        link line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o] ==> linker [/usr/bin/ld]
+        ignore line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o]
+        linker tool for 'C': /usr/bin/ld 
+        remove lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a]
+        remove lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a]
+        collapse library dir [/home/alb/zaramaga-static/install/lib] ==> [/home/alb/zaramaga-static/install/lib]
+        collapse library dir [/usr/lib/gcc/x86_64-pc-linux-gnu/16/.] ==> [/usr/lib/gcc/x86_64-pc-linux-gnu/16]
+        implicit libs: [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a;atomic_asneeded;c;/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a]
+        implicit objs: [/home/alb/zaramaga-static/install/lib/Scrt1.o;/home/alb/zaramaga-static/install/lib/crti.o;/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o;/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o;/home/alb/zaramaga-static/install/lib/crtn.o]
+        implicit dirs: [/home/alb/zaramaga-static/install/lib;/usr/lib/gcc/x86_64-pc-linux-gnu/16]
+        implicit fwks: []
+      
+      
+  -
+    kind: "message-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CMakeDetermineLinkerId.cmake:41 (message)"
+      - "/usr/share/cmake/Modules/CMakeDetermineCompilerABI.cmake:337 (cmake_determine_linker_id)"
+      - "/usr/share/cmake/Modules/CMakeTestCCompiler.cmake:26 (CMAKE_DETERMINE_COMPILER_ABI)"
+      - "CMakeLists.txt:28 (project)"
+    message: |
+      Running the C compiler's linker: "/usr/bin/ld" "-v"
+      GNU ld (GNU Binutils) 2.46.1
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/CheckLibraryExists.cmake:154 (try_compile)"
+      - "CMakeLists.txt:147 (check_library_exists)"
+    checks:
+      - "Looking for pow in m"
+    directories:
+      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2"
+      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "PNG_HAVE_LIBM_POW"
+      cached: true
+      stdout: |
+        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_1c75f/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_1c75f.dir/build.make CMakeFiles/cmTC_1c75f.dir/build
+        make[1]: se entra en el directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2'
+        Building C object CMakeFiles/cmTC_1c75f.dir/CheckFunctionExists.c.o
+        /home/alb/zaramaga-static/install/bin/musl-gcc   -DCHECK_FUNCTION_EXISTS=pow -o CMakeFiles/cmTC_1c75f.dir/CheckFunctionExists.c.o -c /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2/CheckFunctionExists.c
+        <línea-de-órdenes>: warning: conflicting types for built-in function ‘pow’; expected ‘double(double,  double)’ [-Wbuiltin-declaration-mismatch]
+        /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2/CheckFunctionExists.c:7:3: note: in expansion of macro ‘CHECK_FUNCTION_EXISTS’
+            7 |   CHECK_FUNCTION_EXISTS(void);
+              |   ^~~~~~~~~~~~~~~~~~~~~
+        /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2/CheckFunctionExists.c:1:1: note: ‘pow’ is declared in header ‘<math.h>’
+          +++ |+#include <math.h>
+            1 | #ifdef CHECK_FUNCTION_EXISTS
+        Linking C executable cmTC_1c75f
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1c75f.dir/link.txt --verbose=1
+        /home/alb/zaramaga-static/install/bin/musl-gcc  -DCHECK_FUNCTION_EXISTS=pow CMakeFiles/cmTC_1c75f.dir/CheckFunctionExists.c.o -o cmTC_1c75f  -lm
+        make[1]: se sale del directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2'
+        
+      exitCode: 0
+  -
+    kind: "try_compile-v1"
+    backtrace:
+      - "/usr/share/cmake/Modules/Internal/CheckSourceCompiles.cmake:138 (try_compile)"
+      - "/usr/share/cmake/Modules/CheckCSourceCompiles.cmake:103 (cmake_check_source_compiles)"
+      - "CMakeLists.txt:178 (check_c_source_compiles)"
+    checks:
+      - "Performing Test HAVE_LD_VERSION_SCRIPT"
+    directories:
+      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD"
+      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD"
+    cmakeVariables:
+      CMAKE_C_FLAGS: ""
+      CMAKE_C_FLAGS_DEBUG: "-g"
+      CMAKE_EXE_LINKER_FLAGS: ""
+    buildResult:
+      variable: "HAVE_LD_VERSION_SCRIPT"
+      cached: true
+      stdout: |
+        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD'
+        
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_10b23/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_10b23.dir/build.make CMakeFiles/cmTC_10b23.dir/build
+        make[1]: se entra en el directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD'
+        Building C object CMakeFiles/cmTC_10b23.dir/src.c.o
+        /home/alb/zaramaga-static/install/bin/musl-gcc -DHAVE_LD_VERSION_SCRIPT  -fPIC -Wl,--version-script='/home/alb/zaramaga-static/build/libpng/conftest.map' -o CMakeFiles/cmTC_10b23.dir/src.c.o -c /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD/src.c
+        Linking C executable cmTC_10b23
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_10b23.dir/link.txt --verbose=1
+        /home/alb/zaramaga-static/install/bin/musl-gcc   -fPIC -Wl,--version-script='/home/alb/zaramaga-static/build/libpng/conftest.map' CMakeFiles/cmTC_10b23.dir/src.c.o -o cmTC_10b23
+        make[1]: se sale del directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD'
+        
+      exitCode: 0
+  -
+    kind: "find-v1"
+    backtrace:
+      - "CMakeLists.txt:207 (find_program)"
+    mode: "program"
+    variable: "AWK"
+    description: "Path to a program."
+    settings:
+      SearchFramework: "NEVER"
+      SearchAppBundle: "NEVER"
+      CMAKE_FIND_USE_CMAKE_PATH: true
+      CMAKE_FIND_USE_CMAKE_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_SYSTEM_ENVIRONMENT_PATH: true
+      CMAKE_FIND_USE_CMAKE_SYSTEM_PATH: true
+      CMAKE_FIND_USE_INSTALL_PREFIX: true
+    names:
+      - "gawk"
+      - "nawk"
+      - "awk"
+    candidate_directories:
+      - "/home/alb/.local/bin/"
+      - "/home/alb/.deno/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/bin/"
+      - "/usr/bin/"
+      - "/usr/lib/jvm/default/bin/"
+      - "/usr/bin/site_perl/"
+      - "/usr/bin/vendor_perl/"
+      - "/usr/bin/core_perl/"
+      - "/opt/rocm/bin/"
+      - "/usr/local/bin/"
+      - "/usr/local/sbin/"
+      - "/usr/local/"
+      - "/usr/bin/"
+      - "/usr/sbin/"
+      - "/usr/"
+      - "/bin/"
+      - "/sbin/"
+      - "/home/alb/zaramaga-static/install/bin/"
+      - "/home/alb/zaramaga-static/install/sbin/"
+      - "/home/alb/zaramaga-static/install/"
+      - "/usr/X11R6/bin/"
+      - "/usr/X11R6/sbin/"
+      - "/usr/X11R6/"
+      - "/usr/pkg/bin/"
+      - "/usr/pkg/sbin/"
+      - "/usr/pkg/"
+      - "/opt/bin/"
+      - "/opt/sbin/"
+      - "/opt/"
+    searched_directories:
+      - "/home/alb/.local/bin/gawk"
+      - "/home/alb/.deno/bin/gawk"
+      - "/usr/local/sbin/gawk"
+      - "/usr/local/bin/gawk"
+    found: "/usr/bin/gawk"
+    search_context:
+      ENV{PATH}:
+        - "/home/alb/.local/bin"
+        - "/home/alb/.local/bin"
+        - "/home/alb/.deno/bin"
+        - "/usr/local/sbin"
+        - "/usr/local/bin"
+        - "/usr/bin"
+        - "/usr/lib/jvm/default/bin"
+        - "/usr/bin/site_perl"
+        - "/usr/bin/vendor_perl"
+        - "/usr/bin/core_perl"
+        - "/opt/rocm/bin"
+        - "/usr/local/bin"
+        - "/usr/local/bin"
+      CMAKE_INSTALL_PREFIX: "/home/alb/zaramaga-static/install"
+      CMAKE_SYSTEM_PREFIX_PATH:
+        - "/usr/local"
+        - "/usr"
+        - "/"
+        - "/usr"
+        - "/home/alb/zaramaga-static/install"
+        - "/usr/X11R6"
+        - "/usr/pkg"
+        - "/opt"
+...
