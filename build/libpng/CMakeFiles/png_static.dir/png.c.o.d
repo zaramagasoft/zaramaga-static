@@ -1,0 +1,35 @@
+CMakeFiles/png_static.dir/png.c.o: \
+ /home/alb/zaramaga-static/src/libpng/png.c \
+ /home/alb/zaramaga-static/src/libpng/pngpriv.h \
+ /home/alb/zaramaga-static/install/include/stdlib.h \
+ /home/alb/zaramaga-static/install/include/features.h \
+ /home/alb/zaramaga-static/install/include/bits/alltypes.h \
+ /home/alb/zaramaga-static/install/include/string.h \
+ /home/alb/zaramaga-static/build/libpng/pnglibconf.h \
+ /home/alb/zaramaga-static/src/libpng/pngtarget.h \
+ /home/alb/zaramaga-static/src/libpng/arm/check.h \
+ /home/alb/zaramaga-static/src/libpng/intel/check.h \
+ /home/alb/zaramaga-static/src/libpng/mips/check.h \
+ /home/alb/zaramaga-static/src/libpng/mips/msacheck.h \
+ /home/alb/zaramaga-static/src/libpng/powerpc/check.h \
+ /home/alb/zaramaga-static/src/libpng/png.h \
+ /home/alb/zaramaga-static/src/libpng/pngconf.h \
+ /home/alb/zaramaga-static/install/include/limits.h \
+ /home/alb/zaramaga-static/install/include/bits/limits.h \
+ /home/alb/zaramaga-static/install/include/stddef.h \
+ /home/alb/zaramaga-static/install/include/stdio.h \
+ /home/alb/zaramaga-static/install/include/setjmp.h \
+ /home/alb/zaramaga-static/install/include/bits/setjmp.h \
+ /home/alb/zaramaga-static/install/include/time.h \
+ /home/alb/zaramaga-static/install/include/float.h \
+ /home/alb/zaramaga-static/install/include/bits/float.h \
+ /home/alb/zaramaga-static/install/include/math.h \
+ /home/alb/zaramaga-static/src/libpng/pngstruct.h \
+ /home/alb/zaramaga-static/install/include/zlib.h \
+ /home/alb/zaramaga-static/install/include/zconf.h \
+ /home/alb/zaramaga-static/install/include/sys/types.h \
+ /home/alb/zaramaga-static/install/include/stdarg.h \
+ /home/alb/zaramaga-static/install/include/unistd.h \
+ /home/alb/zaramaga-static/install/include/bits/posix.h \
+ /home/alb/zaramaga-static/src/libpng/pnginfo.h \
+ /home/alb/zaramaga-static/src/libpng/pngdebug.h

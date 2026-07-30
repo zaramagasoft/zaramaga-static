@@ -1125,8 +1125,8 @@ events:
     checks:
       - "Detecting C compiler ABI info"
     directories:
-      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p"
-      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p"
+      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-7BayAp"
+      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-7BayAp"
     cmakeVariables:
       CMAKE_C_FLAGS: ""
       CMAKE_C_FLAGS_DEBUG: "-g"
@@ -1135,13 +1135,13 @@ events:
       variable: "CMAKE_C_ABI_COMPILED"
       cached: false
       stdout: |
-        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p'
+        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-7BayAp'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_da90d/fast
-        /usr/bin/make  -f CMakeFiles/cmTC_da90d.dir/build.make CMakeFiles/cmTC_da90d.dir/build
-        make[1]: Entering directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p'
-        Building C object CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o
-        /home/alb/zaramaga-static/install/bin/musl-gcc   -v -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_f7b7b/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_f7b7b.dir/build.make CMakeFiles/cmTC_f7b7b.dir/build
+        make[1]: Entering directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-7BayAp'
+        Building C object CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o
+        /home/alb/zaramaga-static/install/bin/musl-gcc   -v -o CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c
         Using built-in specs.
         Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs
         rename spec cpp_options to old_cpp_options
@@ -1151,8 +1151,8 @@ events:
         Thread model: posix
         Supported LTO compression algorithms: zlib zstd
         gcc version 16.1.1 20260725 (GCC) 
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/'
-         /usr/lib/gcc/x86_64-pc-linux-gnu/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -nostdinc -isystem /home/alb/zaramaga-static/install/include -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/16/include -quiet -dumpdir CMakeFiles/cmTC_da90d.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -o /tmp/cc6gBF5W.s
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_f7b7b.dir/'
+         /usr/lib/gcc/x86_64-pc-linux-gnu/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -nostdinc -isystem /home/alb/zaramaga-static/install/include -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/16/include -quiet -dumpdir CMakeFiles/cmTC_f7b7b.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -o /tmp/ccaQs6VQ.s
         GNU C23 (GCC) version 16.1.1 20260725 (x86_64-pc-linux-gnu)
         	compiled by GNU C version 16.1.1 20260725, GMP version 6.3.0, MPFR version 4.2.2, MPC version 1.4.1, isl version isl-0.28-GMP
         
@@ -1163,14 +1163,14 @@ events:
          /usr/lib/gcc/x86_64-pc-linux-gnu/16/include
         End of search list.
         Compiler executable checksum: db10c97d0af95f39aefcba55b4ba5dcc
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/'
-         as -v --64 -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /tmp/cc6gBF5W.s
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_f7b7b.dir/'
+         as -v --64 -o CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o /tmp/ccaQs6VQ.s
         GNU assembler version 2.46.1 (x86_64-pc-linux-gnu) using BFD version (GNU Binutils) 2.46.1
         COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/
         LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/
-        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.'
-        Linking C executable cmTC_da90d
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_da90d.dir/link.txt --verbose=1
+        COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.'
+        Linking C executable cmTC_f7b7b
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f7b7b.dir/link.txt --verbose=1
         Using built-in specs.
         Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs
         rename spec cpp_options to old_cpp_options
@@ -1183,14 +1183,14 @@ events:
         gcc version 16.1.1 20260725 (GCC) 
         COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/
         LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/
-        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_da90d' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_da90d.'
-         /usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f7b7b' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_f7b7b.'
+         /usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/ccPTmRPJ.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_f7b7b /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o
         collect2 version 16.1.1 20260725
-        /usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o
+        /usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/ccPTmRPJ.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_f7b7b /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o
         GNU ld (GNU Binutils) 2.46.1
-        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_da90d' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_da90d.'
-        /home/alb/zaramaga-static/install/bin/musl-gcc -v -Wl,-v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o -o cmTC_da90d
-        make[1]: Leaving directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p'
+        COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f7b7b' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_f7b7b.'
+        /home/alb/zaramaga-static/install/bin/musl-gcc -v -Wl,-v CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o -o cmTC_f7b7b
+        make[1]: Leaving directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-7BayAp'
         
       exitCode: 0
   -
@@ -1221,13 +1221,13 @@ events:
       Parsed C implicit link information:
         link line regex: [^( *|.*[/\\])(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|wild|CMAKE_LINK_STARTFILE-NOTFOUND|([^/\\]+-)?ld|collect2)[^/\\]*( |$)]
         linker tool regex: [^[ 	]*(->|"|[0-9]+>[ 	-]*Build:[ 	0-9]+ ms[ 	]*)?[ 	]*(([^"]*[/\\])?(ld[0-9]*(|\\.[a-rt-z][a-z]*|\\.s[a-np-z][a-z]*|\\.so[a-z]+)|wild))("|,| |$)]
-        ignore line: [Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p']
+        ignore line: [Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-7BayAp']
         ignore line: []
-        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_da90d/fast]
-        ignore line: [/usr/bin/make  -f CMakeFiles/cmTC_da90d.dir/build.make CMakeFiles/cmTC_da90d.dir/build]
-        ignore line: [make[1]: Entering directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-2ufn8p']
-        ignore line: [Building C object CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o]
-        ignore line: [/home/alb/zaramaga-static/install/bin/musl-gcc   -v -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
+        ignore line: [Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_f7b7b/fast]
+        ignore line: [/usr/bin/make  -f CMakeFiles/cmTC_f7b7b.dir/build.make CMakeFiles/cmTC_f7b7b.dir/build]
+        ignore line: [make[1]: Entering directory '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-7BayAp']
+        ignore line: [Building C object CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o]
+        ignore line: [/home/alb/zaramaga-static/install/bin/musl-gcc   -v -o CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o -c /usr/share/cmake/Modules/CMakeCCompilerABI.c]
         ignore line: [Using built-in specs.]
         ignore line: [Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs]
         ignore line: [rename spec cpp_options to old_cpp_options]
@@ -1237,8 +1237,8 @@ events:
         ignore line: [Thread model: posix]
         ignore line: [Supported LTO compression algorithms: zlib zstd]
         ignore line: [gcc version 16.1.1 20260725 (GCC) ]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/']
-        ignore line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -nostdinc -isystem /home/alb/zaramaga-static/install/include -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/16/include -quiet -dumpdir CMakeFiles/cmTC_da90d.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -o /tmp/cc6gBF5W.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_f7b7b.dir/']
+        ignore line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/cc1 -quiet -v /usr/share/cmake/Modules/CMakeCCompilerABI.c -nostdinc -isystem /home/alb/zaramaga-static/install/include -isystem /usr/lib/gcc/x86_64-pc-linux-gnu/16/include -quiet -dumpdir CMakeFiles/cmTC_f7b7b.dir/ -dumpbase CMakeCCompilerABI.c.c -dumpbase-ext .c -mtune=generic -march=x86-64 -version -o /tmp/ccaQs6VQ.s]
         ignore line: [GNU C23 (GCC) version 16.1.1 20260725 (x86_64-pc-linux-gnu)]
         ignore line: [	compiled by GNU C version 16.1.1 20260725  GMP version 6.3.0  MPFR version 4.2.2  MPC version 1.4.1  isl version isl-0.28-GMP]
         ignore line: []
@@ -1249,14 +1249,14 @@ events:
         ignore line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/include]
         ignore line: [End of search list.]
         ignore line: [Compiler executable checksum: db10c97d0af95f39aefcba55b4ba5dcc]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/']
-        ignore line: [ as -v --64 -o CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /tmp/cc6gBF5W.s]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_f7b7b.dir/']
+        ignore line: [ as -v --64 -o CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o /tmp/ccaQs6VQ.s]
         ignore line: [GNU assembler version 2.46.1 (x86_64-pc-linux-gnu) using BFD version (GNU Binutils) 2.46.1]
         ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/]
         ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.']
-        ignore line: [Linking C executable cmTC_da90d]
-        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_da90d.dir/link.txt --verbose=1]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o' '-c' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.']
+        ignore line: [Linking C executable cmTC_f7b7b]
+        ignore line: [/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_f7b7b.dir/link.txt --verbose=1]
         ignore line: [Using built-in specs.]
         ignore line: [Reading specs from /home/alb/zaramaga-static/install/lib/musl-gcc.specs]
         ignore line: [rename spec cpp_options to old_cpp_options]
@@ -1269,13 +1269,13 @@ events:
         ignore line: [gcc version 16.1.1 20260725 (GCC) ]
         ignore line: [COMPILER_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/]
         ignore line: [LIBRARY_PATH=/usr/lib/gcc/x86_64-pc-linux-gnu/16/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../../lib/:/lib/../lib/:/usr/lib/../lib/:/usr/lib/gcc/x86_64-pc-linux-gnu/16/../../../:/lib/:/usr/lib/]
-        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_da90d' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_da90d.']
-        link line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o]
+        ignore line: [COLLECT_GCC_OPTIONS='-v' '-o' 'cmTC_f7b7b' '-specs=/home/alb/zaramaga-static/install/lib/musl-gcc.specs' '-mtune=generic' '-march=x86-64' '-dumpdir' 'cmTC_f7b7b.']
+        link line: [ /usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2 -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/ccPTmRPJ.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_f7b7b /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/collect2] ==> ignore
           arg [-plugin] ==> ignore
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so] ==> ignore
           arg [-plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper] ==> ignore
-          arg [-plugin-opt=-fresolution=/tmp/cc3YwNOp.res] ==> ignore
+          arg [-plugin-opt=-fresolution=/tmp/ccPTmRPJ.res] ==> ignore
           arg [-plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a] ==> ignore
           arg [-plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a] ==> ignore
           arg [-plugin-opt=-pass-through=-latomic_asneeded] ==> ignore
@@ -1287,14 +1287,14 @@ events:
           arg [-nostdlib] ==> ignore
           arg [-pie] ==> ignore
           arg [-o] ==> ignore
-          arg [cmTC_da90d] ==> ignore
+          arg [cmTC_f7b7b] ==> ignore
           arg [/home/alb/zaramaga-static/install/lib/Scrt1.o] ==> obj [/home/alb/zaramaga-static/install/lib/Scrt1.o]
           arg [/home/alb/zaramaga-static/install/lib/crti.o] ==> obj [/home/alb/zaramaga-static/install/lib/crti.o]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o]
           arg [-L/home/alb/zaramaga-static/install/lib] ==> dir [/home/alb/zaramaga-static/install/lib]
           arg [-L/usr/lib/gcc/x86_64-pc-linux-gnu/16/.] ==> dir [/usr/lib/gcc/x86_64-pc-linux-gnu/16/.]
           arg [-v] ==> ignore
-          arg [CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o] ==> ignore
+          arg [CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o] ==> ignore
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a] ==> lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a]
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a] ==> lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a]
           arg [-latomic_asneeded] ==> lib [atomic_asneeded]
@@ -1304,8 +1304,8 @@ events:
           arg [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o] ==> obj [/usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o]
           arg [/home/alb/zaramaga-static/install/lib/crtn.o] ==> obj [/home/alb/zaramaga-static/install/lib/crtn.o]
         ignore line: [collect2 version 16.1.1 20260725]
-        link line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o] ==> linker [/usr/bin/ld]
-        ignore line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/cc3YwNOp.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_da90d /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_da90d.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o]
+        link line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/ccPTmRPJ.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_f7b7b /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o] ==> linker [/usr/bin/ld]
+        ignore line: [/usr/bin/ld -plugin /usr/lib/gcc/x86_64-pc-linux-gnu/16/liblto_plugin.so -plugin-opt=/usr/lib/gcc/x86_64-pc-linux-gnu/16/lto-wrapper -plugin-opt=-fresolution=/tmp/ccPTmRPJ.res -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -plugin-opt=-pass-through=-latomic_asneeded -plugin-opt=-pass-through=-lc -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a -plugin-opt=-pass-through=/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -dynamic-linker /lib/ld-musl-x86_64.so.1 -nostdlib -pie -o cmTC_f7b7b /home/alb/zaramaga-static/install/lib/Scrt1.o /home/alb/zaramaga-static/install/lib/crti.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtbeginS.o -L/home/alb/zaramaga-static/install/lib -L /usr/lib/gcc/x86_64-pc-linux-gnu/16/. -v CMakeFiles/cmTC_f7b7b.dir/CMakeCCompilerABI.c.o /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a -latomic_asneeded -lc /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a /usr/lib/gcc/x86_64-pc-linux-gnu/16/crtendS.o /home/alb/zaramaga-static/install/lib/crtn.o]
         linker tool for 'C': /usr/bin/ld 
         remove lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a]
         remove lib [/usr/lib/gcc/x86_64-pc-linux-gnu/16/libgcc_eh.a]
@@ -1335,8 +1335,8 @@ events:
     checks:
       - "Looking for pow in m"
     directories:
-      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2"
-      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2"
+      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo"
+      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo"
     cmakeVariables:
       CMAKE_C_FLAGS: ""
       CMAKE_C_FLAGS_DEBUG: "-g"
@@ -1345,24 +1345,24 @@ events:
       variable: "PNG_HAVE_LIBM_POW"
       cached: true
       stdout: |
-        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2'
+        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_1c75f/fast
-        /usr/bin/make  -f CMakeFiles/cmTC_1c75f.dir/build.make CMakeFiles/cmTC_1c75f.dir/build
-        make[1]: se entra en el directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2'
-        Building C object CMakeFiles/cmTC_1c75f.dir/CheckFunctionExists.c.o
-        /home/alb/zaramaga-static/install/bin/musl-gcc   -DCHECK_FUNCTION_EXISTS=pow -o CMakeFiles/cmTC_1c75f.dir/CheckFunctionExists.c.o -c /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2/CheckFunctionExists.c
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_065ba/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_065ba.dir/build.make CMakeFiles/cmTC_065ba.dir/build
+        make[1]: se entra en el directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo'
+        Building C object CMakeFiles/cmTC_065ba.dir/CheckFunctionExists.c.o
+        /home/alb/zaramaga-static/install/bin/musl-gcc   -DCHECK_FUNCTION_EXISTS=pow -o CMakeFiles/cmTC_065ba.dir/CheckFunctionExists.c.o -c /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo/CheckFunctionExists.c
         <línea-de-órdenes>: warning: conflicting types for built-in function ‘pow’; expected ‘double(double,  double)’ [-Wbuiltin-declaration-mismatch]
-        /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2/CheckFunctionExists.c:7:3: note: in expansion of macro ‘CHECK_FUNCTION_EXISTS’
+        /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo/CheckFunctionExists.c:7:3: note: in expansion of macro ‘CHECK_FUNCTION_EXISTS’
             7 |   CHECK_FUNCTION_EXISTS(void);
               |   ^~~~~~~~~~~~~~~~~~~~~
-        /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2/CheckFunctionExists.c:1:1: note: ‘pow’ is declared in header ‘<math.h>’
+        /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo/CheckFunctionExists.c:1:1: note: ‘pow’ is declared in header ‘<math.h>’
           +++ |+#include <math.h>
             1 | #ifdef CHECK_FUNCTION_EXISTS
-        Linking C executable cmTC_1c75f
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1c75f.dir/link.txt --verbose=1
-        /home/alb/zaramaga-static/install/bin/musl-gcc  -DCHECK_FUNCTION_EXISTS=pow CMakeFiles/cmTC_1c75f.dir/CheckFunctionExists.c.o -o cmTC_1c75f  -lm
-        make[1]: se sale del directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-Zz7HW2'
+        Linking C executable cmTC_065ba
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_065ba.dir/link.txt --verbose=1
+        /home/alb/zaramaga-static/install/bin/musl-gcc  -DCHECK_FUNCTION_EXISTS=pow CMakeFiles/cmTC_065ba.dir/CheckFunctionExists.c.o -o cmTC_065ba  -lm
+        make[1]: se sale del directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-0hTMmo'
         
       exitCode: 0
   -
@@ -1374,8 +1374,8 @@ events:
     checks:
       - "Performing Test HAVE_LD_VERSION_SCRIPT"
     directories:
-      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD"
-      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD"
+      source: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-VbIzj1"
+      binary: "/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-VbIzj1"
     cmakeVariables:
       CMAKE_C_FLAGS: ""
       CMAKE_C_FLAGS_DEBUG: "-g"
@@ -1384,17 +1384,17 @@ events:
       variable: "HAVE_LD_VERSION_SCRIPT"
       cached: true
       stdout: |
-        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD'
+        Change Dir: '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-VbIzj1'
         
-        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_10b23/fast
-        /usr/bin/make  -f CMakeFiles/cmTC_10b23.dir/build.make CMakeFiles/cmTC_10b23.dir/build
-        make[1]: se entra en el directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD'
-        Building C object CMakeFiles/cmTC_10b23.dir/src.c.o
-        /home/alb/zaramaga-static/install/bin/musl-gcc -DHAVE_LD_VERSION_SCRIPT  -fPIC -Wl,--version-script='/home/alb/zaramaga-static/build/libpng/conftest.map' -o CMakeFiles/cmTC_10b23.dir/src.c.o -c /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD/src.c
-        Linking C executable cmTC_10b23
-        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_10b23.dir/link.txt --verbose=1
-        /home/alb/zaramaga-static/install/bin/musl-gcc   -fPIC -Wl,--version-script='/home/alb/zaramaga-static/build/libpng/conftest.map' CMakeFiles/cmTC_10b23.dir/src.c.o -o cmTC_10b23
-        make[1]: se sale del directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-WCxgxD'
+        Run Build Command(s): /usr/bin/cmake -E env VERBOSE=1 /usr/bin/make -f Makefile cmTC_a2d4e/fast
+        /usr/bin/make  -f CMakeFiles/cmTC_a2d4e.dir/build.make CMakeFiles/cmTC_a2d4e.dir/build
+        make[1]: se entra en el directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-VbIzj1'
+        Building C object CMakeFiles/cmTC_a2d4e.dir/src.c.o
+        /home/alb/zaramaga-static/install/bin/musl-gcc -DHAVE_LD_VERSION_SCRIPT  -fPIC -Wl,--version-script='/home/alb/zaramaga-static/build/libpng/conftest.map' -o CMakeFiles/cmTC_a2d4e.dir/src.c.o -c /home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-VbIzj1/src.c
+        Linking C executable cmTC_a2d4e
+        /usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_a2d4e.dir/link.txt --verbose=1
+        /home/alb/zaramaga-static/install/bin/musl-gcc   -fPIC -Wl,--version-script='/home/alb/zaramaga-static/build/libpng/conftest.map' CMakeFiles/cmTC_a2d4e.dir/src.c.o -o cmTC_a2d4e
+        make[1]: se sale del directorio '/home/alb/zaramaga-static/build/libpng/CMakeFiles/CMakeScratch/TryCompile-VbIzj1'
         
       exitCode: 0
   -

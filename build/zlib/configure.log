@@ -1,0 +1,174 @@
+--------------------
+/home/alb/zaramaga-static/src/zlib/configure --prefix=/home/alb/zaramaga-static/install --static
+jue 30 jul 2026 16:11:43 CEST
+=== ztest4216.c ===
+extern int getchar();
+int hello() {return getchar();}
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c ztest4216.c
+... using gcc
+
+Checking for compiler...
+=== ztest4216.c ===
+int foo() { return 0; }
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c ztest4216.c
+Checking for obsessive-compulsive compiler options...
+=== ztest4216.c ===
+int foo() { return 0; }
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC ztest4216.c
+
+Building static library libz.a version 1.3.2.1-motley with /home/alb/zaramaga-static/install/bin/musl-gcc.
+
+=== ztest4216.c ===
+#include <stdio.h>
+#include <stdlib.h>
+size_t dummy = 0;
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC ztest4216.c
+Checking for size_t... Yes.
+
+=== ztest4216.c ===
+#include <sys/types.h>
+off64_t dummy = 0;
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC -D_LARGEFILE64_SOURCE=1 ztest4216.c
+Checking for off64_t... Yes.
+Checking for fseeko... Yes.
+
+=== ztest4216.c ===
+#include <string.h>
+#include <errno.h>
+int main() { return strlen(strerror(errno)); }
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -O2 -fPIC -D_LARGEFILE64_SOURCE=1 -o ztest4216 ztest4216.c
+Checking for strerror... Yes.
+
+=== ztest4216.c ===
+#include <unistd.h>
+int main() { return 0; }
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC -D_LARGEFILE64_SOURCE=1 ztest4216.c
+Checking for unistd.h... Yes.
+
+=== ztest4216.c ===
+#include <stdarg.h>
+int main() { return 0; }
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC -D_LARGEFILE64_SOURCE=1 ztest4216.c
+Checking for stdarg.h... Yes.
+
+=== ztest4216.c ===
+#include <stdio.h>
+#include <stdarg.h>
+#include "zconf.h"
+int main()
+{
+#ifndef STDC
+  choke me
+#endif
+  return 0;
+}
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC -D_LARGEFILE64_SOURCE=1 ztest4216.c
+Checking whether to use vs[n]printf() or s[n]printf()... using vs[n]printf().
+
+=== ztest4216.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return 0;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -O2 -fPIC -D_LARGEFILE64_SOURCE=1 -o ztest4216 ztest4216.c
+Checking for vsnprintf() in stdio.h... Yes.
+
+=== ztest4216.c ===
+#include <stdio.h>
+#include <stdarg.h>
+int mytest(const char *fmt, ...)
+{
+  int n;
+  char buf[20];
+  va_list ap;
+  va_start(ap, fmt);
+  n = vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
+  return n;
+}
+int main()
+{
+  return (mytest("Hello%d\n", 1));
+}
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC -D_LARGEFILE64_SOURCE=1 ztest4216.c
+Checking for return value of vsnprintf()... Yes.
+
+=== ztest4216.c ===
+#define ZLIB_INTERNAL __attribute__((visibility ("hidden")))
+int ZLIB_INTERNAL foo;
+int main()
+{
+  return 0;
+}
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC -D_LARGEFILE64_SOURCE=1 ztest4216.c
+Checking for attribute(visibility) support... Yes.
+=== ztest4216.c ===
+#ifndef __s390x__
+    #error
+#endif
+===
+/home/alb/zaramaga-static/install/bin/musl-gcc -c -O2 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN ztest4216.c
+ztest4216.c:2:6: error: #error 
+    2 |     #error
+      |      ^~~~~
+(exit code 1)
+Checking for s390x build ... No.
+
+ALL = static all64
+AR = ar
+ARFLAGS = rc
+CC = /home/alb/zaramaga-static/install/bin/musl-gcc
+CFLAGS = -O2 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+CPP =
+EXE =
+LDCONFIG = ldconfig
+LDFLAGS =
+LDSHARED = /home/alb/zaramaga-static/install/bin/musl-gcc
+LDSHAREDLIBC = -lc
+OBJC = $(OBJZ) $(OBJG)
+PIC_OBJC = $(PIC_OBJZ) $(PIC_OBJG)
+RANLIB = ranlib
+SFLAGS = -O2 -fPIC -D_LARGEFILE64_SOURCE=1 -DHAVE_HIDDEN
+SHAREDLIB =
+SHAREDLIBM =
+SHAREDLIBV =
+STATICLIB = libz.a
+TEST = all teststatic test64
+VER = 1.3.2.1-motley
+SRCDIR = /home/alb/zaramaga-static/src/zlib/
+exec_prefix = ${prefix}
+includedir = ${prefix}/include
+libdir = ${exec_prefix}/lib
+mandir = ${prefix}/share/man
+prefix = /home/alb/zaramaga-static/install
+sharedlibdir = ${libdir}
+uname = Linux
+HAVE_S390X = 0
+HAVE_S390X_VX = 0
+VGFMAFLAG =
+--------------------
+
+

@@ -278,7 +278,7 @@ PNG_BUILD_ZLIB:BOOL=OFF
 PNG_DEBUG_POSTFIX:STRING=d
 
 //[Deprecated; please use PNG_TOOLS]
-PNG_EXECUTABLES:BOOL=OFF
+PNG_EXECUTABLES:BOOL=ON
 
 //Build libpng as a framework bundle (not available on this platform)
 PNG_FRAMEWORK:BOOL=OFF
@@ -303,7 +303,7 @@ PNG_STATIC:BOOL=ON
 PNG_TESTS:BOOL=OFF
 
 //Build the libpng tools
-PNG_TOOLS:BOOL=ON
+PNG_TOOLS:BOOL=OFF
 
 //Path to a file.
 ZLIB_INCLUDE_DIR:PATH=/home/alb/zaramaga-static/install/include
@@ -501,7 +501,7 @@ CMAKE_VERBOSE_MAKEFILE-ADVANCED:INTERNAL=1
 //Deprecated.  Use -W[no-]deprecated instead.
 CMAKE_WARN_DEPRECATED:INTERNAL=ON
 //Details about finding ZLIB
-FIND_PACKAGE_MESSAGE_DETAILS_ZLIB:INTERNAL=[/home/alb/zaramaga-static/install/lib/libz.a][/home/alb/zaramaga-static/install/include][ ][v()]
+FIND_PACKAGE_MESSAGE_DETAILS_ZLIB:INTERNAL=[/home/alb/zaramaga-static/install/lib/libz.a][/home/alb/zaramaga-static/install/include][ ][v1.3.2.1()]
 //Test HAVE_LD_VERSION_SCRIPT
 HAVE_LD_VERSION_SCRIPT:INTERNAL=1
 //Have library m
