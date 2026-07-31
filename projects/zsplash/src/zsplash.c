@@ -4,10 +4,12 @@
 #include <sys/mman.h>
 #include <unistd.h>
 // api DRM
+#include <cairo/cairo.h>
 #include <drm/drm_fourcc.h>
 #include <drm/drm_mode.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
+
 //
 // drmModeConnector *connz;
 
@@ -80,7 +82,8 @@ int main(int argc, char const *argv[]) {
     return EXIT_FAILURE;
   }
   struct drm_mode_create_dumb create = {0};
-
+  int width = 1920;
+  int height = 1080;
   create.width = 1920;
   create.height = 1080;
   create.bpp = 32;
@@ -164,12 +167,42 @@ int main(int argc, char const *argv[]) {
   uint32_t conn_id = connz->connector_id;
   uint32_t *fb = pixels;
 
-  for (uint32_t y = 0; y < create.height; y++) {
+  /* for (uint32_t y = 0; y < create.height; y++) {
     for (uint32_t x = 0; x < create.width; x++) {
       fb[y * (create.pitch / 4) + x] = 0xFFFFFF00; // Azul
     }
   }
-  printf("Primer pixel = %08X\n", pixels[0]);
+  printf("Primer pixel = %08X\n", pixels[0]); */
+  cairo_surface_t *surface = cairo_image_surface_create_for_data(
+      (unsigned char *)pixels, CAIRO_FORMAT_RGB24, create.width, create.height,
+      create.pitch);
+
+  cairo_t *cr = cairo_create(surface);
+
+  /* Fondo negro */
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_paint(cr);
+
+  /* Rectángulo verde */
+  cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
+  cairo_rectangle(cr, 200, 200, 500, 250);
+  cairo_fill(cr);
+
+  /* Texto */
+  cairo_select_font_face(cr, "monospace", CAIRO_FONT_SLANT_NORMAL,
+                         CAIRO_FONT_WEIGHT_BOLD);
+
+  cairo_set_font_size(cr, 48);
+
+  cairo_move_to(cr, 230, 320);
+  cairo_show_text(cr, "ZaramagaOS");
+
+  /* Asegura que Cairo vacía todo al buffer */
+  cairo_surface_flush(surface);
+
+  cairo_destroy(cr);
+  cairo_surface_destroy(surface);
+
   int ret =
       drmModeSetCrtc(fd, encoder->crtc_id, fb_id, 0, 0, &conn_id, 1, &modez);
   sleep(10);
