@@ -11,17 +11,50 @@
 #include <xf86drmMode.h>
 
 //fuentes y logo
+#include <cairo/cairo-ft.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "font3270.h"
 #include "logo_svg.h"
+//#include <librsvg/rsvg.h>
+//#include <glib.h> //
 // drmModeConnector *connz;
 
 drmModeModeInfo modez;
 
 drmModeCrtc *crtcz;
 
+int drm_fd = -1;
+
+drmModeRes *resources = NULL;
+drmModeConnector *connector = NULL;
+drmModeEncoder *encoder = NULL;
+drmModeCrtc *crtc = NULL;
+
+uint32_t fb_id = 0;
+
+struct drm_mode_create_dumb create = {0};
+struct drm_mode_map_dumb map = {0};
+
+uint8_t *fb_data = NULL;
+size_t fb_size = 0;
+
+cairo_surface_t *surface = NULL;
+cairo_t *cr = NULL;
+
 int main(int argc, char const *argv[]) {
+  FT_Library ft;
+  FT_Face face;
+
+  if (FT_Init_FreeType(&ft)) {
+    printf("Error FreeType\n");
+    return EXIT_FAILURE;
+  }
+
+  if (FT_New_Memory_Face(ft, __3270_ttf, __3270_ttf_len, 0, &face)) {
+    printf("No se pudo abrir la fuente\n");
+    return EXIT_FAILURE;
+  }
   drmModeConnector *connz = NULL;
   uint32_t connector_id =0;
   int fd = open("/dev/dri/card1", O_RDWR);
@@ -183,27 +216,31 @@ int main(int argc, char const *argv[]) {
 
   cairo_t *cr = cairo_create(surface);
 
-  /* Fondo negro */
-  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+  cairo_set_source_rgb(cr, 0, 0, 0);
   cairo_paint(cr);
 
-  /* Rectángulo verde */
-  cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
-  cairo_rectangle(cr, 200, 200, 500, 250);
-  cairo_fill(cr);
+  cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
 
-  /* Texto */
   cairo_select_font_face(cr, "monospace", CAIRO_FONT_SLANT_NORMAL,
                          CAIRO_FONT_WEIGHT_BOLD);
 
+  cairo_set_font_size(cr, 64);
+
+  cairo_move_to(cr, 100, 120);
+  cairo_show_text(cr, "Hello DRM");
+
+  cairo_move_to(cr, 100, 220);
+  cairo_show_text(cr, "Hello Cairo");
+
+  cairo_move_to(cr, 100, 320);
+  cairo_show_text(cr, "ZaramagaOS");
+  cairo_font_face_t *font = cairo_ft_font_face_create_for_ft_face(face, 0);
+
+  cairo_set_font_face(cr, font);
   cairo_set_font_size(cr, 48);
 
-  cairo_move_to(cr, 230, 320);
+  cairo_move_to(cr, 100, 500);
   cairo_show_text(cr, "ZaramagaOS");
-
-  /* Asegura que Cairo vacía todo al buffer */
-  cairo_surface_flush(surface);
-
   cairo_destroy(cr);
   cairo_surface_destroy(surface);
 

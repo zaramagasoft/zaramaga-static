@@ -1,3 +1,5 @@
+$ZSYS/bin/musl-gcc zsplash2.c -static -I$ZSYS/include -I$ZSYS/include/cairo -L$ZSYS/lib -lcairo -l:libpng18.a -lfreetype -lpixman-1 -ldrm -lz -lm -lpthread -o p4 -Os -flto -ffunction-sections -fdata-sections -Wl,--gc-sections
+
 $ZSYS/bin/musl-gcc pruebas.c -static -I$ZSYS/include -
 I$ZSYS/include/cairo -L$ZSYS/lib -lcairo -l:libpng18.a -lfreetype -lpixman-1 -ldrm
  -lz -lm -lpthread -o pruebas
