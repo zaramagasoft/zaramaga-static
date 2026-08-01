@@ -1,4 +1,5 @@
 #include <fcntl.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
@@ -41,6 +42,58 @@ size_t fb_size = 0;
 
 cairo_surface_t *surface = NULL;
 cairo_t *cr = NULL;
+typedef struct {
+  float x, y, z;
+} Vec3;
+typedef struct {
+  float x, y;
+} Vec2;
+static int g_width = 800;
+static int g_height = 600;
+static Vec3 cube_nodes[8] = {{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
+                             {-1, -1, 1},  {1, -1, 1},  {1, 1, 1},  {-1, 1, 1}};
+
+static int cube_edges[12][2] = {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6},
+                                {6, 7}, {7, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
+
+void render_cube(float angle) {
+  // 1. Limpiar el lienzo (Fondo oscuro)
+  cairo_set_source_rgb(cr, 0.1, 0.1, 0.12);
+  cairo_paint(cr);
+
+  // 2. Proyección 3D a 2D
+  Vec2 projected[8];
+  float rad = angle * (3.14159265358979323846 / 180.0f);
+  float cos_a = cosf(rad), sin_a = sinf(rad);
+
+  for (int i = 0; i < 8; i++) {
+    // Rotación en Y y X
+    float x = cube_nodes[i].x * cos_a - cube_nodes[i].z * sin_a;
+    float z = cube_nodes[i].x * sin_a + cube_nodes[i].z * cos_a;
+    float y = cube_nodes[i].y * cos_a - z * sin_a;
+    z = cube_nodes[i].y * sin_a + z * cos_a;
+
+    // Perspectiva simple
+    float distance = 3.5f;
+    float fov = 400.0f;
+    projected[i].x = (x * fov) / (z + distance) + (g_width / 2.0f);
+    projected[i].y = (y * fov) / (z + distance) + (g_height / 2.0f);
+  }
+
+  // 3. Dibujar aristas con Cairo
+  cairo_set_line_width(cr, 3.0);
+  cairo_set_source_rgb(cr, 0.2, 0.8, 1.0); // Azul neón
+
+  for (int i = 0; i < 12; i++) {
+    Vec2 p1 = projected[cube_edges[i][0]];
+    Vec2 p2 = projected[cube_edges[i][1]];
+    cairo_move_to(cr, p1.x, p1.y);
+    cairo_line_to(cr, p2.x, p2.y);
+  }
+  cairo_stroke(cr);
+
+ 
+}
 
 int main(int argc, char const *argv[]) {
   FT_Library ft;
