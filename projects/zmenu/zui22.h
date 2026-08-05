@@ -702,6 +702,13 @@ int kernelraw(struct nk_context *ctx, float y, float win_width, float middle_h)
 }
 int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h)
 {
+    printf("metricasZui=%p\n", (void *)metricasZui);
+    printf("ptr=%p cpu=%f ram=%f/%f temp=%d\n",
+       (void*)metricasZui,
+       metricasZui->cpu_usage,
+       metricasZui->mem_used_gb,
+       metricasZui->mem_total_gb,
+       metricasZui->temp_c);
     if (metricasZui == NULL || metricasZui->temp_c > 150) // Verificamos que metricasZui esté listo y tenga datos válidos
     {
         float row_height = 20.0f; // La altura que reservamos para este bloque
@@ -713,9 +720,9 @@ int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h
 
         // Empujamos el rect en la posición 'y' actual
         nk_layout_space_push(ctx, nk_rect(0, y - 30, win_width * 0.75, row_height));
-        /*   printf("Métricas en zui_render: CPU=%.1f%%, RAM=%.2f/%.2fGB, Temp=%d°C\n",
-                 metricasZui->cpu_usage, metricasZui->mem_used_gb, metricasZui->mem_total_gb, metricasZui->temp_c);
-      */
+        printf("Métricas en zui_render: CPU=%.1f%%, RAM=%.2f/%.2fGB, Temp=%d°C\n",
+               metricasZui->cpu_usage, metricasZui->mem_used_gb, metricasZui->mem_total_gb, metricasZui->temp_c);
+
         /* char icoReloj[60] = " \uf017 ";
         char icoCalendario[30] = "  \uf073 ";
 
@@ -731,7 +738,7 @@ int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h
 
         // Formateamos todo de una sola vez
         snprintf(metricasall, sizeof(metricasall),
-                 "\uf4bccpu:%.0f%% \uefc5ram:%.0f% \uef2b%d°C",
+                 "\uf4bccpu:%.0f%% \uefc5ram:%.0f \uef2b%d°C",
                  0.0f, // metricasZui->cpu_usage,
                  0.0f, // metricasZui->mem_used_gb / metricasZui->mem_total_gb * 100.0f,
                  0);   // metricasZui->temp_c
@@ -771,11 +778,11 @@ int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h
     char metricasall[128]; // Asegúrate de que sea lo bastante grande
 
     // Formateamos todo de una sola vez
-    snprintf(metricasall, sizeof(metricasall),
-             "\uf4bccpu:%.0f%% \uefc5ram:%.0f% \uef2b%d°C",
-             metricasZui->cpu_usage,
-             metricasZui->mem_used_gb / metricasZui->mem_total_gb * 100.0f,
-             metricasZui->temp_c);
+snprintf(metricasall, sizeof(metricasall),
+         "\uf4bc cpu:%.0f%%  \uefc5 ram:%.0f%%  \uef2b %d°C",
+         metricasZui->cpu_usage,
+         metricasZui->mem_used_gb / metricasZui->mem_total_gb * 100.0f,
+         metricasZui->temp_c);
 
     // Ahora Nuklear lo recibirá perfecto
     nk_label(ctx, metricasall, NK_TEXT_LEFT);
@@ -900,39 +907,36 @@ int upDownDraw(struct nk_context *ctx, float y, float win_width)
 
     // ... aquí dibujas tu tooltip ...
     // nk_tooltip(ctx, "ping google.com");
-    //struct nk_rect boundsupdown = nk_widget_bounds(ctx);
-    //g_hover.updown = boundsupdown;
-    //if (nk_input_mouse_clicked(&ctx->input, NK_BUTTON_LEFT, boundsupdown))
+    // struct nk_rect boundsupdown = nk_widget_bounds(ctx);
+    // g_hover.updown = boundsupdown;
+    // if (nk_input_mouse_clicked(&ctx->input, NK_BUTTON_LEFT, boundsupdown))
     //{
-        // ping->running = !ping->running;
-        // ping_start(ping);
-        // ping->running = !ping->running; // Toggle the running state
-        // zui_render pingDraw(ctx, y, win_width, ping);
-        /* for (int i = 0; i < 115; i++)
-        y = pingDraw(ctx, y, win_width, ping);
-            printf("¡Has hecho clic en el label del ping! Iteración %d\n", i + 1);
-            //usleep(100000); // Espera de 100 ms entre iteraciones
-         */
-        // printf("¡Has hecho clic en el label del ping!\n");
+    // ping->running = !ping->running;
+    // ping_start(ping);
+    // ping->running = !ping->running; // Toggle the running state
+    // zui_render pingDraw(ctx, y, win_width, ping);
+    /* for (int i = 0; i < 115; i++)
+    y = pingDraw(ctx, y, win_width, ping);
+        printf("¡Has hecho clic en el label del ping! Iteración %d\n", i + 1);
+        //usleep(100000); // Espera de 100 ms entre iteraciones
+     */
+    // printf("¡Has hecho clic en el label del ping!\n");
     //}
     // 3. RESTORE: Volver al color original usando la variable que guardaste
-    
-    
-        // printf("Mouse is hovering over the ping label\n");
-        //  ctx->style.text.color = nk_rgb(255, 0, 0); // Cambiamos el color del texto a amarillo
-        // ctx->style.window.background = nk_rgba(10, 15, 10, 230); // Cambiamos el color del texto a amarillo
-        // nk_tooltip(ctx, "ping google.com");
-        //g_hover.is_hovering_updown = true; // Guardamos las coordenadas del rectángulo del ping en la estructura global
 
-        // ctx->style.text.color = nk_rgb(255, 0, 0); // Cambiamos el color del texto a amarillo
-        // nk_label(ctx, updown_str, NK_TEXT_LEFT);
-    
-    
-        // printf("Mouse is NOT hovering over the ping label\n");
-        // ctx->style.text.color = color_original; // Restauramos el color original
-        //g_hover.is_hovering_updown = false;
-        nk_label(ctx, updown_str, NK_TEXT_LEFT);
-    
+    // printf("Mouse is hovering over the ping label\n");
+    //  ctx->style.text.color = nk_rgb(255, 0, 0); // Cambiamos el color del texto a amarillo
+    // ctx->style.window.background = nk_rgba(10, 15, 10, 230); // Cambiamos el color del texto a amarillo
+    // nk_tooltip(ctx, "ping google.com");
+    // g_hover.is_hovering_updown = true; // Guardamos las coordenadas del rectángulo del ping en la estructura global
+
+    // ctx->style.text.color = nk_rgb(255, 0, 0); // Cambiamos el color del texto a amarillo
+    // nk_label(ctx, updown_str, NK_TEXT_LEFT);
+
+    // printf("Mouse is NOT hovering over the ping label\n");
+    // ctx->style.text.color = color_original; // Restauramos el color original
+    // g_hover.is_hovering_updown = false;
+    nk_label(ctx, updown_str, NK_TEXT_LEFT);
 
     // ctx->style.text.color = color_original;
     // ctx->style.window.fixed_background = old_bg;
