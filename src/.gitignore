@@ -1,0 +1,15 @@
+libwayland-egl.a
+libwayland-server.a
+[alb@Zos7900x wayland]$ file $ZSYS/lib/libwayland-client.a
+/home/alb/zaramaga-static/install/lib/libwayland-client.a: current ar archive
+[alb@Zos7900x wayland]$ ar t $ZSYS/lib/libwayland-client.a | head
+meson-generated_.._wayland-protocol.c.o
+connection.c.o
+wayland-os.c.o
+wayland-util.c.o
+wayland-client.c.o
+[alb@Zos7900x wayland]$ pkg-config --libs wayland-client
+-L/home/alb/zaramaga-static/install/lib -lwayland-client -lm -pthread -lrt -L/home/alb/zaramaga-static/install/lib/../lib -lffi
+[alb@Zos7900x wayland]$ pkg-config --cflags wayland-client
+-I/home/alb/zaramaga-static/install/include -pthread
+[alb@Zos7900x wayland]$ 
