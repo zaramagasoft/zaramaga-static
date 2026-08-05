@@ -1,0 +1,12 @@
+prefix=/home/alb/zaramaga-static/install
+exec_prefix=/home/alb/zaramaga-static/install
+libdir=/home/alb/zaramaga-static/install/lib
+includedir=/home/alb/zaramaga-static/install/include/libpng18
+
+Name: libpng
+Description: Loads and saves PNG files
+Version: 1.8.0
+Requires.private: zlib
+Libs: -L${libdir} -lpng18
+Libs.private: -lz -lm
+Cflags: -I${includedir}
