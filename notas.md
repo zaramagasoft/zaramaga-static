@@ -1,3 +1,12 @@
+//necesario con muslc
+sudo pacman -S \
+    cmake \
+    meson \
+    ninja \
+    pkgconf \
+    bison \
+    flex \
+    gperf
 ////en .bashrc////
 export PATH="$HOME/.local/bin:$PATH"
 export ZROOT=$HOME/zaramaga-static

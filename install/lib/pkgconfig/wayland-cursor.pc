@@ -1,0 +1,10 @@
+prefix=/home/alb/zaramaga-static/install
+includedir=${prefix}/include
+libdir=${prefix}/lib
+
+Name: Wayland Cursor
+Description: Wayland cursor helper library
+Version: 1.26.90
+Requires: wayland-client
+Libs: -L${libdir} -lwayland-cursor
+Cflags: -I${includedir}
