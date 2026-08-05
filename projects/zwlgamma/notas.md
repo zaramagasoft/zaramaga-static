@@ -1,0 +1,1 @@
+ musl-gcc -static  main2.c  wlr-gamma-control-unstable-v1-client-protocol.c  -o motor_gamma  $(pkg-config --cflags --libs wayland-client)  -lm  -O3
