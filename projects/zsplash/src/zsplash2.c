@@ -10,16 +10,19 @@
 #include <drm/drm_mode.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
+#include <stdarg.h>
 
-//fuentes y logo
+// fuentes y logo
 #include <cairo/cairo-ft.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "font3270.h"
-#include "logo_svg.h"
-//#include <librsvg/rsvg.h>
-//#include <glib.h> //
-// drmModeConnector *connz;
+
+#include "parser.h"
+#include "l.h"
+// #include <librsvg/rsvg.h>
+// #include <glib.h> //
+//  drmModeConnector *connz;
 
 drmModeModeInfo modez;
 
@@ -42,21 +45,47 @@ size_t fb_size = 0;
 
 cairo_surface_t *surface = NULL;
 cairo_t *cr = NULL;
-typedef struct {
+typedef struct
+{
   float x, y, z;
 } Vec3;
-typedef struct {
+typedef struct
+{
   float x, y;
 } Vec2;
 static int g_width = 800;
 static int g_height = 600;
-static Vec3 cube_nodes[8] = {{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1},
-                             {-1, -1, 1},  {1, -1, 1},  {1, 1, 1},  {-1, 1, 1}};
+void debug_printf(cairo_t *cr, double x, double y, const char *fmt, ...)
+{
+  char buf[256];
 
-static int cube_edges[12][2] = {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6},
-                                {6, 7}, {7, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
+  va_list ap;
+  va_start(ap, fmt);
+  vsnprintf(buf, sizeof(buf), fmt, ap);
+  va_end(ap);
 
-void render_cube(float angle) {
+  cairo_save(cr);
+  cairo_set_source_rgb(cr, 1.0, 0.2, 0.2);
+  cairo_move_to(cr, x, y);
+  cairo_show_text(cr, buf);
+  cairo_restore(cr);
+}
+void debug_text(cairo_t *cr, double x, double y, const char *msg)
+{
+  cairo_save(cr);
+
+  cairo_set_source_rgb(cr, 1.0, 0.2, 0.2); // rojo
+  cairo_move_to(cr, x, y);
+  cairo_show_text(cr, msg);
+
+  cairo_restore(cr);
+}
+static Vec3 cube_nodes[8] = {{-1, -1, -1}, {1, -1, -1}, {1, 1, -1}, {-1, 1, -1}, {-1, -1, 1}, {1, -1, 1}, {1, 1, 1}, {-1, 1, 1}};
+
+static int cube_edges[12][2] = {{0, 1}, {1, 2}, {2, 3}, {3, 0}, {4, 5}, {5, 6}, {6, 7}, {7, 4}, {0, 4}, {1, 5}, {2, 6}, {3, 7}};
+
+void render_cube(float angle)
+{
   // 1. Limpiar el lienzo (Fondo oscuro)
   cairo_set_source_rgb(cr, 0.1, 0.1, 0.12);
   cairo_paint(cr);
@@ -66,7 +95,8 @@ void render_cube(float angle) {
   float rad = angle * (3.14159265358979323846 / 180.0f);
   float cos_a = cosf(rad), sin_a = sinf(rad);
 
-  for (int i = 0; i < 8; i++) {
+  for (int i = 0; i < 8; i++)
+  {
     // Rotación en Y y X
     float x = cube_nodes[i].x * cos_a - cube_nodes[i].z * sin_a;
     float z = cube_nodes[i].x * sin_a + cube_nodes[i].z * cos_a;
@@ -84,39 +114,43 @@ void render_cube(float angle) {
   cairo_set_line_width(cr, 3.0);
   cairo_set_source_rgb(cr, 0.2, 0.8, 1.0); // Azul neón
 
-  for (int i = 0; i < 12; i++) {
+  for (int i = 0; i < 12; i++)
+  {
     Vec2 p1 = projected[cube_edges[i][0]];
     Vec2 p2 = projected[cube_edges[i][1]];
     cairo_move_to(cr, p1.x, p1.y);
     cairo_line_to(cr, p2.x, p2.y);
   }
   cairo_stroke(cr);
-
- 
 }
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[])
+{
   FT_Library ft;
   FT_Face face;
 
-  if (FT_Init_FreeType(&ft)) {
+  if (FT_Init_FreeType(&ft))
+  {
     printf("Error FreeType\n");
     return EXIT_FAILURE;
   }
 
-  if (FT_New_Memory_Face(ft, __3270_ttf, __3270_ttf_len, 0, &face)) {
+  if (FT_New_Memory_Face(ft, __3270_ttf, __3270_ttf_len, 0, &face))
+  {
     printf("No se pudo abrir la fuente\n");
     return EXIT_FAILURE;
   }
   drmModeConnector *connz = NULL;
-  uint32_t connector_id =0;
+  uint32_t connector_id = 0;
   int fd = open("/dev/dri/card1", O_RDWR);
-  if (fd < 0) {
+  if (fd < 0)
+  {
     perror("open");
     return EXIT_FAILURE;
   }
   drmModeRes *resources = drmModeGetResources(fd);
-  if (!resources) {
+  if (!resources)
+  {
     printf("No se pudieron obtener los recursos DRM.\n");
 
     close(fd);
@@ -131,12 +165,14 @@ int main(int argc, char const *argv[]) {
 
   printf("Encoders     : %d\n", resources->count_encoders);
 
-  for (size_t i = 0; i < resources->count_connectors; i++) {
+  for (size_t i = 0; i < resources->count_connectors; i++)
+  {
     uint32_t id = resources->connectors[i];
     drmModeConnector *conn = drmModeGetConnector(fd, id);
     printf("ID: %u\n", conn->connector_id);
     printf("Modos: %d\n", conn->count_modes);
-    switch (conn->connection) {
+    switch (conn->connection)
+    {
     case DRM_MODE_CONNECTED:
       printf("Estado: Conectado\n");
       connector_id = conn->connector_id;
@@ -149,14 +185,16 @@ int main(int argc, char const *argv[]) {
     default:
       printf("Estado: Desconocido\n");
     }
-    for (size_t i = 0; i < conn->count_modes; i++) {
+    for (size_t i = 0; i < conn->count_modes; i++)
+    {
       /* code */
       drmModeModeInfo mode = conn->modes[i];
       printf("modo ancho: %u\n", mode.hdisplay);
       printf("modo alto: %u\n", mode.vdisplay);
       printf("modo refresco: %u\n", mode.vrefresh);
       if (mode.hdisplay == 1920 && mode.vdisplay == 1080 &&
-          mode.vrefresh == 60) {
+          mode.vrefresh == 60)
+      {
         modez = mode;
         printf("Modo elegido: %ux%u @ %u Hz\n", modez.hdisplay, modez.vdisplay,
                modez.vrefresh);
@@ -167,7 +205,8 @@ int main(int argc, char const *argv[]) {
     drmModeFreeConnector(conn);
   }
   connz = drmModeGetConnector(fd, connector_id);
-  if (!connz) {
+  if (!connz)
+  {
     perror("drmModeGetConnector");
     return EXIT_FAILURE;
   }
@@ -177,7 +216,8 @@ int main(int argc, char const *argv[]) {
   create.width = 1920;
   create.height = 1080;
   create.bpp = 32;
-  if (drmIoctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) < 0) {
+  if (drmIoctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) < 0)
+  {
     /* code */
     perror("CREATE_DUMB");
   }
@@ -189,11 +229,11 @@ int main(int argc, char const *argv[]) {
   printf("Size   : %llu\n", (unsigned long long)create.size);
 
   uint32_t fb_id = 0;
- /*  if (drmModeAddFB(fd, create.width, create.height, 24, 32, create.pitch,
-                   create.handle, &fb_id)) {
-     
-    perror("drmModeAddFB");
-  } */
+  /*  if (drmModeAddFB(fd, create.width, create.height, 24, 32, create.pitch,
+                    create.handle, &fb_id)) {
+
+     perror("drmModeAddFB");
+   } */
   uint32_t handles[4] = {0};
   uint32_t pitches[4] = {0};
   uint32_t offsets[4] = {0};
@@ -208,7 +248,8 @@ int main(int argc, char const *argv[]) {
   map.handle = create.handle;
   printf("create.pitch = %u\n", create.pitch);
   printf("create.handle = %u\n", create.handle);
-  if (drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map) < 0) {
+  if (drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map) < 0)
+  {
     /* code */
     perror("MAP_DUMB");
   }
@@ -219,12 +260,13 @@ int main(int argc, char const *argv[]) {
       drmModeAddFB2(fd, create.width, create.height, DRM_FORMAT_XRGB8888,
                     handles, pitches, offsets, &fb_id, 0);
 
-  if (ret_fb != 0) {
+  if (ret_fb != 0)
+  {
     perror("drmModeAddFB2");
     return EXIT_FAILURE;
   }
 
-  //printf("fb_id = %u\n", fb_id);
+  // printf("fb_id = %u\n", fb_id);
   /*
     void *pixels =
         mmap(0, create.size, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
@@ -233,16 +275,17 @@ int main(int argc, char const *argv[]) {
   uint32_t *pixels = (uint32_t *)mmap(NULL, create.size, PROT_READ | PROT_WRITE,
                                       MAP_SHARED, fd, map.offset);
 
-  if (pixels == MAP_FAILED) {
+  if (pixels == MAP_FAILED)
+  {
     perror("mmap");
   }
   printf("direcion de pixels %p", pixels);
   // drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map);
 
-  
   drmModeEncoder *encoder = drmModeGetEncoder(fd, connz->encoder_id);
 
-  if (!encoder) {
+  if (!encoder)
+  {
     perror("drmModeGetEncoder");
     return EXIT_FAILURE;
   }
@@ -263,30 +306,40 @@ int main(int argc, char const *argv[]) {
     }
   }
   printf("Primer pixel = %08X\n", pixels[0]); */
-  cairo_surface_t *surface = cairo_image_surface_create_for_data(
-      (unsigned char *)pixels, CAIRO_FORMAT_RGB24, create.width, create.height,
+  char path_txt2[] = "M 10 10 L 90 10 L 90 90 L 10 90 Z";
+  surface = cairo_image_surface_create_for_data(
+      (unsigned char *)pixels,
+      CAIRO_FORMAT_RGB24,
+      create.width,
+      create.height,
       create.pitch);
 
-  cairo_t *cr = cairo_create(surface);
+  cr = cairo_create(surface);
 
+  /* Fondo */
   cairo_set_source_rgb(cr, 0, 0, 0);
   cairo_paint(cr);
 
+  /* Color del logo */
   cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
 
-  cairo_select_font_face(cr, "monospace", CAIRO_FONT_SLANT_NORMAL,
-                         CAIRO_FONT_WEIGHT_BOLD);
+  /* Posición del logo */
+  cairo_save(cr);
 
-  cairo_set_font_size(cr, 64);
+  cairo_translate(cr, 200, 150);
+  cairo_scale(cr, 2.0, 2.0);
+  // printf("%.200s\n", l_svg);
 
-  cairo_move_to(cr, 100, 120);
-  cairo_show_text(cr, "Hello DRM");
+  //debug_printf(cr, 20, 40, "Antes parser");
 
-  cairo_move_to(cr, 100, 220);
-  cairo_show_text(cr, "Hello Cairo");
+  parse_svg_path(cr, path_txt2);
 
-  cairo_move_to(cr, 100, 320);
-  cairo_show_text(cr, "ZaramagaOS");
+  //debug_printf(cr, 20, 80, "Despues parser");
+
+  cairo_set_line_width(cr, 1);
+  cairo_stroke(cr);
+
+  /* Texto */
   cairo_font_face_t *font = cairo_ft_font_face_create_for_ft_face(face, 0);
 
   cairo_set_font_face(cr, font);
@@ -294,13 +347,12 @@ int main(int argc, char const *argv[]) {
 
   cairo_move_to(cr, 100, 500);
   cairo_show_text(cr, "ZaramagaOS");
-  cairo_destroy(cr);
-  cairo_surface_destroy(surface);
 
   int ret =
       drmModeSetCrtc(fd, encoder->crtc_id, fb_id, 0, 0, &conn_id, 1, &modez);
   sleep(10);
-  if (ret != 0) {
+  if (ret != 0)
+  {
     perror("drmModeSetCrtc");
   }
 
