@@ -408,7 +408,7 @@ int main(int argc, char const *argv[])
   /* Logo */
   cairo_save(cr);
 
-  cairo_translate(cr, 200, 150);
+  cairo_translate(cr, 500, 250);
   cairo_scale(cr, 2.0, 2.0);
 
   cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
@@ -436,25 +436,17 @@ int main(int argc, char const *argv[])
 
   cairo_restore(cr);
 
-  // printf("%.200s\n", l_svg);
-
-  // debug_printf(cr, 20, 40, "Antes parser");
-
-  // parse_svg_path(cr, path_txt2);
-
-  // debug_printf(cr, 20, 80, "Despues parser");
-
-  /* Texto */
+  
   /* Texto */
   cairo_font_face_t *font =
       cairo_ft_font_face_create_for_ft_face(face, 0);
 
   cairo_set_font_face(cr, font);
-  cairo_set_font_size(cr, 48);
+  cairo_set_font_size(cr, 64);
 
   cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
 
-  cairo_move_to(cr, 100, 500);
+  cairo_move_to(cr, 850, 660);
   cairo_show_text(cr, "ZaramagaOS");
   int ret =
       drmModeSetCrtc(fd, encoder->crtc_id, fb_id, 0, 0, &conn_id, 1, &modez);

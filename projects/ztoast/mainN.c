@@ -438,6 +438,8 @@ static const struct wl_registry_listener reg_listener = {
 int initZtoast(void);
 int main()
 {
+  if (setpgid(0, 0) == -1)
+        perror("setpgid");
   FT_Init_FreeType(&ft);
 
   
