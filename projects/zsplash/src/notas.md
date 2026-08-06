@@ -1,4 +1,5 @@
 /////////lanzar/////////////
+sudo openvt -f -c 2 -s -w -- ./zsplash 
 sudo openvt -f -c 2 -s -w -- ./p4 
 
 //

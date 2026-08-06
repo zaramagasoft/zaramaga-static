@@ -306,7 +306,92 @@ int main(int argc, char const *argv[])
     }
   }
   printf("Primer pixel = %08X\n", pixels[0]); */
-  char path_txt2[] = "M 10 10 L 90 10 L 90 90 L 10 90 Z";
+  // char path_txt2[] = "M 10 10 L 90 10 L 90 90 L 10 90 Z";
+  char path1[] =
+      "m 131.91082,173.66089 "
+      "h 14.23729 "
+      "l 0.44492,-59.91526 "
+      "39.89406,-16.313551 "
+      "-0.29661,77.118641 "
+      "6.22881,-0.29661 "
+      "-0.1483,-84.682206 "
+      "37.22458,21.800846 "
+      "0.74152,-17.796607 "
+      "35.74153,21.504237 "
+      "V 96.987159 "
+      "l 35,21.652541 "
+      "0.29662,-18.24152 "
+      "12.90254,7.71186 "
+      "0.59322,-51.165253 "
+      "13.79236,0.296608 "
+      "1.03814,60.211865 "
+      "6.82202,3.55932 "
+      "0.29663,-63.622878 "
+      "h 14.23728 "
+      "l 1.48304,67.775418 "
+      "18.98306,3.26272 "
+      "0.14831,45.82627 "
+      "h 15.57204 "
+      "l 0.2966,4.15254 "
+      "-255.52966,-0.29661 "
+      "z";
+
+  char path2[] =
+      "m 154.7498,155.27106 "
+      "-0.59322,19.27966 "
+      "14.3856,0.1483 "
+      "0.59322,-19.57627 "
+      "z";
+
+  char path3[] =
+      "m 203.24557,128.72445 "
+      "0.1483,-6.82204 "
+      "156.16527,14.23729 "
+      "0.1483,4.15254 "
+      "z";
+
+  char path4[] =
+      "m 252.03792,156.01257 "
+      "h 19.42798 "
+      "v 7.41525 "
+      "h -19.42798 "
+      "z";
+
+  char path5[] =
+      "m 279.4744,156.60579 "
+      "h 16.01694 "
+      "v 7.11864 "
+      "H 279.4744 "
+      "Z";
+
+  char path6[] =
+      "m 303.49979,156.9024 "
+      "h 15.1271 "
+      "v 6.97035 "
+      "h -15.1271 "
+      "z";
+
+  char path7[] =
+      "m 324.26251,157.49564 "
+      "h 15.57204 "
+      "v 6.22881 "
+      "h -15.57204 "
+      "z";
+
+  char path8[] =
+      "m 346.5083,157.94055 "
+      "h 13.34745 "
+      "v 5.48729 "
+      "H 346.5083 "
+      "Z";
+
+  char path9[] =
+      "m 225.63963,154.38123 "
+      "h 20.02119 "
+      "v 9.04661 "
+      "h -20.02119 "
+      "z";
+
   surface = cairo_image_surface_create_for_data(
       (unsigned char *)pixels,
       CAIRO_FORMAT_RGB24,
@@ -316,38 +401,61 @@ int main(int argc, char const *argv[])
 
   cr = cairo_create(surface);
 
-  /* Fondo */
-  cairo_set_source_rgb(cr, 0, 0, 0);
+  /* Fondo negro */
+  cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
   cairo_paint(cr);
 
-  /* Color del logo */
-  cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
-
-  /* Posición del logo */
+  /* Logo */
   cairo_save(cr);
 
   cairo_translate(cr, 200, 150);
   cairo_scale(cr, 2.0, 2.0);
-  // printf("%.200s\n", l_svg);
 
-  //debug_printf(cr, 20, 40, "Antes parser");
+  cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
+  cairo_set_line_width(cr, 1.0);
 
-  parse_svg_path(cr, path_txt2);
+  parse_svg_path(cr, path1);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path2);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path3);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path4);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path5);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path6);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path7);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path8);
+  cairo_stroke(cr);
+  parse_svg_path(cr, path9);
 
-  //debug_printf(cr, 20, 80, "Despues parser");
-
-  cairo_set_line_width(cr, 1);
   cairo_stroke(cr);
 
+  cairo_restore(cr);
+
+  // printf("%.200s\n", l_svg);
+
+  // debug_printf(cr, 20, 40, "Antes parser");
+
+  // parse_svg_path(cr, path_txt2);
+
+  // debug_printf(cr, 20, 80, "Despues parser");
+
   /* Texto */
-  cairo_font_face_t *font = cairo_ft_font_face_create_for_ft_face(face, 0);
+  /* Texto */
+  cairo_font_face_t *font =
+      cairo_ft_font_face_create_for_ft_face(face, 0);
 
   cairo_set_font_face(cr, font);
   cairo_set_font_size(cr, 48);
 
+  cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
+
   cairo_move_to(cr, 100, 500);
   cairo_show_text(cr, "ZaramagaOS");
-
   int ret =
       drmModeSetCrtc(fd, encoder->crtc_id, fb_id, 0, 0, &conn_id, 1, &modez);
   sleep(10);

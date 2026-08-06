@@ -10,7 +10,7 @@
 #include <xf86drm.h>
 #include <xf86drmMode.h>
 
-//fuentes y logo
+// fuentes y logo
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "font3270.h"
@@ -21,16 +21,19 @@ drmModeModeInfo modez;
 
 drmModeCrtc *crtcz;
 
-int main(int argc, char const *argv[]) {
+int main(int argc, char const *argv[])
+{
   drmModeConnector *connz = NULL;
-  uint32_t connector_id =0;
+  uint32_t connector_id = 0;
   int fd = open("/dev/dri/card1", O_RDWR);
-  if (fd < 0) {
+  if (fd < 0)
+  {
     perror("open");
     return EXIT_FAILURE;
   }
   drmModeRes *resources = drmModeGetResources(fd);
-  if (!resources) {
+  if (!resources)
+  {
     printf("No se pudieron obtener los recursos DRM.\n");
 
     close(fd);
@@ -45,12 +48,14 @@ int main(int argc, char const *argv[]) {
 
   printf("Encoders     : %d\n", resources->count_encoders);
 
-  for (size_t i = 0; i < resources->count_connectors; i++) {
+  for (size_t i = 0; i < resources->count_connectors; i++)
+  {
     uint32_t id = resources->connectors[i];
     drmModeConnector *conn = drmModeGetConnector(fd, id);
     printf("ID: %u\n", conn->connector_id);
     printf("Modos: %d\n", conn->count_modes);
-    switch (conn->connection) {
+    switch (conn->connection)
+    {
     case DRM_MODE_CONNECTED:
       printf("Estado: Conectado\n");
       connector_id = conn->connector_id;
@@ -63,14 +68,16 @@ int main(int argc, char const *argv[]) {
     default:
       printf("Estado: Desconocido\n");
     }
-    for (size_t i = 0; i < conn->count_modes; i++) {
+    for (size_t i = 0; i < conn->count_modes; i++)
+    {
       /* code */
       drmModeModeInfo mode = conn->modes[i];
       printf("modo ancho: %u\n", mode.hdisplay);
       printf("modo alto: %u\n", mode.vdisplay);
       printf("modo refresco: %u\n", mode.vrefresh);
       if (mode.hdisplay == 1920 && mode.vdisplay == 1080 &&
-          mode.vrefresh == 60) {
+          mode.vrefresh == 60)
+      {
         modez = mode;
         printf("Modo elegido: %ux%u @ %u Hz\n", modez.hdisplay, modez.vdisplay,
                modez.vrefresh);
@@ -81,7 +88,8 @@ int main(int argc, char const *argv[]) {
     drmModeFreeConnector(conn);
   }
   connz = drmModeGetConnector(fd, connector_id);
-  if (!connz) {
+  if (!connz)
+  {
     perror("drmModeGetConnector");
     return EXIT_FAILURE;
   }
@@ -91,7 +99,8 @@ int main(int argc, char const *argv[]) {
   create.width = 1920;
   create.height = 1080;
   create.bpp = 32;
-  if (drmIoctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) < 0) {
+  if (drmIoctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) < 0)
+  {
     /* code */
     perror("CREATE_DUMB");
   }
@@ -103,11 +112,11 @@ int main(int argc, char const *argv[]) {
   printf("Size   : %llu\n", (unsigned long long)create.size);
 
   uint32_t fb_id = 0;
- /*  if (drmModeAddFB(fd, create.width, create.height, 24, 32, create.pitch,
-                   create.handle, &fb_id)) {
-     
-    perror("drmModeAddFB");
-  } */
+  /*  if (drmModeAddFB(fd, create.width, create.height, 24, 32, create.pitch,
+                    create.handle, &fb_id)) {
+
+     perror("drmModeAddFB");
+   } */
   uint32_t handles[4] = {0};
   uint32_t pitches[4] = {0};
   uint32_t offsets[4] = {0};
@@ -122,7 +131,8 @@ int main(int argc, char const *argv[]) {
   map.handle = create.handle;
   printf("create.pitch = %u\n", create.pitch);
   printf("create.handle = %u\n", create.handle);
-  if (drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map) < 0) {
+  if (drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map) < 0)
+  {
     /* code */
     perror("MAP_DUMB");
   }
@@ -133,12 +143,13 @@ int main(int argc, char const *argv[]) {
       drmModeAddFB2(fd, create.width, create.height, DRM_FORMAT_XRGB8888,
                     handles, pitches, offsets, &fb_id, 0);
 
-  if (ret_fb != 0) {
+  if (ret_fb != 0)
+  {
     perror("drmModeAddFB2");
     return EXIT_FAILURE;
   }
 
-  //printf("fb_id = %u\n", fb_id);
+  // printf("fb_id = %u\n", fb_id);
   /*
     void *pixels =
         mmap(0, create.size, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
@@ -147,16 +158,17 @@ int main(int argc, char const *argv[]) {
   uint32_t *pixels = (uint32_t *)mmap(NULL, create.size, PROT_READ | PROT_WRITE,
                                       MAP_SHARED, fd, map.offset);
 
-  if (pixels == MAP_FAILED) {
+  if (pixels == MAP_FAILED)
+  {
     perror("mmap");
   }
   printf("direcion de pixels %p", pixels);
   // drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map);
 
-  
   drmModeEncoder *encoder = drmModeGetEncoder(fd, connz->encoder_id);
 
-  if (!encoder) {
+  if (!encoder)
+  {
     perror("drmModeGetEncoder");
     return EXIT_FAILURE;
   }
@@ -189,8 +201,8 @@ int main(int argc, char const *argv[]) {
 
   /* Rectángulo verde */
   cairo_set_source_rgb(cr, 0.0, 1.0, 0.0);
-  cairo_rectangle(cr, 200, 200, 500, 250);
-  cairo_fill(cr);
+  // cairo_rectangle(cr, 200, 200, 500, 250);
+  // cairo_fill(cr);
 
   /* Texto */
   cairo_select_font_face(cr, "monospace", CAIRO_FONT_SLANT_NORMAL,
@@ -201,16 +213,23 @@ int main(int argc, char const *argv[]) {
   cairo_move_to(cr, 230, 320);
   cairo_show_text(cr, "ZaramagaOS");
 
+  cairo_surface_t *logo =
+      cairo_image_surface_create_from_png(
+          "/home/alb/zaramaga-static/projects/zsplash/src/logo.png");
   /* Asegura que Cairo vacía todo al buffer */
+
+  cairo_set_source_surface(cr, logo, 1, 1);
+  cairo_paint(cr);
   cairo_surface_flush(surface);
 
   cairo_destroy(cr);
   cairo_surface_destroy(surface);
-
+  cairo_fill(cr);
   int ret =
       drmModeSetCrtc(fd, encoder->crtc_id, fb_id, 0, 0, &conn_id, 1, &modez);
   sleep(10);
-  if (ret != 0) {
+  if (ret != 0)
+  {
     perror("drmModeSetCrtc");
   }
 
