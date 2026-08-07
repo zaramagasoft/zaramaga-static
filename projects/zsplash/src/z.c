@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
+#include <string.h>
 // api DRM
 #include <cairo/cairo.h>
 #include <drm/drm_fourcc.h>
@@ -92,7 +93,89 @@ int drm_create_framebuffer(DrmOutput *output);
 int drm_present(DrmOutput *output);
 int drm_create_surface(DrmOutput *output);
 int drm_draw_splash(DrmOutput *output, FT_Face *face);
+// int draw_logo(cairo_t *cr);
 int draw_logo(cairo_t *cr);
+int draw_logo_centered(cairo_t *cr, int width, int height);
+int draw_title_centered(cairo_t *cr, int width, int height);
+
+int draw_title_centered(cairo_t *cr, int width, int height)
+{
+    const char *text = "ZaramagaOS";
+
+    double font_size = height * 0.055;
+
+    cairo_save(cr);
+
+    cairo_set_font_face(
+        cr,
+        cairo_ft_font_face_create_for_ft_face(face, 0));
+
+    cairo_set_font_size(cr, font_size);
+
+    cairo_text_extents_t extents;
+
+    cairo_text_extents(
+        cr,
+        text,
+        &extents);
+
+    double x =
+        (width - extents.width) / 2.0 - extents.x_bearing;
+
+    /*
+     * Ahora queda inmediatamente debajo
+     * del logo.
+     */
+    double y = height * 0.54;
+
+    cairo_move_to(cr, x, y);
+
+    cairo_show_text(cr, text);
+
+    cairo_restore(cr);
+
+    return 0;
+}
+
+int draw_logo_centered(cairo_t *cr, int width, int height)
+{
+    const double logo_x = 131.9;
+    const double logo_y = 51.9;
+    const double logo_w = 228.0;
+    const double logo_h = 122.0;
+
+    /* Escala proporcional a la resolución */
+    double logo_scale = (height / 1080.0) * 1.6;
+
+    double w = logo_w * logo_scale;
+    double h = logo_h * logo_scale;
+
+    /* Centrado horizontal */
+    double x = (width - w) / 2.0;
+
+    /* Ligeramente por encima del centro */
+    double y = (height - h) / 2.0 - height * 0.12;
+
+    cairo_save(cr);
+
+    cairo_translate(cr, x, y);
+    cairo_scale(cr, logo_scale, logo_scale);
+
+    /*
+     * Llevar el origen al origen real
+     * de nuestro SVG.
+     */
+    cairo_translate(cr, -logo_x, -logo_y);
+
+    cairo_set_line_width(cr, 1.0 / logo_scale);
+
+    draw_logo(cr);
+
+    cairo_restore(cr);
+
+    return 0;
+}
+
 int draw_logo(cairo_t *cr)
 {
     char *paths[] = {
@@ -119,30 +202,31 @@ int draw_logo(cairo_t *cr)
 }
 int drm_draw_splash(DrmOutput *output, FT_Face *face)
 {
-   cairo_t *cr = output->cr;
+    cairo_t *cr = output->cr;
+
+    int width = output->create.width;
+    int height = output->create.height;
 
     /* Fondo */
     cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
     cairo_paint(cr);
 
-    /* Logo */
+    /* Verde Zaramaga */
     cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
 
-    cairo_save(cr);
-
-    cairo_translate(cr, 200, 150);
-    cairo_scale(cr, 2.0, 2.0);
-
-    cairo_set_line_width(cr, 1.0);
-
-    draw_logo(cr);
-
-    cairo_restore(cr);
+    /* Logo */
+    draw_logo_centered(
+        cr,
+        output->create.width,
+        output->create.height);
+    /* Texto */
+    draw_title_centered(cr, width, height);
 
     cairo_surface_flush(output->surface);
 
     return 0;
 }
+
 int drm_create_surface(DrmOutput *output)
 {
     output->surface = cairo_image_surface_create_for_data(
@@ -507,333 +591,6 @@ int main(int argc, char const *argv[])
             return EXIT_FAILURE;
     }
     sleep(10);
-    // drmModeConnector *connz = NULL;
-    // uint32_t connector_id = 0;
-    // int fd = open("/dev/dri/card1", O_RDWR);
-    // if (fd < 0)
-    // {
-    //     perror("open");
-    //     return EXIT_FAILURE;
-    // }
-    // drmModeRes *resources = drmModeGetResources(fd);
-    // if (!resources)
-    // {
-    //     printf("No se pudieron obtener los recursos DRM.\n");
-
-    //     close(fd);
-
-    //     return EXIT_FAILURE;
-    // }
-    // printf("Framebuffers : %d\n", resources->count_fbs);
-
-    // printf("CRTCs        : %d\n", resources->count_crtcs);
-
-    // printf("Connectors   : %d\n", resources->count_connectors);
-
-    // printf("Encoders     : %d\n", resources->count_encoders);
-
-    // for (size_t i = 0; i < resources->count_connectors; i++)
-    // {
-    //     uint32_t id = resources->connectors[i];
-    //     drmModeConnector *conn = drmModeGetConnector(fd, id);
-    //     printf("ID: %u\n", conn->connector_id);
-    //     printf("Modos: %d\n", conn->count_modes);
-    //     switch (conn->connection)
-    //     {
-    //     case DRM_MODE_CONNECTED:
-    //         printf("Estado: Conectado\n");
-    //         connector_id = conn->connector_id;
-    //         break;
-
-    //     case DRM_MODE_DISCONNECTED:
-    //         printf("Estado: Desconectado\n");
-    //         break;
-
-    //     default:
-    //         printf("Estado: Desconocido\n");
-    //     }
-    //     for (size_t i = 0; i < conn->count_modes; i++)
-    //     {
-    //         /* code */
-    //         drmModeModeInfo mode = conn->modes[i];
-    //         printf("modo ancho: %u\n", mode.hdisplay);
-    //         printf("modo alto: %u\n", mode.vdisplay);
-    //         printf("modo refresco: %u\n", mode.vrefresh);
-    //         if (mode.hdisplay == 1920 && mode.vdisplay == 1080 &&
-    //             mode.vrefresh == 60)
-    //         {
-    //             modez = mode;
-    //             printf("Modo elegido: %ux%u @ %u Hz\n", modez.hdisplay, modez.vdisplay,
-    //                    modez.vrefresh);
-    //         }
-    //     }
-
-    //     // liberar recursos conn
-    //     drmModeFreeConnector(conn);
-    // }
-    // connz = drmModeGetConnector(fd, connector_id);
-    // if (!connz)
-    // {
-    //     perror("drmModeGetConnector");
-    //     return EXIT_FAILURE;
-    // }
-    // struct drm_mode_create_dumb create = {0};
-    // int width = 1920;
-    // int height = 1080;
-    // create.width = 1920;
-    // create.height = 1080;
-    // create.bpp = 32;
-    // if (drmIoctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) < 0)
-    // {
-    //     /* code */
-    //     perror("CREATE_DUMB");
-    // }
-
-    // printf("Handle : %u\n", create.handle);
-
-    // printf("Pitch  : %u\n", create.pitch);
-
-    // printf("Size   : %llu\n", (unsigned long long)create.size);
-
-    // uint32_t fb_id = 0;
-    // /*  if (drmModeAddFB(fd, create.width, create.height, 24, 32, create.pitch,
-    //                   create.handle, &fb_id)) {
-
-    //    perror("drmModeAddFB");
-    //  } */
-    // uint32_t handles[4] = {0};
-    // uint32_t pitches[4] = {0};
-    // uint32_t offsets[4] = {0};
-    // handles[0] = create.handle;
-    // pitches[0] = create.pitch;
-    // offsets[0] = 0;
-
-    // printf("Framebuffer ID: %u\n", fb_id);
-
-    // struct drm_mode_map_dumb map = {0};
-
-    // map.handle = create.handle;
-    // printf("create.pitch = %u\n", create.pitch);
-    // printf("create.handle = %u\n", create.handle);
-    // if (drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map) < 0)
-    // {
-    //     /* code */
-    //     perror("MAP_DUMB");
-    // }
-    // printf("offset = %llu\n", (unsigned long long)map.offset);
-
-    // offsets[0] = 0;
-    // int ret_fb =
-    //     drmModeAddFB2(fd, create.width, create.height, DRM_FORMAT_XRGB8888,
-    //                   handles, pitches, offsets, &fb_id, 0);
-
-    // if (ret_fb != 0)
-    // {
-    //     perror("drmModeAddFB2");
-    //     return EXIT_FAILURE;
-    // }
-
-    // // printf("fb_id = %u\n", fb_id);
-    // /*
-    //   void *pixels =
-    //       mmap(0, create.size, PROT_READ | PROT_WRITE, MAP_SHARED, fd,
-    //   map.offset);
-    //  */
-    // uint32_t *pixels = (uint32_t *)mmap(NULL, create.size, PROT_READ | PROT_WRITE,
-    //                                     MAP_SHARED, fd, map.offset);
-
-    // if (pixels == MAP_FAILED)
-    // {
-    //     perror("mmap");
-    // }
-    // printf("direcion de pixels %p", pixels);
-    // // drmIoctl(fd, DRM_IOCTL_MODE_MAP_DUMB, &map);
-
-    // drmModeEncoder *encoder = drmModeGetEncoder(fd, connz->encoder_id);
-
-    // if (!encoder)
-    // {
-    //     perror("drmModeGetEncoder");
-    //     return EXIT_FAILURE;
-    // }
-    // printf("fb_id      = %u\n", fb_id);
-    // printf("connector  = %u\n", connector_id);
-    // printf("crtc       = %u\n", encoder->crtc_id);
-    // printf("mode       = %s\n", modez.name);
-    // printf("Encoder ID : %u\n", encoder->encoder_id);
-    // printf("possible_crtcs = 0x%x\n", encoder->possible_crtcs);
-    // printf("CRTC ID    : %u\n", encoder->crtc_id);
-    // drmModeCrtc *old_crtc = drmModeGetCrtc(fd, encoder->crtc_id);
-    // uint32_t conn_id = connz->connector_id;
-    // uint32_t *fb = pixels;
-
-    // /* for (uint32_t y = 0; y < create.height; y++) {
-    //   for (uint32_t x = 0; x < create.width; x++) {
-    //     fb[y * (create.pitch / 4) + x] = 0xFFFFFF00; // Azul
-    //   }
-    // }
-    // printf("Primer pixel = %08X\n", pixels[0]); */
-    // // char path_txt2[] = "M 10 10 L 90 10 L 90 90 L 10 90 Z";
-    // char path1[] =
-    //     "m 131.91082,173.66089 "
-    //     "h 14.23729 "
-    //     "l 0.44492,-59.91526 "
-    //     "39.89406,-16.313551 "
-    //     "-0.29661,77.118641 "
-    //     "6.22881,-0.29661 "
-    //     "-0.1483,-84.682206 "
-    //     "37.22458,21.800846 "
-    //     "0.74152,-17.796607 "
-    //     "35.74153,21.504237 "
-    //     "V 96.987159 "
-    //     "l 35,21.652541 "
-    //     "0.29662,-18.24152 "
-    //     "12.90254,7.71186 "
-    //     "0.59322,-51.165253 "
-    //     "13.79236,0.296608 "
-    //     "1.03814,60.211865 "
-    //     "6.82202,3.55932 "
-    //     "0.29663,-63.622878 "
-    //     "h 14.23728 "
-    //     "l 1.48304,67.775418 "
-    //     "18.98306,3.26272 "
-    //     "0.14831,45.82627 "
-    //     "h 15.57204 "
-    //     "l 0.2966,4.15254 "
-    //     "-255.52966,-0.29661 "
-    //     "z";
-
-    // char path2[] =
-    //     "m 154.7498,155.27106 "
-    //     "-0.59322,19.27966 "
-    //     "14.3856,0.1483 "
-    //     "0.59322,-19.57627 "
-    //     "z";
-
-    // char path3[] =
-    //     "m 203.24557,128.72445 "
-    //     "0.1483,-6.82204 "
-    //     "156.16527,14.23729 "
-    //     "0.1483,4.15254 "
-    //     "z";
-
-    // char path4[] =
-    //     "m 252.03792,156.01257 "
-    //     "h 19.42798 "
-    //     "v 7.41525 "
-    //     "h -19.42798 "
-    //     "z";
-
-    // char path5[] =
-    //     "m 279.4744,156.60579 "
-    //     "h 16.01694 "
-    //     "v 7.11864 "
-    //     "H 279.4744 "
-    //     "Z";
-
-    // char path6[] =
-    //     "m 303.49979,156.9024 "
-    //     "h 15.1271 "
-    //     "v 6.97035 "
-    //     "h -15.1271 "
-    //     "z";
-
-    // char path7[] =
-    //     "m 324.26251,157.49564 "
-    //     "h 15.57204 "
-    //     "v 6.22881 "
-    //     "h -15.57204 "
-    //     "z";
-
-    // char path8[] =
-    //     "m 346.5083,157.94055 "
-    //     "h 13.34745 "
-    //     "v 5.48729 "
-    //     "H 346.5083 "
-    //     "Z";
-
-    // char path9[] =
-    //     "m 225.63963,154.38123 "
-    //     "h 20.02119 "
-    //     "v 9.04661 "
-    //     "h -20.02119 "
-    //     "z";
-
-    // surface = cairo_image_surface_create_for_data(
-    //     (unsigned char *)pixels,
-    //     CAIRO_FORMAT_RGB24,
-    //     create.width,
-    //     create.height,
-    //     create.pitch);
-
-    // cr = cairo_create(surface);
-
-    // /* Fondo negro */
-    // cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-    // cairo_paint(cr);
-
-    // /* Logo */
-    // cairo_save(cr);
-
-    // cairo_translate(cr, 500, 250);
-    // cairo_scale(cr, 2.0, 2.0);
-
-    // cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
-    // cairo_set_line_width(cr, 1.0);
-
-    // parse_svg_path(cr, path1);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path2);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path3);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path4);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path5);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path6);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path7);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path8);
-    // cairo_stroke(cr);
-    // parse_svg_path(cr, path9);
-
-    // cairo_stroke(cr);
-
-    // cairo_restore(cr);
-
-    // /* Texto */
-    // cairo_font_face_t *font =
-    //     cairo_ft_font_face_create_for_ft_face(face, 0);
-
-    // cairo_set_font_face(cr, font);
-    // cairo_set_font_size(cr, 64);
-
-    // cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
-
-    // cairo_move_to(cr, 850, 660);
-    // cairo_show_text(cr, "ZaramagaOS");
-    // int ret =
-    //     drmModeSetCrtc(fd, encoder->crtc_id, fb_id, 0, 0, &conn_id, 1, &modez);
-    // sleep(10);
-    // if (ret != 0)
-    // {
-    //     perror("drmModeSetCrtc");
-    // }
-
-    // printf("Mostrando framebuffer...\n");
-    // getchar();
-    // sleep(10);
-    // printf("Connector ID: %u\n", conn_id);
-    // printf("Encoder ID: %u\n", encoder->encoder_id);
-    // printf("CRTC ID: %u\n", encoder->crtc_id);
-    // printf("FB ID: %u\n", fb_id);
-    // //  liberar recursos
-    // drmModeFreeResources(resources);
-    // drmModeFreeCrtc(old_crtc);
-    // drmModeFreeConnector(connz);
-    // close(fd);
 
     return 0;
 }
