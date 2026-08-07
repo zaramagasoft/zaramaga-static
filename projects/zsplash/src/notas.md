@@ -1,7 +1,9 @@
 /////////lanzar/////////////
+sudo openvt -f -c 2 -s -w -- ./z
 sudo openvt -f -c 2 -s -w -- ./zsplash 
 sudo openvt -f -c 2 -s -w -- ./p4 
 
+musl-gcc -static -O2     z.c lexer.c parser.c     -I$ZSYS/include     -I$ZSYS/include/freetype2     -L$ZSYS/lib     -lcairo -lfreetype -ldrm -lpixman-1 -lpng18 -lz -lm     -o z
 //
 musl-gcc -static -O2     zsplash2.c lexer.c parser.c     -I$ZSYS/include     -I$ZSYS/include/freetype2     -L$ZSYS/lib     -lcairo -lfreetype -ldrm -lpixman-1 -lpng18 -lz -lm     -o zsplash
 
