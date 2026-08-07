@@ -1,3 +1,7 @@
+///copiar a initram para el hook///
+sudo cp ./z /usr/bin/zsplash
+sudo mkinitcpio -P
+
 /////////lanzar/////////////
 sudo openvt -f -c 2 -s -w -- ./z
 sudo openvt -f -c 2 -s -w -- ./zsplash 

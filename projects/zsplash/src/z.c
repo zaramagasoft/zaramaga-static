@@ -69,6 +69,7 @@ typedef struct
     uint32_t crtc_id;
 
     drmModeModeInfo mode;
+    drmModeCrtc *old_crtc;
 
     /* Framebuffer */
     uint32_t fb_id;
@@ -80,6 +81,7 @@ typedef struct
 
     cairo_surface_t *surface;
     cairo_t *cr;
+
 } DrmOutput;
 
 typedef struct
@@ -87,7 +89,8 @@ typedef struct
     DrmOutput outputs[MAX_OUTPUTS];
     int count;
 } DrmSystem;
-
+int drm_restore_crtc(DrmOutput *output);
+int drm_cleanup(DrmOutput *output);
 int drm_find_outputs(DrmSystem *system);
 int drm_create_framebuffer(DrmOutput *output);
 int drm_present(DrmOutput *output);
@@ -97,6 +100,93 @@ int drm_draw_splash(DrmOutput *output, FT_Face *face);
 int draw_logo(cairo_t *cr);
 int draw_logo_centered(cairo_t *cr, int width, int height);
 int draw_title_centered(cairo_t *cr, int width, int height);
+int drm_cleanup(DrmOutput *output)
+{
+    /* Cairo */
+    if (output->cr)
+    {
+        cairo_destroy(output->cr);
+        output->cr = NULL;
+    }
+
+    if (output->surface)
+    {
+        cairo_surface_destroy(output->surface);
+        output->surface = NULL;
+    }
+
+    /* Framebuffer DRM */
+    if (output->fb_id)
+    {
+        drmModeRmFB(output->fd, output->fb_id);
+        output->fb_id = 0;
+    }
+
+    /* Desmapear dumb buffer */
+    if (output->pixels)
+    {
+        munmap(output->pixels,
+               output->create.size);
+
+        output->pixels = NULL;
+    }
+
+    /* Destruir dumb buffer */
+    if (output->create.handle)
+    {
+        struct drm_mode_destroy_dumb destroy = {0};
+
+        destroy.handle = output->create.handle;
+
+        if (drmIoctl(output->fd,
+                     DRM_IOCTL_MODE_DESTROY_DUMB,
+                     &destroy) < 0)
+        {
+            perror("DRM_IOCTL_MODE_DESTROY_DUMB");
+        }
+
+        output->create.handle = 0;
+    }
+
+    /* Liberar CRTC guardado */
+    if (output->old_crtc)
+    {
+        drmModeFreeCrtc(output->old_crtc);
+        output->old_crtc = NULL;
+    }
+
+    /* Cerrar DRM */
+    if (output->fd >= 0)
+    {
+        close(output->fd);
+        output->fd = -1;
+    }
+
+    return 0;
+}
+int drm_restore_crtc(DrmOutput *output)
+{
+    if (!output->old_crtc)
+        return -1;
+
+    int ret = drmModeSetCrtc(
+        output->fd,
+        output->old_crtc->crtc_id,
+        output->old_crtc->buffer_id,
+        output->old_crtc->x,
+        output->old_crtc->y,
+        &output->connector_id,
+        1,
+        &output->old_crtc->mode);
+
+    if (ret != 0)
+    {
+        perror("drmModeSetCrtc restore");
+        return -1;
+    }
+
+    return 0;
+}
 
 int draw_title_centered(cairo_t *cr, int width, int height)
 {
@@ -187,8 +277,7 @@ int draw_logo(cairo_t *cr)
         path6,
         path7,
         path8,
-        path9
-    };
+        path9};
 
     int num_paths = sizeof(paths) / sizeof(paths[0]);
 
@@ -489,6 +578,17 @@ int drm_find_outputs(DrmSystem *system)
 
             out->crtc_id =
                 encoder->crtc_id;
+            out->old_crtc =
+                drmModeGetCrtc(fd, out->crtc_id);
+
+            if (!out->old_crtc)
+            {
+                printf("    No se pudo guardar el CRTC original\n");
+
+                drmModeFreeEncoder(encoder);
+                drmModeFreeConnector(conn);
+                continue;
+            }
 
             printf("    Encoder: %u\n",
                    out->encoder_id);
@@ -570,6 +670,7 @@ int main(int argc, char const *argv[])
     {
         return EXIT_FAILURE;
     }
+
     DrmSystem system = {0};
 
     int n = drm_find_outputs(&system);
@@ -590,7 +691,26 @@ int main(int argc, char const *argv[])
         if (drm_present(output) < 0)
             return EXIT_FAILURE;
     }
+
     sleep(10);
+
+    /*
+     * Restaurar el estado original
+     * y liberar todos los recursos.
+     */
+    for (int i = 0; i < system.count; i++)
+    {
+        DrmOutput *output = &system.outputs[i];
+
+        if (drm_restore_crtc(output) < 0)
+        {
+            fprintf(stderr,
+                    "Error restaurando CRTC de salida %d\n",
+                    i);
+        }
+
+        drm_cleanup(output);
+    }
 
     return 0;
 }
