@@ -99,10 +99,10 @@ int drm_find_outputs(DrmSystem *system);
 int drm_create_framebuffer(DrmOutput *output);
 int drm_present(DrmOutput *output);
 int drm_create_surface(DrmOutput *output);
-int drm_draw_splash(DrmOutput *output, FT_Face *face);
+int drm_draw_splash(DrmOutput *output, FT_Face *face, double angle);
 // int draw_logo(cairo_t *cr);
 int draw_logo(cairo_t *cr);
-int draw_logo_centered(cairo_t *cr, int width, int height);
+int draw_logo_centered(cairo_t *cr, int width, int height, double angle);
 int draw_title_centered(cairo_t *cr, int width, int height);
 void sleep_garantizado(double segundos)
 {
@@ -245,7 +245,7 @@ int draw_title_centered(cairo_t *cr, int width, int height)
     return 0;
 }
 
-int draw_logo_centered(cairo_t *cr, int width, int height)
+int draw_logo_centered(cairo_t *cr, int width, int height, double angle)
 {
     const double logo_x = 131.9;
     const double logo_y = 51.9;
@@ -258,22 +258,29 @@ int draw_logo_centered(cairo_t *cr, int width, int height)
     double w = logo_w * logo_scale;
     double h = logo_h * logo_scale;
 
-    /* Centrado horizontal */
+    /* Posición de la esquina superior izquierda del logo */
     double x = (width - w) / 2.0;
-
-    /* Ligeramente por encima del centro */
     double y = (height - h) / 2.0 - height * 0.12;
 
     cairo_save(cr);
 
-    cairo_translate(cr, x, y);
+    /* 
+     * TRUCO DE ROTACIÓN:
+     * 1. Trasladamos el origen de Cairo al CENTRO del logo.
+     */
+    cairo_translate(cr, x + (w / 2.0), y + (h / 2.0));
+
+    /* 2. Rotamos la matriz de dibujo el ángulo recibido */
+    cairo_rotate(cr, angle);
+
+    /* 3. Escalamos */
     cairo_scale(cr, logo_scale, logo_scale);
 
-    /*
-     * Llevar el origen al origen real
-     * de nuestro SVG.
+    /* 
+     * 4. Llevamos el centro geométrico del SVG al origen actual.
+     *    El centro del bounding box del SVG es (logo_x + logo_w/2, logo_y + logo_h/2)
      */
-    cairo_translate(cr, -logo_x, -logo_y);
+    cairo_translate(cr, -(logo_x + logo_w / 2.0), -(logo_y + logo_h / 2.0));
 
     cairo_set_line_width(cr, 1.0 / logo_scale);
 
@@ -307,7 +314,7 @@ int draw_logo(cairo_t *cr)
 
     return 0;
 }
-int drm_draw_splash(DrmOutput *output, FT_Face *face)
+int drm_draw_splash(DrmOutput *output, FT_Face *face, double angle)
 {
     cairo_t *cr = output->cr;
 
@@ -321,12 +328,10 @@ int drm_draw_splash(DrmOutput *output, FT_Face *face)
     /* Verde Zaramaga */
     cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
 
-    /* Logo */
-    draw_logo_centered(
-        cr,
-        output->create.width,
-        output->create.height);
-    /* Texto */
+    /* Logo con rotación */
+    draw_logo_centered(cr, width, height, angle);
+
+    /* Texto fijo */
     draw_title_centered(cr, width, height);
 
     cairo_surface_flush(output->surface);
@@ -691,40 +696,50 @@ int main(int argc, char const *argv[])
     }
 
     DrmSystem system = {0};
-
     int n = drm_find_outputs(&system);
 
+    /* Crear los Framebuffers y Superficies Cairo en cada salida */
     for (int i = 0; i < system.count; i++)
     {
         DrmOutput *output = &system.outputs[i];
-
-        if (drm_create_framebuffer(output) < 0)
-            return EXIT_FAILURE;
-
-        if (drm_create_surface(output) < 0)
-            return EXIT_FAILURE;
-
-        if (drm_draw_splash(output, &face) < 0)
-            return EXIT_FAILURE;
-
-        if (drm_present(output) < 0)
-            return EXIT_FAILURE;
+        if (drm_create_framebuffer(output) < 0) return EXIT_FAILURE;
+        if (drm_create_surface(output) < 0) return EXIT_FAILURE;
     }
 
-    sleep_garantizado(3.0);
-    /*out->fd = fd;
-     * Restaurar el estado original
-     * y liberar todos los recursos.
+    /* 
+     * BUCLE DE ANIMACIÓN
+     * Hacemos p. ej. 300 frames (~5 segundos a 60 FPS)
      */
+    double angle = 0.0;
+
+    for (int frame = 0; frame < 300; frame++)
+    {
+        for (int i = 0; i < system.count; i++)
+        {
+            DrmOutput *output = &system.outputs[i];
+
+            /* Dibujar splash pasando el ángulo actual */
+            drm_draw_splash(output, &face, angle);
+
+            /* Presentar en pantalla */
+            drm_present(output);
+        }
+
+        /* Incrementar el ángulo en cada paso (~0.05 rad) */
+        angle += 0.05;
+
+        /* Tasa de refresco constante (aprox ~60 FPS) */
+        sleep_garantizado(0.016);
+    }
+
+    /* Restaurar el estado original y liberar recursos */
     for (int i = 0; i < system.count; i++)
     {
         DrmOutput *output = &system.outputs[i];
 
         if (drm_restore_crtc(output) < 0)
         {
-            fprintf(stderr,
-                    "Error restaurando CRTC de salida %d\n",
-                    i);
+            fprintf(stderr, "Error restaurando CRTC de salida %d\n", i);
         }
 
         drm_cleanup(output);
