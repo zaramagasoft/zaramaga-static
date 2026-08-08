@@ -1,7 +1,10 @@
 ///copiar a initram para el hook///
 sudo cp ./z /usr/bin/zsplash
 sudo mkinitcpio -P
+Script de Build (el que le dice a mkinitcpio qué archivos/librerías incluir en la imagen):
+ /usr/lib/initcpio/install/zsplash
 
+Script de Runtime (el que se ejecuta durante el arranque en la RAM
 /////////lanzar/////////////
 sudo openvt -f -c 2 -s -w -- ./z
 sudo openvt -f -c 2 -s -w -- ./zsplash 

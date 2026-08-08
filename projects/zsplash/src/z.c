@@ -5,6 +5,9 @@
 #include <sys/mman.h>
 #include <unistd.h>
 #include <string.h>
+#include <time.h>
+#include <errno.h>
+
 // api DRM
 #include <cairo/cairo.h>
 #include <drm/drm_fourcc.h>
@@ -89,6 +92,7 @@ typedef struct
     DrmOutput outputs[MAX_OUTPUTS];
     int count;
 } DrmSystem;
+void sleep_garantizado(double segundos);
 int drm_restore_crtc(DrmOutput *output);
 int drm_cleanup(DrmOutput *output);
 int drm_find_outputs(DrmSystem *system);
@@ -100,6 +104,20 @@ int drm_draw_splash(DrmOutput *output, FT_Face *face);
 int draw_logo(cairo_t *cr);
 int draw_logo_centered(cairo_t *cr, int width, int height);
 int draw_title_centered(cairo_t *cr, int width, int height);
+void sleep_garantizado(double segundos)
+{
+    struct timespec req, rem;
+    req.tv_sec = (time_t)segundos;
+    req.tv_nsec = (long)((segundos - req.tv_sec) * 1e9);
+
+    // nanosleep devuelve -1 si es interrumpido por una señal.
+    // El tiempo restante se guarda en 'rem', por lo que seguimos durmiendo
+    // hasta que el tiempo total se haya cumplido realmente.
+    while (nanosleep(&req, &rem) == -1 && errno == EINTR)
+    {
+        req = rem;
+    }
+}
 int drm_cleanup(DrmOutput *output)
 {
     /* Cairo */
@@ -541,7 +559,7 @@ int drm_find_outputs(DrmSystem *system)
 
             memset(out, 0, sizeof(DrmOutput));
 
-            out->fd = fd;
+            out->fd = dup(fd);
 
             out->connector_id =
                 conn->connector_id;
@@ -617,6 +635,7 @@ int drm_find_outputs(DrmSystem *system)
          * Todas las salidas encontradas en esta
          * card utilizan este mismo fd.
          */
+        close(fd);
     }
 
     closedir(dir);
@@ -692,9 +711,8 @@ int main(int argc, char const *argv[])
             return EXIT_FAILURE;
     }
 
-    sleep(10);
-
-    /*
+    sleep_garantizado(3.0);
+    /*out->fd = fd;
      * Restaurar el estado original
      * y liberar todos los recursos.
      */
