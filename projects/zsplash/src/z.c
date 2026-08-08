@@ -8,6 +8,7 @@
 #include <time.h>
 #include <errno.h>
 
+
 // api DRM
 #include <cairo/cairo.h>
 #include <drm/drm_fourcc.h>
@@ -104,6 +105,59 @@ int drm_draw_splash(DrmOutput *output, FT_Face *face, double angle);
 int draw_logo(cairo_t *cr);
 int draw_logo_centered(cairo_t *cr, int width, int height, double angle);
 int draw_title_centered(cairo_t *cr, int width, int height);
+int draw_logo_flip_horizontal(cairo_t *cr, int width, int height, double angle);
+int draw_logo_flip_horizontal(cairo_t *cr, int width, int height, double angle)
+{
+    const double logo_x = 131.9;
+    const double logo_y = 51.9;
+    const double logo_w = 228.0;
+    const double logo_h = 122.0;
+
+    double base_scale = (height / 1080.0) * 1.6;
+
+    /*
+     * TRUCO 3D EN 2D:
+     * La escala en X varia según el coseno del ángulo.
+     * Coseno oscila entre 1.0 (de frente) y 0.0 (totalmente de perfil).
+     */
+    double scale_x = cos(angle);
+
+    double w = logo_w * base_scale * fabs(scale_x);
+    double h = logo_h * base_scale;
+
+    /* Centrado dinámico según la anchura comprimida */
+    double x = (width - w) / 2.0;
+    double y = (height - h) / 2.0 - height * 0.12;
+
+    cairo_save(cr);
+    cairo_set_tolerance(cr, 1.0);
+    /* 1. Trasladamos al origen del dibujo */
+    cairo_translate(cr, x, y);
+
+    /* 2. Escalamos X con la deformación 3D y Y de forma normal */
+    cairo_scale(cr, base_scale * scale_x, base_scale);
+
+    /*
+     * Si scale_x es negativo (está de espaldas), alineamos
+     * el punto de origen para que gire sobre su propio centro.
+     */
+    if (scale_x < 0)
+    {
+        cairo_translate(cr, -(logo_x + logo_w), -logo_y);
+    }
+    else
+    {
+        cairo_translate(cr, -logo_x, -logo_y);
+    }
+
+    cairo_set_line_width(cr, 1.0 / base_scale);
+
+    draw_logo(cr);
+
+    cairo_restore(cr);
+
+    return 0;
+}
 void sleep_garantizado(double segundos)
 {
     struct timespec req, rem;
@@ -120,7 +174,7 @@ void sleep_garantizado(double segundos)
 }
 int drm_cleanup(DrmOutput *output)
 {
-    /* Cairo */
+    /* 1. Cairo */
     if (output->cr)
     {
         cairo_destroy(output->cr);
@@ -133,49 +187,56 @@ int drm_cleanup(DrmOutput *output)
         output->surface = NULL;
     }
 
-    /* Framebuffer DRM */
-    if (output->fb_id)
+    /* 2. RESTAURAR EL CRTC ORIGINAL EN LA GPU (¡Crucial para Sway!) */
+    if (output->old_crtc && output->fd >= 0)
+    {
+        drmModeSetCrtc(
+            output->fd,
+            output->old_crtc->crtc_id,
+            output->old_crtc->buffer_id,
+            output->old_crtc->x,
+            output->old_crtc->y,
+            &output->connector_id,
+            1,
+            &output->old_crtc->mode);
+
+        drmModeFreeCrtc(output->old_crtc);
+        output->old_crtc = NULL;
+    }
+
+    /* 3. Eliminar Framebuffer DRM del splash */
+    if (output->fb_id && output->fd >= 0)
     {
         drmModeRmFB(output->fd, output->fb_id);
         output->fb_id = 0;
     }
 
-    /* Desmapear dumb buffer */
+    /* 4. Desmapear dumb buffer */
     if (output->pixels)
     {
-        munmap(output->pixels,
-               output->create.size);
-
+        munmap(output->pixels, output->create.size);
         output->pixels = NULL;
     }
 
-    /* Destruir dumb buffer */
-    if (output->create.handle)
+    /* 5. Destruir dumb buffer */
+    if (output->create.handle && output->fd >= 0)
     {
         struct drm_mode_destroy_dumb destroy = {0};
-
         destroy.handle = output->create.handle;
 
-        if (drmIoctl(output->fd,
-                     DRM_IOCTL_MODE_DESTROY_DUMB,
-                     &destroy) < 0)
+        if (drmIoctl(output->fd, DRM_IOCTL_MODE_DESTROY_DUMB, &destroy) < 0)
         {
             perror("DRM_IOCTL_MODE_DESTROY_DUMB");
         }
-
         output->create.handle = 0;
     }
 
-    /* Liberar CRTC guardado */
-    if (output->old_crtc)
-    {
-        drmModeFreeCrtc(output->old_crtc);
-        output->old_crtc = NULL;
-    }
-
-    /* Cerrar DRM */
+    /* 6. SOLTAR EL CONTROL MASTER Y CERRAR ARCHIVO */
     if (output->fd >= 0)
     {
+        /* Avisar al kernel que soltamos la GPU */
+        drmDropMaster(output->fd);
+
         close(output->fd);
         output->fd = -1;
     }
@@ -264,7 +325,7 @@ int draw_logo_centered(cairo_t *cr, int width, int height, double angle)
 
     cairo_save(cr);
 
-    /* 
+    /*
      * TRUCO DE ROTACIÓN:
      * 1. Trasladamos el origen de Cairo al CENTRO del logo.
      */
@@ -276,7 +337,7 @@ int draw_logo_centered(cairo_t *cr, int width, int height, double angle)
     /* 3. Escalamos */
     cairo_scale(cr, logo_scale, logo_scale);
 
-    /* 
+    /*
      * 4. Llevamos el centro geométrico del SVG al origen actual.
      *    El centro del bounding box del SVG es (logo_x + logo_w/2, logo_y + logo_h/2)
      */
@@ -328,13 +389,20 @@ int drm_draw_splash(DrmOutput *output, FT_Face *face, double angle)
     /* Verde Zaramaga */
     cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
 
-    /* Logo con rotación */
-    draw_logo_centered(cr, width, height, angle);
+    /* Giro horizontal tipo moneda 3D */
+    draw_logo_flip_horizontal(cr, width, height, angle);
 
-    /* Texto fijo */
+    /* Título */
     draw_title_centered(cr, width, height);
 
     cairo_surface_flush(output->surface);
+
+    /* Copia rápida anti-flicker */
+    unsigned char *data = cairo_image_surface_get_data(output->surface);
+    if (data && output->pixels)
+    {
+        memcpy(output->pixels, data, output->create.size);
+    }
 
     return 0;
 }
@@ -349,34 +417,11 @@ int drm_create_surface(DrmOutput *output)
         output->create.pitch);
 
     if (cairo_surface_status(output->surface) != CAIRO_STATUS_SUCCESS)
-    {
-        fprintf(stderr,
-                "Error creando superficie Cairo: %s\n",
-                cairo_status_to_string(
-                    cairo_surface_status(output->surface)));
-
-        cairo_surface_destroy(output->surface);
-        output->surface = NULL;
-
         return -1;
-    }
 
     output->cr = cairo_create(output->surface);
-
     if (cairo_status(output->cr) != CAIRO_STATUS_SUCCESS)
-    {
-        fprintf(stderr,
-                "Error creando contexto Cairo: %s\n",
-                cairo_status_to_string(cairo_status(output->cr)));
-
-        cairo_destroy(output->cr);
-        cairo_surface_destroy(output->surface);
-
-        output->cr = NULL;
-        output->surface = NULL;
-
         return -1;
-    }
 
     return 0;
 }
@@ -691,59 +736,80 @@ int drm_present(DrmOutput *output)
 int main(int argc, char const *argv[])
 {
     if (cargarfuente() != EXIT_SUCCESS)
-    {
         return EXIT_FAILURE;
+
+    DrmSystem systema = {0};
+    int n = drm_find_outputs(&systema);
+
+    /* Setup inicial */
+    for (int i = 0; i < systema.count; i++)
+    {
+        DrmOutput *output = &systema.outputs[i];
+        if (drm_create_framebuffer(output) < 0)
+            return EXIT_FAILURE;
+        if (drm_create_surface(output) < 0)
+            return EXIT_FAILURE;
+
+        // Fijar el modo en el hardware una sola vez
+        drm_present(output);
     }
 
-    DrmSystem system = {0};
-    int n = drm_find_outputs(&system);
+    double angle = 0.0;
 
-    /* Crear los Framebuffers y Superficies Cairo en cada salida */
-    for (int i = 0; i < system.count; i++)
+    /* BUCLE DE ANIMACIÓN FLUIDO */
+    for (int frame = 0; frame < 100; frame++)
     {
-        DrmOutput *output = &system.outputs[i];
-        if (drm_create_framebuffer(output) < 0) return EXIT_FAILURE;
-        if (drm_create_surface(output) < 0) return EXIT_FAILURE;
+        for (int i = 0; i < systema.count; i++)
+        {
+            DrmOutput *output = &systema.outputs[i];
+            cairo_t *cr = output->cr;
+            int width = output->create.width;
+            int height = output->create.height;
+
+            /*
+             * cairo_push_group() crea un buffer intermedio en RAM súper rápido
+             * gestionado nativamente por Cairo.
+             */
+            cairo_push_group(cr);
+
+            // 1. Pintar fondo
+            cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
+            cairo_paint(cr);
+
+            // 2. Dibujar logo animado
+            cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
+            draw_logo_flip_horizontal(cr, width, height, angle);
+            draw_title_centered(cr, width, height);
+
+            /*
+             * cairo_pop_group_to_source() vuelca el dibujo preparado
+             * al buffer DRM de la GPU de una sola pasada optimizada.
+             */
+            cairo_pop_group_to_source(cr);
+            cairo_paint(cr);
+
+            cairo_surface_flush(output->surface);
+        }
+
+        angle += 0.15;            // Aumentar velocidad de rotación
+        sleep_garantizado(0.016); // ~60 FPS
     }
 
     /* 
-     * BUCLE DE ANIMACIÓN
-     * Hacemos p. ej. 300 frames (~5 segundos a 60 FPS)
+     * Restaurar el estado original y liberar recursos 
+     * (Sin bloquear el programa si da 'Permission denied' en el initramfs)
      */
-    double angle = 0.0;
-
-    for (int frame = 0; frame < 300; frame++)
+    for (int i = 0; i < systema.count; i++)
     {
-        for (int i = 0; i < system.count; i++)
-        {
-            DrmOutput *output = &system.outputs[i];
+        DrmOutput *output = &systema.outputs[i];
 
-            /* Dibujar splash pasando el ángulo actual */
-            drm_draw_splash(output, &face, angle);
-
-            /* Presentar en pantalla */
-            drm_present(output);
-        }
-
-        /* Incrementar el ángulo en cada paso (~0.05 rad) */
-        angle += 0.05;
-
-        /* Tasa de refresco constante (aprox ~60 FPS) */
-        sleep_garantizado(0.016);
-    }
-
-    /* Restaurar el estado original y liberar recursos */
-    for (int i = 0; i < system.count; i++)
-    {
-        DrmOutput *output = &system.outputs[i];
-
-        if (drm_restore_crtc(output) < 0)
-        {
-            fprintf(stderr, "Error restaurando CRTC de salida %d\n", i);
-        }
-
+        // Intentamos restaurar, pero NO cortamos la ejecución si falla por permisos
+                // Limpiamos los buffers y cerramos los descriptores
         drm_cleanup(output);
     }
+
+    // Volver a activar la consola gráfica/texto para TTY1
+    system("setterm -cursor on > /dev/tty1 2>&1");
 
     return 0;
 }
