@@ -1,3 +1,16 @@
+//////////////////////
+sudo openvt -f -c 2 -s -w -- ./zl
+ 
+//// compilar ////
+musl-gcc -static -O2 \
+    z.c \
+    -I$ZSYS/include \
+    -L$ZSYS/lib \
+    -ldrm \
+    -o zl
+
+musl-gcc -static -O2     z.c      -I$ZSYS/include     -I$ZSYS/include/freetype2     -L$ZSYS/lib     -lcairo -lfreetype -ldrm -lpixman-1 -lpng18 -lz -lm     -o zl
+
 $ZSYS/bin/musl-gcc zsplash2.c -static -I$ZSYS/include -I$ZSYS/include/cairo -L$ZSYS/lib -lcairo -l:libpng18.a -lfreetype -lpixman-1 -ldrm -lz -lm -lpthread -o p4 -Os -flto -ffunction-sections -fdata-sections -Wl,--gc-sections
 
 $ZSYS/bin/musl-gcc pruebas.c -static -I$ZSYS/include -

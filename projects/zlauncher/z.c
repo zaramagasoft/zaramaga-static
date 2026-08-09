@@ -1,69 +1,29 @@
 #include <fcntl.h>
-#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <sys/mman.h>
 #include <unistd.h>
 #include <string.h>
-#include <time.h>
 #include <errno.h>
+#include <dirent.h>
+#include <stdint.h>
+#include <poll.h>
 
-
-// api DRM
-#include <cairo/cairo.h>
+/* DRM primero */
 #include <drm/drm_fourcc.h>
 #include <drm/drm_mode.h>
 #include <xf86drm.h>
 #include <xf86drmMode.h>
-#include <stdarg.h>
-#include <dirent.h>
 
-// fuentes y logo
-#include <cairo/cairo-ft.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include "font3270.h"
-
-#include "parser.h"
-#include "paths.h"
+/* Input después */
+#include "zinput.h"
 
 #define MAX_OUTPUTS 16
+#define CURSOR_SIZE 8
 
-drmModeModeInfo modez;
+static int mouse_x = 0;
+static int mouse_y = 0;
 
-drmModeCrtc *crtcz;
-
-int drm_fd = -1;
-
-drmModeRes *resources = NULL;
-drmModeConnector *connector = NULL;
-drmModeEncoder *encoder = NULL;
-drmModeCrtc *crtc = NULL;
-
-uint32_t fb_id = 0;
-
-struct drm_mode_create_dumb create = {0};
-struct drm_mode_map_dumb map = {0};
-
-uint8_t *fb_data = NULL;
-size_t fb_size = 0;
-
-cairo_surface_t *surface = NULL;
-cairo_t *cr = NULL;
-typedef struct
-{
-    float x, y, z;
-} Vec3;
-typedef struct
-{
-    float x, y;
-} Vec2;
-static int g_width = 800;
-static int g_height = 600;
-/// Carga la fuente ////
-FT_Library ft;
-FT_Face face;
-/// drmdrives ///
 typedef struct
 {
     int fd;
@@ -83,111 +43,221 @@ typedef struct
 
     uint32_t *pixels;
 
-    cairo_surface_t *surface;
-    cairo_t *cr;
-
 } DrmOutput;
 
 typedef struct
 {
     DrmOutput outputs[MAX_OUTPUTS];
     int count;
+
 } DrmSystem;
-void sleep_garantizado(double segundos);
-int drm_restore_crtc(DrmOutput *output);
-int drm_cleanup(DrmOutput *output);
-int drm_find_outputs(DrmSystem *system);
-int drm_create_framebuffer(DrmOutput *output);
-int drm_present(DrmOutput *output);
-int drm_create_surface(DrmOutput *output);
-int drm_draw_splash(DrmOutput *output, FT_Face *face, double angle);
-// int draw_logo(cairo_t *cr);
-int draw_logo(cairo_t *cr);
-int draw_logo_centered(cairo_t *cr, int width, int height, double angle);
-int draw_title_centered(cairo_t *cr, int width, int height);
-int draw_logo_flip_horizontal(cairo_t *cr, int width, int height, double angle);
-int draw_logo_flip_horizontal(cairo_t *cr, int width, int height, double angle)
+#define MAX_INPUTS 32
+
+int input_fds[MAX_INPUTS];
+int input_count = 0;
+
+void draw_cursor(DrmOutput *output)
 {
-    const double logo_x = 131.9;
-    const double logo_y = 51.9;
-    const double logo_w = 228.0;
-    const double logo_h = 122.0;
+    uint32_t pitch = output->create.pitch / 4;
+    uint32_t color = 0x00FF0000;
 
-    double base_scale = (height / 1080.0) * 1.6;
-
-    /*
-     * TRUCO 3D EN 2D:
-     * La escala en X varia según el coseno del ángulo.
-     * Coseno oscila entre 1.0 (de frente) y 0.0 (totalmente de perfil).
-     */
-    double scale_x = cos(angle);
-
-    double w = logo_w * base_scale * fabs(scale_x);
-    double h = logo_h * base_scale;
-
-    /* Centrado dinámico según la anchura comprimida */
-    double x = (width - w) / 2.0;
-    double y = (height - h) / 2.0 - height * 0.12;
-
-    cairo_save(cr);
-    cairo_set_tolerance(cr, 1.0);
-    /* 1. Trasladamos al origen del dibujo */
-    cairo_translate(cr, x, y);
-
-    /* 2. Escalamos X con la deformación 3D y Y de forma normal */
-    cairo_scale(cr, base_scale * scale_x, base_scale);
-
-    /*
-     * Si scale_x es negativo (está de espaldas), alineamos
-     * el punto de origen para que gire sobre su propio centro.
-     */
-    if (scale_x < 0)
+    for (int i = -CURSOR_SIZE; i <= CURSOR_SIZE; i++)
     {
-        cairo_translate(cr, -(logo_x + logo_w), -logo_y);
-    }
-    else
-    {
-        cairo_translate(cr, -logo_x, -logo_y);
-    }
+        int x = mouse_x + i;
+        int y = mouse_y;
 
-    cairo_set_line_width(cr, 1.0 / base_scale);
+        if (x >= 0 &&
+            x < (int)output->create.width)
+        {
+            output->pixels[y * pitch + x] = color;
+        }
 
-    draw_logo(cr);
+        x = mouse_x;
+        y = mouse_y + i;
 
-    cairo_restore(cr);
-
-    return 0;
-}
-void sleep_garantizado(double segundos)
-{
-    struct timespec req, rem;
-    req.tv_sec = (time_t)segundos;
-    req.tv_nsec = (long)((segundos - req.tv_sec) * 1e9);
-
-    // nanosleep devuelve -1 si es interrumpido por una señal.
-    // El tiempo restante se guarda en 'rem', por lo que seguimos durmiendo
-    // hasta que el tiempo total se haya cumplido realmente.
-    while (nanosleep(&req, &rem) == -1 && errno == EINTR)
-    {
-        req = rem;
+        if (y >= 0 &&
+            y < (int)output->create.height)
+        {
+            output->pixels[y * pitch + x] = color;
+        }
     }
 }
+void test_input(void)
+{
+    char path[64];
+    int fds[32];
+    int count = 0;
+
+    for (int i = 0; i < 32; i++)
+    {
+        snprintf(path, sizeof(path),
+                 "/dev/input/event%d", i);
+
+        int fd = open(path, O_RDONLY | O_NONBLOCK);
+
+        if (fd < 0)
+            continue;
+
+        fds[count++] = fd;
+
+        printf("INPUT %s fd=%d\n", path, fd);
+    }
+
+    struct input_event ev;
+
+    while (1)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            while (read(fds[i], &ev, sizeof(ev)) == sizeof(ev))
+            {
+                printf("fd=%d  type=%u code=%u value=%d\n",
+                       fds[i],
+                       ev.type,
+                       ev.code,
+                       ev.value);
+            }
+        }
+
+        usleep(10000);
+    }
+}
+
+int open_inputs(void)
+{
+    char path[64];
+
+    input_count = 0;
+
+    for (int i = 0; i < MAX_INPUTS; i++)
+    {
+        snprintf(
+            path,
+            sizeof(path),
+            "/dev/input/event%d",
+            i);
+
+        int fd = open(
+            path,
+            O_RDONLY | O_NONBLOCK);
+
+        if (fd < 0)
+            continue;
+
+        input_fds[input_count++] = fd;
+
+        printf(
+            "INPUT: %s fd=%d\n",
+            path,
+            fd);
+
+        if (input_count >= MAX_INPUTS)
+            break;
+    }
+
+    return input_count;
+}
+
+/// open mouse device //////
+int open_mouse(void)
+{
+    char path[64];
+
+    for (int i = 0; i < 32; i++)
+    {
+        snprintf(
+            path,
+            sizeof(path),
+            "/dev/input/event%d",
+            i);
+
+        int fd = open(
+            path,
+            O_RDONLY | O_NONBLOCK);
+
+        if (fd < 0)
+            continue;
+
+        printf("INPUT: %s\n", path);
+
+        return fd;
+    }
+
+    return -1;
+}
+void process_inputs(DrmOutput *output)
+{
+    struct input_event ev;
+
+    for (int i = 0; i < input_count; i++)
+    {
+        while (read(input_fds[i], &ev, sizeof(ev)) == sizeof(ev))
+        {
+            if (ev.type != EV_REL)
+                continue;
+
+            if (ev.code == REL_X)
+                mouse_x += ev.value;
+
+            else if (ev.code == REL_Y)
+                mouse_y += ev.value;
+        }
+    }
+
+    /* Limitar a pantalla */
+
+    if (mouse_x < 0)
+        mouse_x = 0;
+
+    if (mouse_y < 0)
+        mouse_y = 0;
+
+    if (mouse_x >= (int)output->create.width)
+        mouse_x = output->create.width - 1;
+
+    if (mouse_y >= (int)output->create.height)
+        mouse_y = output->create.height - 1;
+}
+void process_mouse(int fd, DrmOutput *output)
+{
+    struct input_event ev;
+
+    while (read(fd, &ev, sizeof(ev)) == sizeof(ev))
+    {
+        if (ev.type == EV_REL)
+        {
+            if (ev.code == REL_X)
+                mouse_x += ev.value;
+
+            if (ev.code == REL_Y)
+                mouse_y += ev.value;
+        }
+    }
+
+    /*
+     * Limitar cursor a pantalla
+     */
+
+    if (mouse_x < 0)
+        mouse_x = 0;
+
+    if (mouse_y < 0)
+        mouse_y = 0;
+
+    if (mouse_x >= (int)output->create.width)
+        mouse_x = output->create.width - 1;
+
+    if (mouse_y >= (int)output->create.height)
+        mouse_y = output->create.height - 1;
+}
+
+/* ============================================================
+ * LIMPIAR
+ * ============================================================ */
+
 int drm_cleanup(DrmOutput *output)
 {
-    /* 1. Cairo */
-    if (output->cr)
-    {
-        cairo_destroy(output->cr);
-        output->cr = NULL;
-    }
-
-    if (output->surface)
-    {
-        cairo_surface_destroy(output->surface);
-        output->surface = NULL;
-    }
-
-    /* 2. RESTAURAR EL CRTC ORIGINAL EN LA GPU (¡Crucial para Sway!) */
+    /* Restaurar CRTC original */
     if (output->old_crtc && output->fd >= 0)
     {
         drmModeSetCrtc(
@@ -204,290 +274,160 @@ int drm_cleanup(DrmOutput *output)
         output->old_crtc = NULL;
     }
 
-    /* 3. Eliminar Framebuffer DRM del splash */
+    /* Eliminar framebuffer */
     if (output->fb_id && output->fd >= 0)
     {
         drmModeRmFB(output->fd, output->fb_id);
         output->fb_id = 0;
     }
 
-    /* 4. Desmapear dumb buffer */
+    /* Desmapear */
     if (output->pixels)
     {
-        munmap(output->pixels, output->create.size);
+        munmap(
+            output->pixels,
+            output->create.size);
+
         output->pixels = NULL;
     }
 
-    /* 5. Destruir dumb buffer */
+    /* Destruir dumb buffer */
     if (output->create.handle && output->fd >= 0)
     {
         struct drm_mode_destroy_dumb destroy = {0};
+
         destroy.handle = output->create.handle;
 
-        if (drmIoctl(output->fd, DRM_IOCTL_MODE_DESTROY_DUMB, &destroy) < 0)
+        if (drmIoctl(
+                output->fd,
+                DRM_IOCTL_MODE_DESTROY_DUMB,
+                &destroy) < 0)
         {
             perror("DRM_IOCTL_MODE_DESTROY_DUMB");
         }
+
         output->create.handle = 0;
     }
 
-    /* 6. SOLTAR EL CONTROL MASTER Y CERRAR ARCHIVO */
+    /* Cerrar DRM */
     if (output->fd >= 0)
     {
-        /* Avisar al kernel que soltamos la GPU */
         drmDropMaster(output->fd);
 
         close(output->fd);
+
         output->fd = -1;
     }
 
     return 0;
 }
-int drm_restore_crtc(DrmOutput *output)
-{
-    if (!output->old_crtc)
-        return -1;
 
-    int ret = drmModeSetCrtc(
-        output->fd,
-        output->old_crtc->crtc_id,
-        output->old_crtc->buffer_id,
-        output->old_crtc->x,
-        output->old_crtc->y,
-        &output->connector_id,
-        1,
-        &output->old_crtc->mode);
+/* ============================================================
+ * CREAR FRAMEBUFFER
+ * ============================================================ */
 
-    if (ret != 0)
-    {
-        perror("drmModeSetCrtc restore");
-        return -1;
-    }
-
-    return 0;
-}
-
-int draw_title_centered(cairo_t *cr, int width, int height)
-{
-    const char *text = "ZaramagaOS";
-
-    double font_size = height * 0.055;
-
-    cairo_save(cr);
-
-    cairo_set_font_face(
-        cr,
-        cairo_ft_font_face_create_for_ft_face(face, 0));
-
-    cairo_set_font_size(cr, font_size);
-
-    cairo_text_extents_t extents;
-
-    cairo_text_extents(
-        cr,
-        text,
-        &extents);
-
-    double x =
-        (width - extents.width) / 2.0 - extents.x_bearing;
-
-    /*
-     * Ahora queda inmediatamente debajo
-     * del logo.
-     */
-    double y = height * 0.54;
-
-    cairo_move_to(cr, x, y);
-
-    cairo_show_text(cr, text);
-
-    cairo_restore(cr);
-
-    return 0;
-}
-
-int draw_logo_centered(cairo_t *cr, int width, int height, double angle)
-{
-    const double logo_x = 131.9;
-    const double logo_y = 51.9;
-    const double logo_w = 228.0;
-    const double logo_h = 122.0;
-
-    /* Escala proporcional a la resolución */
-    double logo_scale = (height / 1080.0) * 1.6;
-
-    double w = logo_w * logo_scale;
-    double h = logo_h * logo_scale;
-
-    /* Posición de la esquina superior izquierda del logo */
-    double x = (width - w) / 2.0;
-    double y = (height - h) / 2.0 - height * 0.12;
-
-    cairo_save(cr);
-
-    /*
-     * TRUCO DE ROTACIÓN:
-     * 1. Trasladamos el origen de Cairo al CENTRO del logo.
-     */
-    cairo_translate(cr, x + (w / 2.0), y + (h / 2.0));
-
-    /* 2. Rotamos la matriz de dibujo el ángulo recibido */
-    cairo_rotate(cr, angle);
-
-    /* 3. Escalamos */
-    cairo_scale(cr, logo_scale, logo_scale);
-
-    /*
-     * 4. Llevamos el centro geométrico del SVG al origen actual.
-     *    El centro del bounding box del SVG es (logo_x + logo_w/2, logo_y + logo_h/2)
-     */
-    cairo_translate(cr, -(logo_x + logo_w / 2.0), -(logo_y + logo_h / 2.0));
-
-    cairo_set_line_width(cr, 1.0 / logo_scale);
-
-    draw_logo(cr);
-
-    cairo_restore(cr);
-
-    return 0;
-}
-
-
-int drm_draw_splash(DrmOutput *output, FT_Face *face, double angle)
-{
-    cairo_t *cr = output->cr;
-
-    int width = output->create.width;
-    int height = output->create.height;
-
-    /* Fondo */
-    cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-    cairo_paint(cr);
-
-    /* Verde Zaramaga */
-    cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
-
-    /* Giro horizontal tipo moneda 3D */
-    draw_logo_flip_horizontal(cr, width, height, angle);
-
-    /* Título */
-    draw_title_centered(cr, width, height);
-
-    cairo_surface_flush(output->surface);
-
-    /* Copia rápida anti-flicker */
-    unsigned char *data = cairo_image_surface_get_data(output->surface);
-    if (data && output->pixels)
-    {
-        memcpy(output->pixels, data, output->create.size);
-    }
-
-    return 0;
-}
-
-int drm_create_surface(DrmOutput *output)
-{
-    output->surface = cairo_image_surface_create_for_data(
-        (unsigned char *)output->pixels,
-        CAIRO_FORMAT_RGB24,
-        output->create.width,
-        output->create.height,
-        output->create.pitch);
-
-    if (cairo_surface_status(output->surface) != CAIRO_STATUS_SUCCESS)
-        return -1;
-
-    output->cr = cairo_create(output->surface);
-    if (cairo_status(output->cr) != CAIRO_STATUS_SUCCESS)
-        return -1;
-
-    return 0;
-}
 int drm_create_framebuffer(DrmOutput *output)
 {
-    output->create.width = output->mode.hdisplay;
-    output->create.height = output->mode.vdisplay;
+    output->create.width =
+        output->mode.hdisplay;
+
+    output->create.height =
+        output->mode.vdisplay;
+
     output->create.bpp = 32;
 
     /* Crear dumb buffer */
-    if (drmIoctl(output->fd,
-                 DRM_IOCTL_MODE_CREATE_DUMB,
-                 &output->create) < 0)
+
+    if (drmIoctl(
+            output->fd,
+            DRM_IOCTL_MODE_CREATE_DUMB,
+            &output->create) < 0)
     {
         perror("DRM_IOCTL_MODE_CREATE_DUMB");
         return -1;
     }
 
-    printf("Framebuffer:\n");
-    printf("  %ux%u\n",
-           output->create.width,
-           output->create.height);
-    printf("  pitch  : %u\n", output->create.pitch);
-    printf("  size   : %llu\n",
-           (unsigned long long)output->create.size);
-    printf("  handle : %u\n",
-           output->create.handle);
+    printf(
+        "Framebuffer %ux%u pitch=%u size=%llu\n",
+        output->create.width,
+        output->create.height,
+        output->create.pitch,
+        (unsigned long long)output->create.size);
 
-    /*
-     * Mapear dumb buffer
-     */
-    output->map.handle = output->create.handle;
+    /* Mapear dumb buffer */
 
-    if (drmIoctl(output->fd,
-                 DRM_IOCTL_MODE_MAP_DUMB,
-                 &output->map) < 0)
+    output->map.handle =
+        output->create.handle;
+
+    if (drmIoctl(
+            output->fd,
+            DRM_IOCTL_MODE_MAP_DUMB,
+            &output->map) < 0)
     {
         perror("DRM_IOCTL_MODE_MAP_DUMB");
         return -1;
     }
 
-    /*
-     * Mapear memoria a nuestro espacio de usuario
-     */
-    output->pixels =
-        mmap(NULL,
-             output->create.size,
-             PROT_READ | PROT_WRITE,
-             MAP_SHARED,
-             output->fd,
-             output->map.offset);
+    /* Mapear en nuestro proceso */
+
+    output->pixels = mmap(
+        NULL,
+        output->create.size,
+        PROT_READ | PROT_WRITE,
+        MAP_SHARED,
+        output->fd,
+        output->map.offset);
 
     if (output->pixels == MAP_FAILED)
     {
         perror("mmap");
+
         output->pixels = NULL;
+
         return -1;
     }
 
-    /*
-     * Crear framebuffer DRM
-     */
+    /* Crear framebuffer DRM */
+
     uint32_t handles[4] = {0};
     uint32_t pitches[4] = {0};
     uint32_t offsets[4] = {0};
 
-    handles[0] = output->create.handle;
-    pitches[0] = output->create.pitch;
+    handles[0] =
+        output->create.handle;
+
+    pitches[0] =
+        output->create.pitch;
+
     offsets[0] = 0;
 
-    if (drmModeAddFB2(output->fd,
-                      output->create.width,
-                      output->create.height,
-                      DRM_FORMAT_XRGB8888,
-                      handles,
-                      pitches,
-                      offsets,
-                      &output->fb_id,
-                      0) != 0)
+    if (drmModeAddFB2(
+            output->fd,
+            output->create.width,
+            output->create.height,
+            DRM_FORMAT_XRGB8888,
+            handles,
+            pitches,
+            offsets,
+            &output->fb_id,
+            0) != 0)
     {
         perror("drmModeAddFB2");
+
         return -1;
     }
 
-    printf("  fb_id  : %u\n", output->fb_id);
+    printf(
+        "FB ID: %u\n",
+        output->fb_id);
 
     return 0;
 }
+
+/* ============================================================
+ * BUSCAR SALIDAS
+ * ============================================================ */
+
 int drm_find_outputs(DrmSystem *system)
 {
     DIR *dir;
@@ -505,21 +445,39 @@ int drm_find_outputs(DrmSystem *system)
 
     while ((entry = readdir(dir)) != NULL)
     {
-        /* Solo card0, card1, card2... */
-        if (strncmp(entry->d_name, "card", 4) != 0)
+        /*
+         * Solo card0, card1...
+         */
+
+        if (strncmp(
+                entry->d_name,
+                "card",
+                4) != 0)
+        {
             continue;
+        }
 
         char path[64];
-        snprintf(path, sizeof(path), "/dev/dri/%s", entry->d_name);
 
-        int fd = open(path, O_RDWR);
+        snprintf(
+            path,
+            sizeof(path),
+            "/dev/dri/%s",
+            entry->d_name);
+
+        int fd = open(
+            path,
+            O_RDWR);
 
         if (fd < 0)
             continue;
 
-        printf("\nDRM: %s\n", path);
+        printf(
+            "\nDRM: %s\n",
+            path);
 
-        drmModeRes *resources = drmModeGetResources(fd);
+        drmModeRes *resources =
+            drmModeGetResources(fd);
 
         if (!resources)
         {
@@ -527,105 +485,123 @@ int drm_find_outputs(DrmSystem *system)
             continue;
         }
 
-        /* Buscar todos los conectores */
-        for (int i = 0; i < resources->count_connectors; i++)
-        {
-            uint32_t connector_id = resources->connectors[i];
+        /*
+         * Buscar conectores
+         */
 
-            drmModeConnector *conn = drmModeGetConnector(fd, connector_id);
+        for (int i = 0;
+             i < resources->count_connectors;
+             i++)
+        {
+            uint32_t connector_id =
+                resources->connectors[i];
+
+            drmModeConnector *conn =
+                drmModeGetConnector(
+                    fd,
+                    connector_id);
 
             if (!conn)
                 continue;
 
-            printf("  Connector %u: ", conn->connector_id);
-
-            if (conn->connection != DRM_MODE_CONNECTED)
+            if (conn->connection !=
+                DRM_MODE_CONNECTED)
             {
-                printf("desconectado\n");
                 drmModeFreeConnector(conn);
                 continue;
             }
 
-            /* 
-             * 🔑 WAIT PARA HDMI / PUERTOS LENTOS:
-             * Si está conectado físicamente pero aún no ha leído los modos (count_modes == 0),
-             * le damos hasta 1 segundo en pequeños ticks de 50ms para que responda.
-             */
             if (conn->count_modes == 0)
             {
-                printf("conectado pero sin modos (esperando sincronizacion)... ");
-                fflush(stdout);
-
-                int retries = 20; // 20 intentos * 50ms = 1.0 segundo máx.
-                while (conn->count_modes == 0 && retries > 0)
-                {
-                    usleep(50000); // Esperar 50 milisegundos
-                    drmModeFreeConnector(conn);
-                    conn = drmModeGetConnector(fd, connector_id);
-                    retries--;
-                }
-
-                if (!conn || conn->count_modes == 0)
-                {
-                    printf("TIMEOUT\n");
-                    if (conn) drmModeFreeConnector(conn);
-                    continue;
-                }
+                drmModeFreeConnector(conn);
+                continue;
             }
 
-            printf("CONECTADO\n");
-
-            /* Hemos encontrado una salida lista */
             if (system->count >= MAX_OUTPUTS)
             {
-                printf("Máximo de salidas alcanzado\n");
                 drmModeFreeConnector(conn);
                 break;
             }
 
-            DrmOutput *out = &system->outputs[system->count];
+            DrmOutput *output =
+                &system->outputs[system->count];
 
-            memset(out, 0, sizeof(DrmOutput));
+            memset(
+                output,
+                0,
+                sizeof(DrmOutput));
 
-            out->fd = dup(fd);
-            out->connector_id = conn->connector_id;
+            output->fd = dup(fd);
 
-            /* Cogemos el primer modo (el nativo de la pantalla) */
-            out->mode = conn->modes[0];
+            output->connector_id =
+                conn->connector_id;
 
-            /* Buscar encoder */
+            /*
+             * Primer modo.
+             */
+
+            output->mode =
+                conn->modes[0];
+
+            /*
+             * Encoder
+             */
+
             drmModeEncoder *encoder = NULL;
 
             if (conn->encoder_id)
             {
-                encoder = drmModeGetEncoder(fd, conn->encoder_id);
+                encoder =
+                    drmModeGetEncoder(
+                        fd,
+                        conn->encoder_id);
             }
 
             if (!encoder)
             {
-                printf("    Sin encoder válido\n");
                 drmModeFreeConnector(conn);
                 continue;
             }
 
-            out->encoder_id = encoder->encoder_id;
-            out->crtc_id = encoder->crtc_id;
-            out->old_crtc = drmModeGetCrtc(fd, out->crtc_id);
+            output->encoder_id =
+                encoder->encoder_id;
 
-            if (!out->old_crtc)
+            output->crtc_id =
+                encoder->crtc_id;
+
+            /*
+             * Guardar CRTC original
+             */
+
+            output->old_crtc =
+                drmModeGetCrtc(
+                    fd,
+                    output->crtc_id);
+
+            if (!output->old_crtc)
             {
-                printf("    No se pudo guardar el CRTC original\n");
                 drmModeFreeEncoder(encoder);
                 drmModeFreeConnector(conn);
                 continue;
             }
 
-            printf("    Encoder: %u\n", out->encoder_id);
-            printf("    CRTC: %u\n", out->crtc_id);
-            printf("    Modo: %ux%u @ %u Hz\n",
-                   out->mode.hdisplay,
-                   out->mode.vdisplay,
-                   out->mode.vrefresh);
+            printf(
+                "  Connector: %u\n",
+                output->connector_id);
+
+            printf(
+                "  Encoder:   %u\n",
+                output->encoder_id);
+
+            printf(
+                "  CRTC:      %u\n",
+                output->crtc_id);
+
+            printf(
+                "  Modo:      %ux%u @ %u Hz\n",
+                output->mode.hdisplay,
+                output->mode.vdisplay,
+                output->mode.vrefresh);
 
             system->count++;
 
@@ -634,33 +610,27 @@ int drm_find_outputs(DrmSystem *system)
         }
 
         drmModeFreeResources(resources);
+
         close(fd);
     }
 
     closedir(dir);
 
-    printf("\nSalidas DRM encontradas: %d\n", system->count);
+    printf(
+        "\nSalidas DRM: %d\n",
+        system->count);
 
     return system->count;
 }
-int cargarfuente()
-{
-    if (FT_Init_FreeType(&ft))
-    {
-        printf("Error FreeType\n");
-        return EXIT_FAILURE;
-    }
 
-    if (FT_New_Memory_Face(ft, __3270_ttf, sizeof(__3270_ttf), 0, &face))
-    {
-        printf("No se pudo abrir la fuente\n");
-        return EXIT_FAILURE;
-    }
-    return EXIT_SUCCESS;
-}
+/* ============================================================
+ * PRESENTAR
+ * ============================================================ */
+
 int drm_present(DrmOutput *output)
 {
-    uint32_t connector_id = output->connector_id;
+    uint32_t connector_id =
+        output->connector_id;
 
     int ret = drmModeSetCrtc(
         output->fd,
@@ -681,83 +651,147 @@ int drm_present(DrmOutput *output)
     return 0;
 }
 
-int main(int argc, char const *argv[])
+/* ============================================================
+ * DIBUJAR
+ * ============================================================ */
+
+void draw_test(DrmOutput *output)
 {
-    if (cargarfuente() != EXIT_SUCCESS)
-        return EXIT_FAILURE;
+    uint32_t width =
+        output->create.width;
 
-    DrmSystem systema = {0};
-    int n = drm_find_outputs(&systema);
+    uint32_t height =
+        output->create.height;
 
-    /* Setup inicial */
-    for (int i = 0; i < systema.count; i++)
-    {
-        DrmOutput *output = &systema.outputs[i];
-        if (drm_create_framebuffer(output) < 0)
-            return EXIT_FAILURE;
-        if (drm_create_surface(output) < 0)
-            return EXIT_FAILURE;
+    uint32_t pitch =
+        output->create.pitch / 4;
 
-        // Fijar el modo en el hardware una sola vez
-        drm_present(output);
-    }
-
-    double angle = 0.0;
-
-    /* BUCLE DE ANIMACIÓN FLUIDO */
-    for (int frame = 0; frame < 250; frame++)
-    {
-        for (int i = 0; i < systema.count; i++)
-        {
-            DrmOutput *output = &systema.outputs[i];
-            cairo_t *cr = output->cr;
-            int width = output->create.width;
-            int height = output->create.height;
-
-            /*
-             * cairo_push_group() crea un buffer intermedio en RAM súper rápido
-             * gestionado nativamente por Cairo.
-             */
-            cairo_push_group(cr);
-
-            // 1. Pintar fondo
-            cairo_set_source_rgb(cr, 0.0, 0.0, 0.0);
-            cairo_paint(cr);
-
-            // 2. Dibujar logo animado
-            cairo_set_source_rgb(cr, 0.2, 1.0, 0.2);
-            draw_logo_flip_horizontal(cr, width, height, angle);
-            draw_title_centered(cr, width, height);
-
-            /*
-             * cairo_pop_group_to_source() vuelca el dibujo preparado
-             * al buffer DRM de la GPU de una sola pasada optimizada.
-             */
-            cairo_pop_group_to_source(cr);
-            cairo_paint(cr);
-
-            cairo_surface_flush(output->surface);
-        }
-
-        angle += 0.15;            // Aumentar velocidad de rotación
-        sleep_garantizado(0.016); // ~60 FPS
-    }
-
-    /* 
-     * Restaurar el estado original y liberar recursos 
-     * (Sin bloquear el programa si da 'Permission denied' en el initramfs)
+    /*
+     * Negro completo
      */
-    for (int i = 0; i < systema.count; i++)
-    {
-        DrmOutput *output = &systema.outputs[i];
 
-        // Intentamos restaurar, pero NO cortamos la ejecución si falla por permisos
-                // Limpiamos los buffers y cerramos los descriptores
-        drm_cleanup(output);
+    for (uint32_t y = 0;
+         y < height;
+         y++)
+    {
+        uint32_t *row =
+            output->pixels +
+            y * pitch;
+
+        for (uint32_t x = 0;
+             x < width;
+             x++)
+        {
+            row[x] = 0x00000000;
+        }
     }
 
-    // Volver a activar la consola gráfica/texto para TTY1
-    system("setterm -cursor on > /dev/tty1 2>&1");
+    /*
+     * Cuadrado rojo
+     */
 
-    return 0;
+    const uint32_t size = 100;
+
+    uint32_t x0 =
+        (width - size) / 2;
+
+    uint32_t y0 =
+        (height - size) / 2;
+
+    for (uint32_t y = 0;
+         y < size;
+         y++)
+    {
+        uint32_t *row =
+            output->pixels +
+            (y0 + y) * pitch;
+
+        for (uint32_t x = 0;
+             x < size;
+             x++)
+        {
+            row[x0 + x] =
+                0x00FF0000;
+        }
+    }
+}
+/* ============================================================
+ * CURSOR
+ * ============================================================ */
+
+/* ============================================================
+ * MAIN
+ * ============================================================ */
+
+int main(void)
+{
+    DrmSystem systema = {0};
+
+    if (drm_find_outputs(&systema) <= 0)
+    {
+        fprintf(
+            stderr,
+            "No se encontraron salidas DRM\n");
+
+        return EXIT_FAILURE;
+    }
+
+    /*
+     * Por ahora solamente
+     * trabajamos con la primera salida.
+     */
+
+    DrmOutput *output =
+        &systema.outputs[0];
+
+    if (drm_create_framebuffer(output) < 0)
+    {
+        drm_cleanup(output);
+        return EXIT_FAILURE;
+    }
+
+    /*
+     * Dibujar pantalla de prueba.
+     */
+
+    draw_test(output);
+
+    /*
+     * Activar framebuffer.
+     */
+
+    if (drm_present(output) < 0)
+    {
+        drm_cleanup(output);
+        return EXIT_FAILURE;
+    }
+  
+
+    if (open_inputs() <= 0)
+    {
+        fprintf(stderr, "No hay dispositivos de entrada\n");
+        drm_cleanup(output);
+        return EXIT_FAILURE;
+    }
+
+    mouse_x = output->create.width / 2;
+    mouse_y = output->create.height / 2;
+
+    while (1)
+    {
+        process_inputs(output);
+
+        draw_test(output);
+        draw_cursor(output);
+
+        if (drm_present(output) < 0)
+            break;
+
+        usleep(16000);
+    }
+
+    drm_cleanup(output);
+
+    return EXIT_SUCCESS;
+    // test_input();
 }
