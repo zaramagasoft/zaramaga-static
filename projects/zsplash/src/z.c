@@ -527,18 +527,12 @@ int drm_find_outputs(DrmSystem *system)
 
     while ((entry = readdir(dir)) != NULL)
     {
-        /*
-         * Solo card0, card1, card2...
-         */
+        /* Solo card0, card1, card2... */
         if (strncmp(entry->d_name, "card", 4) != 0)
             continue;
 
         char path[64];
-
-        snprintf(path,
-                 sizeof(path),
-                 "/dev/dri/%s",
-                 entry->d_name);
+        snprintf(path, sizeof(path), "/dev/dri/%s", entry->d_name);
 
         int fd = open(path, O_RDWR);
 
@@ -547,8 +541,7 @@ int drm_find_outputs(DrmSystem *system)
 
         printf("\nDRM: %s\n", path);
 
-        drmModeRes *resources =
-            drmModeGetResources(fd);
+        drmModeRes *resources = drmModeGetResources(fd);
 
         if (!resources)
         {
@@ -556,114 +549,101 @@ int drm_find_outputs(DrmSystem *system)
             continue;
         }
 
-        /*
-         * Buscar todos los conectores
-         */
-        for (int i = 0;
-             i < resources->count_connectors;
-             i++)
+        /* Buscar todos los conectores */
+        for (int i = 0; i < resources->count_connectors; i++)
         {
-            uint32_t connector_id =
-                resources->connectors[i];
+            uint32_t connector_id = resources->connectors[i];
 
-            drmModeConnector *conn =
-                drmModeGetConnector(fd, connector_id);
+            drmModeConnector *conn = drmModeGetConnector(fd, connector_id);
 
             if (!conn)
                 continue;
 
-            printf("  Connector %u: ",
-                   conn->connector_id);
+            printf("  Connector %u: ", conn->connector_id);
 
             if (conn->connection != DRM_MODE_CONNECTED)
             {
                 printf("desconectado\n");
-
                 drmModeFreeConnector(conn);
                 continue;
             }
 
+            /* 
+             * 🔑 WAIT PARA HDMI / PUERTOS LENTOS:
+             * Si está conectado físicamente pero aún no ha leído los modos (count_modes == 0),
+             * le damos hasta 1 segundo en pequeños ticks de 50ms para que responda.
+             */
             if (conn->count_modes == 0)
             {
-                printf("conectado pero sin modos\n");
+                printf("conectado pero sin modos (esperando sincronizacion)... ");
+                fflush(stdout);
 
-                drmModeFreeConnector(conn);
-                continue;
+                int retries = 20; // 20 intentos * 50ms = 1.0 segundo máx.
+                while (conn->count_modes == 0 && retries > 0)
+                {
+                    usleep(50000); // Esperar 50 milisegundos
+                    drmModeFreeConnector(conn);
+                    conn = drmModeGetConnector(fd, connector_id);
+                    retries--;
+                }
+
+                if (!conn || conn->count_modes == 0)
+                {
+                    printf("TIMEOUT\n");
+                    if (conn) drmModeFreeConnector(conn);
+                    continue;
+                }
             }
 
             printf("CONECTADO\n");
 
-            /*
-             * Hemos encontrado una salida.
-             */
+            /* Hemos encontrado una salida lista */
             if (system->count >= MAX_OUTPUTS)
             {
                 printf("Máximo de salidas alcanzado\n");
-
                 drmModeFreeConnector(conn);
                 break;
             }
 
-            DrmOutput *out =
-                &system->outputs[system->count];
+            DrmOutput *out = &system->outputs[system->count];
 
             memset(out, 0, sizeof(DrmOutput));
 
             out->fd = dup(fd);
+            out->connector_id = conn->connector_id;
 
-            out->connector_id =
-                conn->connector_id;
-
-            /*
-             * De momento cogemos el primer modo.
-             * Luego hacemos find_best_mode().
-             */
+            /* Cogemos el primer modo (el nativo de la pantalla) */
             out->mode = conn->modes[0];
 
-            /*
-             * Buscar encoder.
-             */
+            /* Buscar encoder */
             drmModeEncoder *encoder = NULL;
 
             if (conn->encoder_id)
             {
-                encoder =
-                    drmModeGetEncoder(
-                        fd,
-                        conn->encoder_id);
+                encoder = drmModeGetEncoder(fd, conn->encoder_id);
             }
 
             if (!encoder)
             {
                 printf("    Sin encoder válido\n");
-
                 drmModeFreeConnector(conn);
                 continue;
             }
 
-            out->encoder_id =
-                encoder->encoder_id;
-
-            out->crtc_id =
-                encoder->crtc_id;
-            out->old_crtc =
-                drmModeGetCrtc(fd, out->crtc_id);
+            out->encoder_id = encoder->encoder_id;
+            out->crtc_id = encoder->crtc_id;
+            out->old_crtc = drmModeGetCrtc(fd, out->crtc_id);
 
             if (!out->old_crtc)
             {
                 printf("    No se pudo guardar el CRTC original\n");
-
                 drmModeFreeEncoder(encoder);
                 drmModeFreeConnector(conn);
                 continue;
             }
 
-            printf("    Encoder: %u\n",
-                   out->encoder_id);
-
-            printf("    CRTC: %u\n",
-                   out->crtc_id);
-
+            printf("    Encoder: %u\n", out->encoder_id);
+            printf("    CRTC: %u\n", out->crtc_id);
             printf("    Modo: %ux%u @ %u Hz\n",
                    out->mode.hdisplay,
                    out->mode.vdisplay,
@@ -676,22 +656,12 @@ int drm_find_outputs(DrmSystem *system)
         }
 
         drmModeFreeResources(resources);
-
-        /*
-         * IMPORTANTE:
-         *
-         * No cerramos fd aquí.
-         *
-         * Todas las salidas encontradas en esta
-         * card utilizan este mismo fd.
-         */
         close(fd);
     }
 
     closedir(dir);
 
-    printf("\nSalidas DRM encontradas: %d\n",
-           system->count);
+    printf("\nSalidas DRM encontradas: %d\n", system->count);
 
     return system->count;
 }
@@ -757,7 +727,7 @@ int main(int argc, char const *argv[])
     double angle = 0.0;
 
     /* BUCLE DE ANIMACIÓN FLUIDO */
-    for (int frame = 0; frame < 100; frame++)
+    for (int frame = 0; frame < 250; frame++)
     {
         for (int i = 0; i < systema.count; i++)
         {
