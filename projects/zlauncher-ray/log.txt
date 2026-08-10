@@ -1,0 +1,1 @@
+openvt: Couldn't deallocate console 2
