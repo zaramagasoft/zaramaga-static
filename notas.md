@@ -1,3 +1,8 @@
+// raylib rsgl //
+make clean
+  496  make TARGET_PLATFORM=PLATFORM_DRM      GRAPHICS=GRAPHICS_API_OPENGL_SOFTWARE      CC=musl-gcc      CFLAGS="-O2 -DPLATFORM_DRM -DGRAPHICS_API_OPENGL_SOFTWARE -I$ZSYS/include"      V=1
+  497  musl-gcc -static -O2     test_drm.c     -I.     -L.     -L"$ZSYS/lib"     -Wl,--start-group     -lraylib     -ldrm     -lpthread     -lrt     -lm     -ldl     -Wl,--end-group     -o test_drm
+  498  file test_drm
 //necesario con muslc
 sudo pacman -S \
     cmake \
