@@ -1,13 +1,13 @@
 //////////////////////
-sudo openvt -f -c 2 -s -w -- ./zl
+sudo openvt -f -c 2 -s -w -- ./zl2
  
 //// compilar ////
 musl-gcc -static -O2 \
-    z.c \
+    z2.c \
     -I$ZSYS/include \
     -L$ZSYS/lib \
     -ldrm \
-    -o zl
+    -o zl2
 
 musl-gcc -static -O2     z.c      -I$ZSYS/include     -I$ZSYS/include/freetype2     -L$ZSYS/lib     -lcairo -lfreetype -ldrm -lpixman-1 -lpng18 -lz -lm     -o zl
 
