@@ -146,7 +146,7 @@ static int detect_outputs(void)
     printf(
         "\nZDRM: %d salida(s) conectada(s)\n",
         output_count);
-
+    printf("Monitores: %d\n", GetMonitorCount());
     return output_count;
 }
 static int is_mouse_device(int fd)
@@ -350,6 +350,7 @@ static void close_mice(void)
 
 int main(void)
 {
+
     const int screen_width = 1280;
     const int screen_height = 720;
 
@@ -492,7 +493,7 @@ int main(void)
 
         EndDrawing();
     }
-
+    printf("Monitores: %d\n", GetMonitorCount());
     /* -----------------------------------------------------
      * CLEANUP
      * ----------------------------------------------------- */
