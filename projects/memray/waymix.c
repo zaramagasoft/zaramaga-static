@@ -344,6 +344,9 @@ int main(void)
             30,
             GREEN);
 
+        DrawRectangle(300, 450, 200, 80, GREEN);
+        DrawText("PULSAME", 340, 475, 30, BLACK);
+
         EndDrawing();
 
         rlCopyFramebuffer(
