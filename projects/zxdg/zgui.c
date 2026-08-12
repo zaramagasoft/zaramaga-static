@@ -787,6 +787,7 @@ void render_frame(void)
                 &g_nk_ctx,
                 anchor_names[i],
                 NK_TEXT_CENTERED);
+          
         }
 
         nk_end(&g_nk_ctx);
