@@ -1,0 +1,10 @@
+/////////////////////////////////////////
+esto es raylib a la memoria platform memory
+
+////////////////////////////////////////////
+/////////////////////////////////ojo//////////////
+$ZSYS/bin/musl-gcc -static test.c ./libraylib.a -Iinclude -lm -o test-static
+
+
+/////////////compilar way.c que es una ventana wayland a secas//////////////
+gcc way.c -lwayland-client -lrt -o way
