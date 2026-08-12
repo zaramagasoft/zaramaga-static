@@ -351,6 +351,7 @@ static void close_mice(void)
 int main(void)
 {
 
+    
     const int screen_width = 1280;
     const int screen_height = 720;
 
