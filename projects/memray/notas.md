@@ -1,5 +1,7 @@
 /////////////////////////////////////////
 esto es raylib a la memoria platform memory
+musl-gcc -static -O0     waymix.c  xdg-shell.c ./libraylib.a     -I"$ZSYS/include"     -I"$ZSYS/include/cairo"     -L"$ZSYS/lib"     -Wl,--start-group     -lcairo     -lpixman-1     -lfreetype     -lpng     -lwayland-client     -lffi     -lm     -ldl     -lrt -lz    -lpthread     -Wl,--end-group     -o waymix2
+
 
 ////////////////////////////////////////////
 /////////////////////////////////ojo//////////////
