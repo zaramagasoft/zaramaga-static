@@ -18,8 +18,11 @@
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
+#define MAX_OUTPUTS 16
 #include "nuklear.h"
 #include "zlayout.h"
+//include "zoutput.h"
+
 // ============================================================================
 // LÍNEA 1: WAYLAND + XDG SHELL
 // ============================================================================
@@ -33,6 +36,40 @@ static struct xdg_surface *g_xdg_surface = NULL;
 static struct xdg_toplevel *g_xdg_toplevel = NULL;
 static struct wl_seat *g_wl_seat = NULL;
 static struct wl_pointer *g_wl_pointer = NULL;
+
+
+typedef struct
+{
+    struct wl_output *output;
+
+    uint32_t name;
+    uint32_t version;
+
+    int32_t x;
+    int32_t y;
+
+    int32_t physical_width;
+    int32_t physical_height;
+
+    int32_t mode_width;
+    int32_t mode_height;
+
+    int32_t refresh;
+
+    int32_t scale;
+    int32_t transform;
+
+    char *output_name;
+    char *description;
+
+    int mode_valid;
+    int geometry_valid;
+    int done;
+
+} ZOutput;
+
+static ZOutput g_outputs[MAX_OUTPUTS];
+static int g_output_count = 0;
 
 static double g_mouse_x = 0.0;
 static double g_mouse_y = 0.0;
@@ -63,6 +100,7 @@ static struct nk_user_font g_nk_user_font;
 static int g_mouse_left = 0;
 static int g_mouse_right = 0;
 static int g_mouse_middle = 0;
+
 ////////////// PROTOTYPES///////////////
 
 ///////////////////////////////////////
@@ -70,9 +108,153 @@ static int g_mouse_middle = 0;
 //////////////////////////////////////
 
 static int create_anonymous_file(size_t size);
+
 ////////////////////////////////////////
 //////////////////////////////////////
+static void zoutput_dump(void)
+{
+    printf("\n");
+    printf("========================================\n");
+    printf("ZOUTPUT: %d monitor(es)\n", g_output_count);
+    printf("========================================\n");
 
+    for (int i = 0; i < g_output_count; i++)
+    {
+        ZOutput *z = &g_outputs[i];
+
+        printf("\nOUTPUT %d\n", i);
+
+        printf(
+            "  Name:        %s\n",
+            z->output_name ? z->output_name : "(sin nombre)");
+
+        printf(
+            "  Description: %s\n",
+            z->description ? z->description : "(sin descripcion)");
+
+        printf(
+            "  Position:    %d, %d\n",
+            z->x,
+            z->y);
+
+        printf(
+            "  Resolution:  %d x %d\n",
+            z->mode_width,
+            z->mode_height);
+
+        printf(
+            "  Refresh:     %.3f Hz\n",
+            z->refresh / 1000.0);
+
+        printf(
+            "  Scale:       %d\n",
+            z->scale);
+
+        printf(
+            "  Transform:   %d\n",
+            z->transform);
+
+        printf(
+            "  Physical:    %d x %d mm\n",
+            z->physical_width,
+            z->physical_height);
+    }
+
+    printf("\n");
+}
+static void zoutput_geometry(
+    void *data,
+    struct wl_output *output,
+    int32_t x,
+    int32_t y,
+    int32_t physical_width,
+    int32_t physical_height,
+    int32_t subpixel,
+    const char *make,
+    const char *model,
+    int32_t transform)
+{
+    ZOutput *z = data;
+
+    z->x = x;
+    z->y = y;
+
+    z->physical_width = physical_width;
+    z->physical_height = physical_height;
+
+    z->transform = transform;
+
+    z->geometry_valid = 1;
+}
+static void zoutput_mode(
+    void *data,
+    struct wl_output *output,
+    uint32_t flags,
+    int32_t width,
+    int32_t height,
+    int32_t refresh)
+{
+    ZOutput *z = data;
+
+    /*
+     * Nos interesa el modo actual.
+     */
+
+    if (flags & WL_OUTPUT_MODE_CURRENT)
+    {
+        z->mode_width = width;
+        z->mode_height = height;
+        z->refresh = refresh;
+        z->mode_valid = 1;
+    }
+}
+static void zoutput_scale(
+    void *data,
+    struct wl_output *output,
+    int32_t factor)
+{
+    ZOutput *z = data;
+
+    z->scale = factor;
+}
+static void zoutput_name(
+    void *data,
+    struct wl_output *output,
+    const char *name)
+{
+    ZOutput *z = data;
+
+    free(z->output_name);
+
+    z->output_name = strdup(name);
+}
+static void zoutput_description(
+    void *data,
+    struct wl_output *output,
+    const char *description)
+{
+    ZOutput *z = data;
+
+    free(z->description);
+
+    z->description = strdup(description);
+}
+static void zoutput_done(
+    void *data,
+    struct wl_output *output)
+{
+    ZOutput *z = data;
+
+    z->done = 1;
+}
+static const struct wl_output_listener zoutput_listener =
+    {
+        .geometry = zoutput_geometry,
+        .mode = zoutput_mode,
+        .done = zoutput_done,
+        .scale = zoutput_scale,
+        .name = zoutput_name,
+        .description = zoutput_description};
 static int resize_shm(int width, int height)
 {
     int stride = width * 4;
@@ -426,6 +608,41 @@ static void registry_global(void *data, struct wl_registry *registry,
         printf("WAYLAND: SEAT OK version=%u\n", seat_version);
         fflush(stdout);
     }
+    else if (strcmp(interface, wl_output_interface.name) == 0)
+    {
+        if (g_output_count >= MAX_OUTPUTS)
+            return;
+
+        ZOutput *z = &g_outputs[g_output_count];
+
+        memset(z, 0, sizeof(*z));
+
+        z->name = name;
+        z->version = version;
+
+        z->scale = 1;
+
+        uint32_t output_version = version < 4 ? version : 4;
+
+        z->output =
+            wl_registry_bind(
+                registry,
+                name,
+                &wl_output_interface,
+                output_version);
+
+        wl_output_add_listener(
+            z->output,
+            &zoutput_listener,
+            z);
+
+        printf(
+            "WAYLAND: OUTPUT encontrado name=%u version=%u\n",
+            name,
+            output_version);
+
+        g_output_count++;
+    }
 }
 static void registry_global_remove(void *data, struct wl_registry *registry, uint32_t name) {}
 static const struct wl_registry_listener registry_listener = {
@@ -627,10 +844,11 @@ int init_wayland_line1(void)
     g_wl_display = wl_display_connect(NULL);
     if (!g_wl_display)
         return -1;
-
+    
     g_wl_registry = wl_display_get_registry(g_wl_display);
     wl_registry_add_listener(g_wl_registry, &registry_listener, NULL);
     wl_display_roundtrip(g_wl_display);
+    // zoutput_print(&g_zoutputs);
 
     g_wl_surface = wl_compositor_create_surface(g_wl_compositor);
     g_xdg_surface = xdg_wm_base_get_xdg_surface(g_xdg_wm_base, g_wl_surface);
@@ -647,6 +865,8 @@ int init_wayland_line1(void)
         fprintf(stderr, "WAYLAND: NO SEAT\n");
         return -1;
     }
+
+    zoutput_dump();
 
     return 0;
 }
