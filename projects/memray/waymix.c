@@ -174,15 +174,16 @@ static void registry_global(
             &xdg_wm_base_interface,
             1);
     }
-    else if(strcmp(interface, wl_seat_interface.name) == 0)
+    else if (strcmp(interface, wl_seat_interface.name) == 0)
     {
         uint32_t seat_version = version < 5 ? version : 5;
         seat = wl_registry_bind(registry, name, &wl_seat_interface, seat_version);
         pointer = wl_seat_get_pointer(seat);
 
         // Asignamos nuestra listener de callbacks
-        //wl_pointer_add_listener(pointer, &pointer_listener, &g_input);
-        if (pointer) {
+        // wl_pointer_add_listener(pointer, &pointer_listener, &g_input);
+        if (pointer)
+        {
             // Asignamos la listener de callbacks del ratón
             wl_pointer_add_listener(pointer, &pointer_listener, &g_input);
         }
@@ -246,11 +247,13 @@ int main(void)
      * Crear wl_surface
      * ----------------------------------------- */
 
-    surface = wl_compositor_create_surface(compositor);
+    surface =
+        wl_compositor_create_surface(compositor);
 
     if (!surface)
     {
-        fprintf(stderr, "No se pudo crear wl_surface\n");
+        fprintf(stderr,
+                "No se pudo crear wl_surface\n");
         return 1;
     }
 
@@ -265,11 +268,11 @@ int main(void)
 
     if (!xdg_surface)
     {
-        fprintf(stderr, "No se pudo crear xdg_surface\n");
+        fprintf(stderr,
+                "No se pudo crear xdg_surface\n");
         return 1;
     }
 
-    /* Listener del configure */
     xdg_surface_add_listener(
         xdg_surface,
         &xdg_surface_listener,
@@ -285,27 +288,24 @@ int main(void)
 
     if (!xdg_toplevel)
     {
-        fprintf(stderr, "No se pudo crear xdg_toplevel\n");
+        fprintf(stderr,
+                "No se pudo crear xdg_toplevel\n");
         return 1;
     }
 
     xdg_toplevel_set_title(
         xdg_toplevel,
-        "memray - 800x600");
+        "WAYMIX");
 
     /* -----------------------------------------
-     * PRIMER COMMIT
-     *
-     * MUY IMPORTANTE:
-     * todavía SIN BUFFER.
-     *
-     * Esto hace que el compositor mande
-     * el primer configure.
+     * Primer commit SIN BUFFER
      * ----------------------------------------- */
 
     wl_surface_commit(surface);
 
-    /* Esperar configure inicial */
+    /* -----------------------------------------
+     * Esperar configure inicial
+     * ----------------------------------------- */
 
     wl_display_roundtrip(display);
 
@@ -322,10 +322,11 @@ int main(void)
      * Crear SHM
      * ----------------------------------------- */
 
-    int fd = shm_open(
-        "/ztest-wayland",
-        O_CREAT | O_RDWR,
-        0600);
+    int fd =
+        shm_open(
+            "/ztest-wayland",
+            O_CREAT | O_RDWR,
+            0600);
 
     if (fd < 0)
     {
@@ -346,13 +347,14 @@ int main(void)
      * Mapear memoria
      * ----------------------------------------- */
 
-    unsigned char *pixels = mmap(
-        NULL,
-        SIZE,
-        PROT_READ | PROT_WRITE,
-        MAP_SHARED,
-        fd,
-        0);
+    unsigned char *pixels =
+        mmap(
+            NULL,
+            SIZE,
+            PROT_READ | PROT_WRITE,
+            MAP_SHARED,
+            fd,
+            0);
 
     if (pixels == MAP_FAILED)
     {
@@ -362,7 +364,7 @@ int main(void)
     }
 
     /* -----------------------------------------
-     * Fondo negro
+     * Limpiar framebuffer
      * ----------------------------------------- */
 
     memset(
@@ -371,35 +373,14 @@ int main(void)
         SIZE);
 
     /* -----------------------------------------
-     * Rectángulo verde
-     *
-     * XRGB8888
-     * ----------------------------------------- */
-
-    for (int y = 200; y < 400; y++)
-    {
-        for (int x = 250; x < 550; x++)
-        {
-            unsigned char *p =
-                pixels +
-                (y * WIDTH + x) * 4;
-
-            p[0] = 0;   /* B */
-            p[1] = 255; /* G */
-            p[2] = 0;   /* R */
-            p[3] = 255; /* X */
-        }
-    }
-
-    /* -----------------------------------------
      * Crear pool Wayland
-     * sobre nuestra memoria SHM
      * ----------------------------------------- */
 
-    pool = wl_shm_create_pool(
-        shm,
-        fd,
-        SIZE);
+    pool =
+        wl_shm_create_pool(
+            shm,
+            fd,
+            SIZE);
 
     if (!pool)
     {
@@ -427,30 +408,171 @@ int main(void)
                 "No se pudo crear wl_buffer\n");
         return 1;
     }
-    InitWindow(WIDTH, HEIGHT, "WAYMIX");
+
+    /* -----------------------------------------
+     * Inicializar Raylib
+     * ----------------------------------------- */
+
+    InitWindow(
+        WIDTH,
+        HEIGHT,
+        "WAYMIX");
+
     SetTargetFPS(30);
+
+    /* -----------------------------------------
+     * Posición inicial del ratón
+     * ----------------------------------------- */
+
+    SetMousePosition(
+        WIDTH / 2,
+        HEIGHT / 2);
+
+    /* -----------------------------------------
+     * LOOP PRINCIPAL
+     * ----------------------------------------- */
+
     while (!WindowShouldClose())
     {
-        // if (wl_display_dispatch(display) < 0)
-        // break;
+        /*
+         * Procesar eventos pendientes de Wayland.
+         *
+         * Esto actualiza:
+         *
+         * g_input.mouse_x
+         * g_input.mouse_y
+         * g_input.btn_left_pressed
+         */
+
         wl_display_dispatch_pending(display);
-        //wl_display_dispatch(display);
+
+        /* -----------------------------------------
+         * Alimentar Raylib
+         * ----------------------------------------- */
+
+        SetMousePosition(
+            (int)g_input.mouse_x,
+            (int)g_input.mouse_y);
+
+        /* -----------------------------------------
+         * Comenzar frame Raylib
+         * ----------------------------------------- */
 
         BeginDrawing();
 
         ClearBackground(BLACK);
 
+        /* -----------------------------------------
+         * Obtener posición desde Raylib
+         * ----------------------------------------- */
+
+        Vector2 mouse =
+            GetMousePosition();
+
+        /* -----------------------------------------
+         * HIT TEST DEL BOTÓN
+         * ----------------------------------------- */
+
+        bool inside =
+            mouse.x >= 300 &&
+            mouse.x <= 500 &&
+            mouse.y >= 450 &&
+            mouse.y <= 530;
+
+        /* -----------------------------------------
+         * Información del ratón
+         * ----------------------------------------- */
+
         DrawText(
-            "ZARAMAGAOS",
-            280,
-            280,
-            30,
+            TextFormat(
+                "RAYLIB MOUSE: %.1f %.1f",
+                mouse.x,
+                mouse.y),
+            20,
+            20,
+            25,
             GREEN);
 
-        DrawRectangle(300, 450, 200, 80, GREEN);
-        DrawText("PULSAME", 340, 475, 30, BLACK);
+        /* -----------------------------------------
+         * Estado hover
+         * ----------------------------------------- */
+
+        DrawText(
+            inside
+                ? "HOVER: SI"
+                : "HOVER: NO",
+            20,
+            55,
+            25,
+            inside ? GREEN : GRAY);
+
+        /* -----------------------------------------
+         * Botón
+         * ----------------------------------------- */
+
+        Color button_color =
+            inside
+                ? DARKGREEN
+                : GREEN;
+
+        DrawRectangle(
+            300,
+            450,
+            200,
+            80,
+            button_color);
+
+        /* -----------------------------------------
+         * Texto botón
+         * ----------------------------------------- */
+
+        DrawText(
+            inside
+                ? "EXIT"
+                : "EXIT",
+            370,
+            475,
+            30,
+            BLACK);
+
+        /* -----------------------------------------
+         * Cursor visual de prueba
+         *
+         * Raylib recibe nuestra posición
+         * desde Wayland.
+         * ----------------------------------------- */
+
+        DrawCircle(
+            (int)mouse.x,
+            (int)mouse.y,
+            5,
+            RED);
+
+        /* -----------------------------------------
+         * Click
+         * ----------------------------------------- */
+
+        if (inside &&
+            IsMouseButtonPressed(
+                MOUSE_BUTTON_LEFT))
+        {
+            printf("EXIT!\n");
+
+            EndDrawing();
+
+            break;
+        }
+
+        /* -----------------------------------------
+         * Finalizar frame Raylib
+         * ----------------------------------------- */
 
         EndDrawing();
+
+        /* -----------------------------------------
+         * Copiar framebuffer Raylib
+         * a SHM Wayland
+         * ----------------------------------------- */
 
         rlCopyFramebuffer(
             0,
@@ -459,6 +581,10 @@ int main(void)
             HEIGHT,
             RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
             pixels);
+
+        /* -----------------------------------------
+         * Presentar en Wayland
+         * ----------------------------------------- */
 
         wl_surface_attach(
             surface,
@@ -472,14 +598,64 @@ int main(void)
             0,
             WIDTH,
             HEIGHT);
-            
 
-        wl_surface_commit(surface);
+        wl_surface_commit(
+            surface);
 
-        wl_display_flush(display);
+        wl_display_flush(
+            display);
 
-        wl_display_dispatch(display);
+        /* -----------------------------------------
+         * Esperar/procesar eventos
+         *
+         * TEMPORAL.
+         *
+         * Después lo sustituimos por poll().
+         * ----------------------------------------- */
+
+        if (wl_display_dispatch(display) < 0)
+        {
+            break;
+        }
     }
+
+    /* -----------------------------------------
+     * Limpieza
+     * ----------------------------------------- */
+
+    wl_buffer_destroy(buffer);
+    wl_shm_pool_destroy(pool);
+
+    munmap(
+        pixels,
+        SIZE);
+
+    close(fd);
+
+    if (pointer)
+        wl_pointer_destroy(pointer);
+
+    if (seat)
+        wl_seat_destroy(seat);
+
+    xdg_toplevel_destroy(xdg_toplevel);
+    xdg_surface_destroy(xdg_surface);
+    wl_surface_destroy(surface);
+
+    if (xdg_wm_base)
+        xdg_wm_base_destroy(xdg_wm_base);
+
+    if (shm)
+        wl_shm_destroy(shm);
+
+    if (compositor)
+        wl_compositor_destroy(compositor);
+
+    wl_registry_destroy(registry);
+
+    wl_display_disconnect(display);
+
+    CloseWindow();
 
     return 0;
 }
