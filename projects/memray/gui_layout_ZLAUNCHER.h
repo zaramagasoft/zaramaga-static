@@ -108,27 +108,27 @@ GuiLayoutState InitGuiLayout(void)
     GuiLayoutState state = { 0 };
 
     // Init anchors
-    state.anchor01 = (Vector2){ 48, 120 };            // ANCHOR ID:1
-    state.anchor02 = (Vector2){ 1000, 120 };            // ANCHOR ID:2
+    state.anchor01 = (Vector2){ 8, 64 };            // ANCHOR ID:1
+    state.anchor02 = (Vector2){ 560, 72 };            // ANCHOR ID:2
     state.anchor03 = (Vector2){ 0, 0 };            // ANCHOR ID:3
-    state.anchor04 = (Vector2){ 48, 648 };            // ANCHOR ID:4
+    state.anchor04 = (Vector2){ 8, 512 };            // ANCHOR ID:4
     
     // Initilize controls variables
     state.CheckBoxExAUTOBOOTChecked = false;            // CheckBoxEx: CheckBoxExAUTOBOOT
 
     // Init controls rectangles
-    state.layoutRecs[0] = (Rectangle){ 48, 24, 176, 24 };// Label: LabelKERNEL
-    state.layoutRecs[1] = (Rectangle){ 264, 24, 176, 24 };// Label: LabelCPU
-    state.layoutRecs[2] = (Rectangle){ 472, 24, 176, 24 };// Label: LabelRAM
-    state.layoutRecs[3] = (Rectangle){ 720, 24, 176, 24 };// Label: LabelGPU
-    state.layoutRecs[4] = (Rectangle){ 440, 120, 400, 296 };// DummyRec: DummyRecLOGO
-    state.layoutRecs[5] = (Rectangle){ 1000, 24, 176, 24 };// Label: LabelDATEHOUR
-    state.layoutRecs[6] = (Rectangle){ 48, 576, 176, 24 };// Label: LabelAUDIO
-    state.layoutRecs[7] = (Rectangle){ 264, 576, 176, 24 };// Label: LabelSCREENS
-    state.layoutRecs[8] = (Rectangle){ 496, 576, 176, 24 };// Label: LabelNET
-    state.layoutRecs[9] = (Rectangle){ 736, 576, 176, 24 };// Label: LabelUSERS
-    state.layoutRecs[10] = (Rectangle){ 984, 576, 176, 24 };// Label: LabelAVANCED
-    state.layoutRecs[11] = (Rectangle){ state.anchor01.x + 0, state.anchor01.y + 0, 240, 408 };// GroupBox: GroupBox011
+    state.layoutRecs[0] = (Rectangle){ 24, 24, 176, 24 };// Label: LabelKERNEL
+    state.layoutRecs[1] = (Rectangle){ 216, 24, 176, 24 };// Label: LabelCPU
+    state.layoutRecs[2] = (Rectangle){ 408, 24, 176, 24 };// Label: LabelRAM
+    state.layoutRecs[3] = (Rectangle){ 608, 24, 176, 24 };// Label: LabelGPU
+    state.layoutRecs[4] = (Rectangle){ 264, 104, 280, 296 };// DummyRec: DummyRecLOGO
+    state.layoutRecs[5] = (Rectangle){ 600, 96, 176, 24 };// Label: LabelDATEHOUR
+    state.layoutRecs[6] = (Rectangle){ 24, 488, 176, 24 };// Label: LabelAUDIO
+    state.layoutRecs[7] = (Rectangle){ 216, 488, 176, 24 };// Label: LabelSCREENS
+    state.layoutRecs[8] = (Rectangle){ 400, 488, 176, 24 };// Label: LabelNET
+    state.layoutRecs[9] = (Rectangle){ 592, 488, 176, 24 };// Label: LabelUSERS
+    state.layoutRecs[10] = (Rectangle){ 304, 432, 176, 24 };// Label: LabelAVANCED
+    state.layoutRecs[11] = (Rectangle){ state.anchor01.x + 0, state.anchor01.y + 8, 240, 408 };// GroupBox: GroupBox011
     state.layoutRecs[12] = (Rectangle){ state.anchor01.x + 24, state.anchor01.y + 24, 24, 24 };// CheckBoxEx: CheckBoxExAUTOBOOT
     state.layoutRecs[13] = (Rectangle){ state.anchor01.x + 24, state.anchor01.y + 72, 192, 24 };// Button: ButtonSWAYPRINCIPAL
     state.layoutRecs[14] = (Rectangle){ state.anchor01.x + 24, state.anchor01.y + 120, 192, 24 };// Button: ButtonSWAYGAMER
@@ -138,8 +138,8 @@ GuiLayoutState InitGuiLayout(void)
     state.layoutRecs[18] = (Rectangle){ state.anchor01.x + 24, state.anchor01.y + 312, 192, 24 };// Button: ButtonTTY
     state.layoutRecs[19] = (Rectangle){ state.anchor01.x + 24, state.anchor01.y + 360, 192, 24 };// Button: ButtonOTHER
     state.layoutRecs[20] = (Rectangle){ state.anchor02.x + 0, state.anchor02.y + 0, 232, 408 };// GroupBox: GroupBox020
-    state.layoutRecs[21] = (Rectangle){ state.anchor03.x + 0, state.anchor03.y + 0, 1280, 760 };// GroupBox: GroupBoxMAIN
-    state.layoutRecs[22] = (Rectangle){ state.anchor04.x + 0, state.anchor04.y + 0, 1184, 72 };// GroupBox: GroupBoxMETRICS
+    state.layoutRecs[21] = (Rectangle){ state.anchor03.x + 0, state.anchor03.y + 8, 800, 600 };// GroupBox: GroupBoxMAIN
+    state.layoutRecs[22] = (Rectangle){ state.anchor04.x + 0, state.anchor04.y + 8, 784, 64 };// GroupBox: GroupBoxMETRICS
 
     // Custom variables initialization
 

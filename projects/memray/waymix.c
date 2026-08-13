@@ -13,8 +13,8 @@
 #define RAYGUI_IMPLEMENTATION
 #include "raygui.h"
 
-#define GUI_LAYOUT_HOME_IMPLEMENTATION
-#include "gui_layout_home.h"
+#define GUI_LAYOUT_ZLAUNCHER_IMPLEMENTATION
+#include "gui_layout_ZLAUNCHER.h"
 
 #define WIDTH 800
 #define HEIGHT 600
@@ -209,7 +209,7 @@ static const struct wl_registry_listener registry_listener = {
 
 int main(void)
 {
-    printf("Wayland 800x600\n");
+    printf("Wayland %dx%d\n", WIDTH, HEIGHT);
 
     /* -----------------------------------------
      * Conectar con Wayland
@@ -423,9 +423,10 @@ int main(void)
         WIDTH,
         HEIGHT,
         "WAYMIX");
-
-    SetTargetFPS(30);
-        GuiLayoutHomeState layout = InitGuiLayoutHome();
+    RenderTexture2D target = LoadRenderTexture(800, 600);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
+    SetTargetFPS(10);
+    GuiLayoutState layout = InitGuiLayout();
     /* -----------------------------------------
      * Posición inicial del ratón
      * ----------------------------------------- */
@@ -438,46 +439,31 @@ int main(void)
      * LOOP PRINCIPAL
      * ----------------------------------------- */
 
+    /* -----------------------------------------
+     * LOOP PRINCIPAL (CORREGIDO)
+     * ----------------------------------------- */
+
     while (!WindowShouldClose())
     {
         /*
          * Procesar eventos pendientes de Wayland.
-         *
-         * Esto actualiza:
-         *
-         * g_input.mouse_x
-         * g_input.mouse_y
-         * g_input.btn_left_pressed
          */
-
         wl_display_dispatch_pending(display);
 
         /* -----------------------------------------
          * Alimentar Raylib
          * ----------------------------------------- */
-
         SetMousePosition(
             (int)g_input.mouse_x,
             (int)g_input.mouse_y);
 
         /* -----------------------------------------
-         * Comenzar frame Raylib
+         * PASO 1: Renderizar DENTRO de la Render Texture
          * ----------------------------------------- */
-
-        BeginDrawing();
-
+        BeginTextureMode(target);
         ClearBackground(BLACK);
 
-        /* -----------------------------------------
-         * Obtener posición desde Raylib
-         * ----------------------------------------- */
-
-        Vector2 mouse =
-            GetMousePosition();
-
-        /* -----------------------------------------
-         * HIT TEST DEL BOTÓN
-         * ----------------------------------------- */
+        Vector2 mouse = GetMousePosition();
 
         bool inside =
             mouse.x >= 300 &&
@@ -485,60 +471,39 @@ int main(void)
             mouse.y >= 450 &&
             mouse.y <= 530;
 
-        /* -----------------------------------------
-         * Información del ratón
-         * ----------------------------------------- */
+        DrawText(
+            TextFormat("RAYLIB MOUSE: %.1f %.1f", mouse.x, mouse.y),
+            20, 20, 25, GREEN);
 
         DrawText(
-            TextFormat(
-                "RAYLIB MOUSE: %.1f %.1f",
-                mouse.x,
-                mouse.y),
-            20,
-            20,
-            25,
-            GREEN);
+            inside ? "HOVER: SI" : "HOVER: NO",
+            20, 55, 25, inside ? GREEN : GRAY);
+
+        // Dibuja el Layout
+        GuiLayout(&layout);
+        EndTextureMode();
 
         /* -----------------------------------------
-         * Estado hover
+         * PASO 2: Dibujar la Render Texture en el Framebuffer de Raylib
+         * (Esto corrige la inversión del eje Y de OpenGL)
          * ----------------------------------------- */
-
-        DrawText(
-            inside
-                ? "HOVER: SI"
-                : "HOVER: NO",
-            20,
-            55,
-            25,
-            inside ? GREEN : GRAY);
-
-      
-        /* -----------------------------------------
-         * Cursor visual de prueba
-         *
-         * Raylib recibe nuestra posición
-         * desde Wayland.
-         * ----------------------------------------- */
-
-       
-
-        /* -----------------------------------------
-         * Click
-         * ----------------------------------------- */
-
-        GuiLayoutHome(&layout);
-
-        /* -----------------------------------------
-         * Finalizar frame Raylib
-         * ----------------------------------------- */
-
+        BeginDrawing();
+        ClearBackground(BLACK);
+        // El -HEIGHT invierte la textura para que se dibuje al derecho en OpenGL
+        DrawTexturePro(
+            target.texture,
+            (Rectangle){0, 0, (float)WIDTH, (float)-HEIGHT},
+            (Rectangle){0, 0, (float)WIDTH, (float)HEIGHT},
+            (Vector2){0, 0},
+            0.0f,
+            WHITE);
         EndDrawing();
 
         /* -----------------------------------------
-         * Copiar framebuffer Raylib
-         * a SHM Wayland
+         * PASO 3: Copiar desde el Framebuffer de Raylib a SHM Wayland
          * ----------------------------------------- */
-
+        // Como ya dibujamos la textura en el Framebuffer principal con BeginDrawing(),
+        // rlCopyFramebuffer ahora SÍ tiene la imagen completa y al derecho.
         rlCopyFramebuffer(
             0,
             0,
@@ -550,34 +515,14 @@ int main(void)
         /* -----------------------------------------
          * Presentar en Wayland
          * ----------------------------------------- */
-
-        wl_surface_attach(
-            surface,
-            buffer,
-            0,
-            0);
-
-        wl_surface_damage_buffer(
-            surface,
-            0,
-            0,
-            WIDTH,
-            HEIGHT);
-
-        wl_surface_commit(
-            surface);
-
-        wl_display_flush(
-            display);
+        wl_surface_attach(surface, buffer, 0, 0);
+        wl_surface_damage_buffer(surface, 0, 0, WIDTH, HEIGHT);
+        wl_surface_commit(surface);
+        wl_display_flush(display);
 
         /* -----------------------------------------
-         * Esperar/procesar eventos
-         *
-         * TEMPORAL.
-         *
-         * Después lo sustituimos por poll().
+         * Esperar/Procesar eventos
          * ----------------------------------------- */
-
         if (wl_display_dispatch(display) < 0)
         {
             break;
@@ -587,7 +532,7 @@ int main(void)
     /* -----------------------------------------
      * Limpieza
      * ----------------------------------------- */
-
+    UnloadRenderTexture(target);
     wl_buffer_destroy(buffer);
     wl_shm_pool_destroy(pool);
 
