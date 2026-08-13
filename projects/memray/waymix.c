@@ -16,14 +16,14 @@
 #define GUI_LAYOUT_ZLAUNCHER_IMPLEMENTATION
 #include "gui_layout_ZLAUNCHER.h"
 
-#define WIDTH 800
-#define HEIGHT 600
-#define SIZE (WIDTH * HEIGHT * 4)
+#define WIDTH 1280
+#define HEIGHT 768
+#define SIZE (WIDTH * HEIGHT * 2)
 static bool need_redraw = true;
 static bool isHover = false;
 static bool oldHover = false;
 // Framebuffer permanente en BSS
-static unsigned char g_framebuffer[WIDTH * HEIGHT * 4];
+static unsigned char g_framebuffer[WIDTH * HEIGHT * 2];
 
 // Puntero constante al framebuffer
 unsigned char *const g_pBuffer = g_framebuffer;
@@ -409,9 +409,9 @@ int main(void)
             0,
             WIDTH,
             HEIGHT,
-            WIDTH * 4,
-            WL_SHM_FORMAT_XRGB8888);
-
+            WIDTH * 2,
+            //WL_SHM_FORMAT_XRGB8888);
+            WL_SHM_FORMAT_RGB565);
     if (!buffer)
     {
         fprintf(stderr,
@@ -539,7 +539,8 @@ int main(void)
                 0,
                 WIDTH,
                 HEIGHT,
-                RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
+                //RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
+                RL_PIXELFORMAT_UNCOMPRESSED_R5G6B5,
                 pixels);
 
             /*
