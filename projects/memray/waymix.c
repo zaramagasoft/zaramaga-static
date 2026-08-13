@@ -16,10 +16,12 @@
 #define GUI_LAYOUT_ZLAUNCHER_IMPLEMENTATION
 #include "gui_layout_ZLAUNCHER.h"
 
-#define WIDTH 1024
-#define HEIGHT 768
+#define WIDTH 800
+#define HEIGHT 600
 #define SIZE (WIDTH * HEIGHT * 4)
-
+static bool need_redraw = true;
+static bool isHover = false;
+static bool oldHover = false;
 // Framebuffer permanente en BSS
 static unsigned char g_framebuffer[WIDTH * HEIGHT * 4];
 
@@ -44,6 +46,8 @@ static int configured = 0;
 
 static float g_mouse_x = 0.0f;
 static float g_mouse_y = 0.0f;
+static unsigned long ray_frame_count = 0;
+static unsigned long way_frame_count = 0;
 typedef struct
 {
     float mouse_x;
@@ -420,11 +424,11 @@ int main(void)
      * ----------------------------------------- */
 
     InitWindow(
-        1024,
-        768,
+        WIDTH,
+        HEIGHT,
         "WAYMIX");
-    RenderTexture2D target = LoadRenderTexture(800, 600);
-    SetTextureFilter(target.texture, TEXTURE_FILTER_TRILINEAR);
+    // RenderTexture2D target = LoadRenderTexture(800, 600);
+    // SetTextureFilter(target.texture, TEXTURE_FILTER_TRILINEAR);
     SetTargetFPS(10);
     GuiLayoutState layout = InitGuiLayout();
     /* -----------------------------------------
@@ -445,94 +449,150 @@ int main(void)
 
     while (!WindowShouldClose())
     {
-        /*
-         * Procesar eventos pendientes de Wayland.
-         */
         wl_display_dispatch_pending(display);
 
-        /* -----------------------------------------
-         * Alimentar Raylib
-         * ----------------------------------------- */
+        /*
+         * -----------------------------------------
+         * Procesar input
+         * -----------------------------------------
+         */
+
         SetMousePosition(
             (int)g_input.mouse_x,
             (int)g_input.mouse_y);
 
-        /* -----------------------------------------
-         * PASO 1: Renderizar DENTRO de la Render Texture
-         * ----------------------------------------- */
-        BeginTextureMode(target);
-        ClearBackground(BLACK);
-
         Vector2 mouse = GetMousePosition();
 
-        bool inside =
-            mouse.x >= 300 &&
-            mouse.x <= 500 &&
-            mouse.y >= 450 &&
-            mouse.y <= 530;
-
-        DrawText(
-            TextFormat("RAYLIB MOUSE: %.1f %.1f", mouse.x, mouse.y),
-            20, 20, 25, GREEN);
-
-        DrawText(
-            inside ? "HOVER: SI" : "HOVER: NO",
-            20, 55, 25, inside ? GREEN : GRAY);
-
-        // Dibuja el Layout
-        GuiLayout(&layout);
-        EndTextureMode();
-
-        /* -----------------------------------------
-         * PASO 2: Dibujar la Render Texture en el Framebuffer de Raylib
-         * (Esto corrige la inversión del eje Y de OpenGL)
-         * ----------------------------------------- */
-        BeginDrawing();
-        ClearBackground(BLACK);
-        // El -HEIGHT invierte la textura para que se dibuje al derecho en OpenGL
-        DrawTexturePro(
-            target.texture,
-            (Rectangle){0, 0, (float)800, (float)-600},
-            (Rectangle){0, 0, (float)WIDTH, (float)HEIGHT},
-            (Vector2){0, 0},
-            0.0f,
-            WHITE);
-        EndDrawing();
-
-        /* -----------------------------------------
-         * PASO 3: Copiar desde el Framebuffer de Raylib a SHM Wayland
-         * ----------------------------------------- */
-        // Como ya dibujamos la textura en el Framebuffer principal con BeginDrawing(),
-        // rlCopyFramebuffer ahora SÍ tiene la imagen completa y al derecho.
-        rlCopyFramebuffer(
-            0,
-            0,
-            WIDTH,
-            HEIGHT,
-            RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
-            pixels);
-
-        /* -----------------------------------------
-         * Presentar en Wayland
-         * ----------------------------------------- */
-        wl_surface_attach(surface, buffer, 0, 0);
-        wl_surface_damage_buffer(surface, 0, 0, WIDTH, HEIGHT);
-        wl_surface_commit(surface);
-        wl_display_flush(display);
-
-        /* -----------------------------------------
-         * Esperar/Procesar eventos
-         * ----------------------------------------- */
-        if (wl_display_dispatch(display) < 0)
+        isHover =
+            CheckCollisionPointRec(
+                mouse,
+                layout.layoutRecs[13]);
+        if (isHover != oldHover)
         {
-            break;
-        }
-    }
+            oldHover = isHover;
+            need_redraw = true;
 
+            printf(
+                "HOVER CAMBIO -> %d\n",
+                isHover);
+        }
+
+        printf(
+            "mouse Ray= %.0f %.0f | hover Ray= %d\n",
+            mouse.x,
+            mouse.y,
+            isHover);
+
+        /*
+         * -----------------------------------------
+         * RENDER
+         * -----------------------------------------
+         */
+
+        if (need_redraw)
+        {
+            ray_frame_count++;
+
+            printf("ray framecount %d\n", ray_frame_count);
+
+            BeginDrawing();
+
+            ClearBackground(BLACK);
+
+            Vector2 mouse = GetMousePosition();
+
+            bool inside =
+                mouse.x >= 300 &&
+                mouse.x <= 500 &&
+                mouse.y >= 450 &&
+                mouse.y <= 530;
+
+            DrawText(
+                TextFormat(
+                    "RAYLIB MOUSE: %.1f %.1f",
+                    mouse.x,
+                    mouse.y),
+                20,
+                20,
+                25,
+                GREEN);
+
+            DrawText(
+                inside ? "HOVER: SI" : "HOVER: NO",
+                20,
+                55,
+                25,
+                inside ? GREEN : GRAY);
+
+            GuiLayout(&layout);
+
+            EndDrawing();
+
+            /*
+             * -----------------------------------------
+             * Raylib → SHM
+             * -----------------------------------------
+             */
+
+            rlCopyFramebuffer(
+                0,
+                0,
+                WIDTH,
+                HEIGHT,
+                RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
+                pixels);
+
+            /*
+             * -----------------------------------------
+             * Wayland PRESENT
+             * -----------------------------------------
+             */
+
+            wl_surface_attach(
+                surface,
+                buffer,
+                0,
+                0);
+
+            wl_surface_damage_buffer(
+                surface,
+                0,
+                0,
+                WIDTH,
+                HEIGHT);
+
+            wl_surface_commit(surface);
+
+            wl_display_flush(display);
+
+            way_frame_count++;
+
+            printf(
+                "way frames %d\n",
+                way_frame_count);
+
+            /*
+             * -----------------------------------------
+             * Ya hemos dibujado este estado
+             * -----------------------------------------
+             */
+
+            need_redraw = false;
+        }
+
+        /*
+         * -----------------------------------------
+         * Eventos Wayland
+         * -----------------------------------------
+         */
+
+        if (wl_display_dispatch(display) < 0)
+            break;
+    }
     /* -----------------------------------------
      * Limpieza
      * ----------------------------------------- */
-    UnloadRenderTexture(target);
+    // UnloadRenderTexture(target);
     wl_buffer_destroy(buffer);
     wl_shm_pool_destroy(pool);
 
