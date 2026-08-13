@@ -28,11 +28,95 @@ static struct wl_shm *shm;
 static struct wl_surface *surface;
 static struct wl_shm_pool *pool;
 static struct wl_buffer *buffer;
+struct wl_seat *seat = NULL;
+struct wl_pointer *pointer = NULL;
 
 static struct xdg_wm_base *xdg_wm_base;
 static struct xdg_surface *xdg_surface;
 static struct xdg_toplevel *xdg_toplevel;
 static int configured = 0;
+
+static float g_mouse_x = 0.0f;
+static float g_mouse_y = 0.0f;
+typedef struct
+{
+    float mouse_x;
+    float mouse_y;
+    bool mouse_inside;      // Indica si el ratón está dentro de la ventana
+    bool btn_left_pressed;  // Clic izquierdo
+    bool btn_right_pressed; // Clic derecho
+    float scroll_y;         // Desplazamiento de la rueda del ratón
+} WaylandInputState;
+static WaylandInputState g_input = {0};
+static void pointer_handle_frame(
+    void *data,
+    struct wl_pointer *pointer)
+{
+    /* Fin del grupo de eventos del puntero */
+}
+static void pointer_handle_enter(void *data, struct wl_pointer *pointer,
+                                 uint32_t serial, struct wl_surface *surface,
+                                 wl_fixed_t sx, wl_fixed_t sy)
+{
+    g_input.mouse_inside = true;
+    g_input.mouse_x = (float)wl_fixed_to_double(sx);
+    g_input.mouse_y = (float)wl_fixed_to_double(sy);
+    printf("Mouse entered at: (%.2f, %.2f)\n", g_input.mouse_x, g_input.mouse_y);
+    // Opcional: Cambiar el cursor a uno personalizado o del sistema aquí
+}
+// 2. Salir de la ventana (Pierde el foco el puntero)
+static void pointer_handle_leave(void *data, struct wl_pointer *pointer,
+                                 uint32_t serial, struct wl_surface *surface)
+{
+    g_input.mouse_inside = false;
+    printf("Mouse left the window\n");
+    // Reseteamos estados de botones al salir por seguridad
+    g_input.btn_left_pressed = false;
+    g_input.btn_right_pressed = false;
+}
+static void pointer_handle_button(void *data, struct wl_pointer *pointer,
+                                  uint32_t serial, uint32_t time,
+                                  uint32_t button, uint32_t state)
+{
+    // Linux linux/input-event-codes.h: BTN_LEFT = 272 (0x110), BTN_RIGHT = 273 (0x111)
+    bool is_pressed = (state == WL_POINTER_BUTTON_STATE_PRESSED);
+
+    if (button == 272)
+    { // BTN_LEFT
+        g_input.btn_left_pressed = is_pressed;
+    }
+    else if (button == 273)
+    { // BTN_RIGHT
+        g_input.btn_right_pressed = is_pressed;
+    }
+}
+static void pointer_handle_axis(void *data, struct wl_pointer *pointer,
+                                uint32_t time, uint32_t axis, wl_fixed_t value)
+{
+    // axis == WL_POINTER_AXIS_VERTICAL_SCROLL (0)
+    if (axis == WL_POINTER_AXIS_VERTICAL_SCROLL)
+    {
+        // En Wayland el valor viene en escala de subpíxeles, lo normalizamos
+        g_input.scroll_y += (float)wl_fixed_to_double(value);
+    }
+}
+// Callback de movimiento del puntero de Wayland
+static void pointer_handle_motion(void *data, struct wl_pointer *pointer,
+                                  uint32_t time, wl_fixed_t sx, wl_fixed_t sy)
+{
+    // Convertimos de formato punto fijo (wl_fixed_t) a float
+    g_input.mouse_x = wl_fixed_to_double(sx);
+    g_input.mouse_y = wl_fixed_to_double(sy);
+    printf("Mouse moved to: (%.2f, %.2f)\n", g_input.mouse_x, g_input.mouse_y);
+}
+static const struct wl_pointer_listener pointer_listener = {
+    .enter = pointer_handle_enter,
+    .leave = pointer_handle_leave,
+    .motion = pointer_handle_motion, // <--- Este evento actualiza la posición
+    .button = pointer_handle_button,
+    .axis = pointer_handle_axis,
+    .frame = pointer_handle_frame,
+};
 
 static void xdg_ping(
     void *data,
@@ -89,6 +173,19 @@ static void registry_global(
             name,
             &xdg_wm_base_interface,
             1);
+    }
+    else if(strcmp(interface, wl_seat_interface.name) == 0)
+    {
+        uint32_t seat_version = version < 5 ? version : 5;
+        seat = wl_registry_bind(registry, name, &wl_seat_interface, seat_version);
+        pointer = wl_seat_get_pointer(seat);
+
+        // Asignamos nuestra listener de callbacks
+        //wl_pointer_add_listener(pointer, &pointer_listener, &g_input);
+        if (pointer) {
+            // Asignamos la listener de callbacks del ratón
+            wl_pointer_add_listener(pointer, &pointer_listener, &g_input);
+        }
     }
 }
 
@@ -331,8 +428,14 @@ int main(void)
         return 1;
     }
     InitWindow(WIDTH, HEIGHT, "WAYMIX");
+    SetTargetFPS(30);
     while (!WindowShouldClose())
     {
+        // if (wl_display_dispatch(display) < 0)
+        // break;
+        wl_display_dispatch_pending(display);
+        //wl_display_dispatch(display);
+
         BeginDrawing();
 
         ClearBackground(BLACK);
@@ -369,51 +472,14 @@ int main(void)
             0,
             WIDTH,
             HEIGHT);
+            
 
         wl_surface_commit(surface);
 
         wl_display_flush(display);
+
+        wl_display_dispatch(display);
     }
-    /* -----------------------------------------
-     * Mandar framebuffer a Wayland
-     * ----------------------------------------- */
-
-    // wl_surface_attach(
-    //     surface,
-    //     buffer,
-    //     0,
-    //     0);
-
-    // wl_surface_damage_buffer(
-    //     surface,
-    //     0,
-    //     0,
-    //     WIDTH,
-    //     HEIGHT);
-
-    // wl_surface_commit(surface);
-
-    // /* -----------------------------------------
-    //  * Esperar procesamiento
-    //  * ----------------------------------------- */
-
-    // wl_display_roundtrip(display);
-
-    // printf(
-    //     "Buffer enviado a Wayland: %p\n",
-    //     pixels);
-
-    // printf(
-    //     "SIZE: %d bytes\n",
-    //     SIZE);
-
-    // /* -----------------------------------------
-    //  * Mantener ventana viva
-    //  * ----------------------------------------- */
-
-    // while (wl_display_dispatch(display) != -1)
-    // {
-    // }
 
     return 0;
 }
