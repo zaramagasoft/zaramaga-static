@@ -423,7 +423,7 @@ int main(void)
         WIDTH,
         HEIGHT,
         "WAYMIX");
-    RenderTexture2D target = LoadRenderTexture(800, 600);
+    RenderTexture2D target = LoadRenderTexture(1024, 768);
     SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
     SetTargetFPS(10);
     GuiLayoutState layout = InitGuiLayout();
