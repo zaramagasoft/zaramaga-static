@@ -1,0 +1,36 @@
+#
+# rgl layout text file (v4.0) - raygui layout file generated using rGuiLayout
+#
+# Number of controls:     21
+#
+# Ref. window:    r <x> <y> <width> <height>
+# Anchor info:    a <id> <name> <posx> <posy> <enabled>
+# Control info:   c <id> <type> <name> <rectangle> <anchor_id> <text>
+#
+r 0 40 -1 -1
+a 001 anchor01 0 0 1
+a 002 anchor02 16 144 1
+a 003 anchor02 16 312 1
+a 004 anchor04 16 864 1
+a 005 anchor05 24 504 1
+c 000 0 vExt 0 0 400 952 1 zaramagaOS
+c 001 3 vlogo 16 40 128 80 0 
+c 002 3 vmetrics 168 40 216 80 0 
+c 003 1 GroupBoxAudio 16 144 368 128 0 AUDIO
+c 004 1 GroupBox004 16 312 368 120 0 VIDEO
+c 005 1 GroupBoxSistema 0 0 368 72 4 SISTEMA
+c 006 5 #icoMute 32 160 56 40 0 #122#
+c 007 15 SpinnerVol 96 160 264 40 1 
+c 008 11 DropdownBox008 32 208 328 48 0 fuenteAudio1;FuenteAudio2
+c 009 4 LabelRes 32 328 72 24 0 RESOLUCION
+c 010 12 TextBoxRes 120 328 120 24 0 1920x1080
+c 011 15 Spinner0rillo 96 368 264 40 0 
+c 012 4 Label012 32 368 56 40 0 BRILLO
+c 013 5 ButtonSalr 32 880 56 40 0 #159#salir
+c 014 5 ButtonPoweroff 96 880 80 40 0 #181#PowerOff
+c 015 7 CheckBoxGamemode 24 456 16 24 1 GAME MODE
+c 016 1 GroupBoxNet -8 0 368 120 5 NET
+c 017 4 Label018 8 8 160 24 5 IP LOCAL.
+c 018 5 Buttowifi 32 544 120 24 0 #188#WIFI
+c 019 5 Buttonblue 8 80 120 24 5 Bluethoot
+c 020 5 ButtonReboot 184 880 80 40 0 #211#Reboott

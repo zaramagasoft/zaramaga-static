@@ -10,6 +10,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#define RAYGUI_IMPLEMENTATION
+#include "raygui.h"
+
+#define GUI_LAYOUT_HOME_IMPLEMENTATION
+#include "gui_layout_home.h"
+
 #define WIDTH 800
 #define HEIGHT 600
 #define SIZE (WIDTH * HEIGHT * 4)
@@ -419,7 +425,7 @@ int main(void)
         "WAYMIX");
 
     SetTargetFPS(30);
-
+        GuiLayoutHomeState layout = InitGuiLayoutHome();
     /* -----------------------------------------
      * Posición inicial del ratón
      * ----------------------------------------- */
@@ -506,35 +512,7 @@ int main(void)
             25,
             inside ? GREEN : GRAY);
 
-        /* -----------------------------------------
-         * Botón
-         * ----------------------------------------- */
-
-        Color button_color =
-            inside
-                ? DARKGREEN
-                : GREEN;
-
-        DrawRectangle(
-            300,
-            450,
-            200,
-            80,
-            button_color);
-
-        /* -----------------------------------------
-         * Texto botón
-         * ----------------------------------------- */
-
-        DrawText(
-            inside
-                ? "EXIT"
-                : "EXIT",
-            370,
-            475,
-            30,
-            BLACK);
-
+      
         /* -----------------------------------------
          * Cursor visual de prueba
          *
@@ -542,26 +520,13 @@ int main(void)
          * desde Wayland.
          * ----------------------------------------- */
 
-        DrawCircle(
-            (int)mouse.x,
-            (int)mouse.y,
-            5,
-            RED);
+       
 
         /* -----------------------------------------
          * Click
          * ----------------------------------------- */
 
-        if (inside &&
-            IsMouseButtonPressed(
-                MOUSE_BUTTON_LEFT))
-        {
-            printf("EXIT!\n");
-
-            EndDrawing();
-
-            break;
-        }
+        GuiLayoutHome(&layout);
 
         /* -----------------------------------------
          * Finalizar frame Raylib
