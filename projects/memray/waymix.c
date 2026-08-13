@@ -411,7 +411,7 @@ int main(void)
             HEIGHT,
             WIDTH * 2,
             //WL_SHM_FORMAT_XRGB8888);
-            WL_SHM_FORMAT_RGB565);
+            WL_SHM_FORMAT_RGBA4444);
     if (!buffer)
     {
         fprintf(stderr,
@@ -540,7 +540,7 @@ int main(void)
                 WIDTH,
                 HEIGHT,
                 //RL_PIXELFORMAT_UNCOMPRESSED_R8G8B8A8,
-                RL_PIXELFORMAT_UNCOMPRESSED_R5G6B5,
+                RL_PIXELFORMAT_UNCOMPRESSED_R4G4B4A4,
                 pixels);
 
             /*
