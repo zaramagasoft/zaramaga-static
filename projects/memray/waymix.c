@@ -16,8 +16,8 @@
 #define GUI_LAYOUT_ZLAUNCHER_IMPLEMENTATION
 #include "gui_layout_ZLAUNCHER.h"
 
-#define WIDTH 800
-#define HEIGHT 600
+#define WIDTH 1024
+#define HEIGHT 768
 #define SIZE (WIDTH * HEIGHT * 4)
 
 // Framebuffer permanente en BSS
@@ -420,11 +420,11 @@ int main(void)
      * ----------------------------------------- */
 
     InitWindow(
-        WIDTH,
-        HEIGHT,
+        1024,
+        768,
         "WAYMIX");
-    RenderTexture2D target = LoadRenderTexture(1024, 768);
-    SetTextureFilter(target.texture, TEXTURE_FILTER_POINT);
+    RenderTexture2D target = LoadRenderTexture(800, 600);
+    SetTextureFilter(target.texture, TEXTURE_FILTER_TRILINEAR);
     SetTargetFPS(10);
     GuiLayoutState layout = InitGuiLayout();
     /* -----------------------------------------
@@ -492,7 +492,7 @@ int main(void)
         // El -HEIGHT invierte la textura para que se dibuje al derecho en OpenGL
         DrawTexturePro(
             target.texture,
-            (Rectangle){0, 0, (float)WIDTH, (float)-HEIGHT},
+            (Rectangle){0, 0, (float)800, (float)-600},
             (Rectangle){0, 0, (float)WIDTH, (float)HEIGHT},
             (Vector2){0, 0},
             0.0f,
