@@ -1,4 +1,8 @@
+void bud ping...... 0 us
+init: fatal: unable to create /etc/runit/stopit: access denied
+ZaramagaOS: Cerrando...
 cambiamos a void
+
 gamescope -W 1920 -H 1080 -w 1920 -h 1080 -e -r 160 -f --mangoapp -- steam -steamos3 -gamepadui
 ///para comparar con arch/////
 gamescope -W 1920 -H 1080 -w 1920 -h 1080 -r 60 -f -e --mangoapp -- steam -steamos3 -gamepadui
