@@ -1,0 +1,1 @@
+variables de difrentes sistemas operativos como export o alias

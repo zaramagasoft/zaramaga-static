@@ -548,9 +548,10 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height)
             if (nk_button_label(ctx, msg))
             {
                 if (show_confirm == 1)
-                    system("reboot");
+                    system("loginctl reboot");
                 else
-                    system("poweroff");
+                    system("loginctl poweroff");
+
                 exit(0);
             }
 
@@ -704,11 +705,11 @@ int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h
 {
     printf("metricasZui=%p\n", (void *)metricasZui);
     printf("ptr=%p cpu=%f ram=%f/%f temp=%d\n",
-       (void*)metricasZui,
-       metricasZui->cpu_usage,
-       metricasZui->mem_used_gb,
-       metricasZui->mem_total_gb,
-       metricasZui->temp_c);
+           (void *)metricasZui,
+           metricasZui->cpu_usage,
+           metricasZui->mem_used_gb,
+           metricasZui->mem_total_gb,
+           metricasZui->temp_c);
     if (metricasZui == NULL || metricasZui->temp_c > 150) // Verificamos que metricasZui esté listo y tenga datos válidos
     {
         float row_height = 20.0f; // La altura que reservamos para este bloque
@@ -778,11 +779,11 @@ int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h
     char metricasall[128]; // Asegúrate de que sea lo bastante grande
 
     // Formateamos todo de una sola vez
-snprintf(metricasall, sizeof(metricasall),
-         "\uf4bc cpu:%.0f%%  \uefc5 ram:%.0f%%  \uef2b %d°C",
-         metricasZui->cpu_usage,
-         metricasZui->mem_used_gb / metricasZui->mem_total_gb * 100.0f,
-         metricasZui->temp_c);
+    snprintf(metricasall, sizeof(metricasall),
+             "\uf4bc cpu:%.0f%%  \uefc5 ram:%.0f%%  \uef2b %d°C",
+             metricasZui->cpu_usage,
+             metricasZui->mem_used_gb / metricasZui->mem_total_gb * 100.0f,
+             metricasZui->temp_c);
 
     // Ahora Nuklear lo recibirá perfecto
     nk_label(ctx, metricasall, NK_TEXT_LEFT);
