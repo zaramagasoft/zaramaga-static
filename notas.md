@@ -1,3 +1,5 @@
+cambiamos a coid
+gamescope -W 1920 -H 1080 -w 1920 -h 1080 -r 60 -f -e --mangoapp -- steam -steamos3 -gamepadui
 // raylib rsgl //
 make clean
   496  make TARGET_PLATFORM=PLATFORM_DRM      GRAPHICS=GRAPHICS_API_OPENGL_SOFTWARE      CC=musl-gcc      CFLAGS="-O2 -DPLATFORM_DRM -DGRAPHICS_API_OPENGL_SOFTWARE -I$ZSYS/include"      V=1
