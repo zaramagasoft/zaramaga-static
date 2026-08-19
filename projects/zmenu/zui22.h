@@ -1,6 +1,6 @@
 extern char *mi_buffer[1];
 #include "zmetrics.h"
-
+#include "bore.h"
 extern ZMetrics *metricasZui;
 
 #ifndef ZUI22_H
@@ -64,6 +64,13 @@ typedef struct
     int last_ping_ms; // Variable para almacenar el último ping
 } PingWorker;
 extern PingWorker *ping; // Variable global para el PingWorker
+typedef enum
+{
+    SLIDER_INT,
+    SLIDER_UINT,
+    SLIDER_FLOAT
+} SliderType;
+
 static inline uint64_t now_ns(void)
 {
     struct timespec ts;
@@ -71,9 +78,141 @@ static inline uint64_t now_ns(void)
 
     return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
+static int bore_slider_factory(
+    struct nk_context *ctx,
+    float y,
+    float win_width,
+    const char *label,
+    SliderType type,
+    void *value,
+    double min,
+    double max,
+    double step,
+    struct nk_rect *hover);
 static void *ping_thread(void *arg);
 void ping_start(PingWorker *ping);
 void ping_stop(PingWorker *ping);
+static int bore_slider_factory(
+    struct nk_context *ctx,
+    float y,
+    float win_width,
+    const char *label,
+    SliderType type,
+    void *value,
+    double min,
+    double max,
+    double step,
+    struct nk_rect *hover)
+{
+    const float icon_w = 0.0f;
+    const float label_w = 90.0f;
+    const float value_w = 55.0f;
+    const float row_h = 20.0f;
+
+    float slider_w =
+        win_width - (2.0f + icon_w + label_w + value_w);
+    nk_layout_space_begin(ctx, NK_STATIC, row_h, 3);
+    /* LABEL */
+    nk_layout_space_push(ctx,
+                         nk_rect(icon_w, y, label_w, row_h * 2));
+
+    nk_label(ctx, label, NK_TEXT_LEFT);
+
+    /* SLIDER */
+    nk_layout_space_push(ctx,
+                         nk_rect(
+                             icon_w + label_w,
+                             y,
+                             slider_w,
+                             row_h * 2));
+
+    struct nk_rect bounds = nk_widget_bounds(ctx);
+
+    if (hover)
+        *hover = bounds;
+
+    int changed = 0;
+
+    switch (type)
+    {
+    case SLIDER_INT:
+    {
+        int *v = value;
+
+        changed = nk_slider_int(
+            ctx,
+            (int)min,
+            v,
+            (int)max,
+            (int)step);
+        break;
+    }
+
+    case SLIDER_UINT:
+    {
+        uint32_t *v = value;
+
+        int tmp = (int)*v;
+
+        changed = nk_slider_int(
+            ctx,
+            (int)min,
+            &tmp,
+            (int)max,
+            (int)step);
+
+        if (changed)
+            *v = (uint32_t)tmp;
+
+        break;
+    }
+
+    case SLIDER_FLOAT:
+    {
+        float *v = value;
+
+        changed = nk_slider_float(
+            ctx,
+            (float)min,
+            v,
+            (float)max,
+            (float)step);
+        break;
+    }
+    }
+
+    /* VALOR */
+    char buffer[32];
+
+    switch (type)
+    {
+    case SLIDER_INT:
+        snprintf(buffer, sizeof(buffer),
+                 "%d", *(int *)value);
+        break;
+
+    case SLIDER_UINT:
+        snprintf(buffer, sizeof(buffer),
+                 "%u", *(uint32_t *)value);
+        break;
+
+    case SLIDER_FLOAT:
+        snprintf(buffer, sizeof(buffer),
+                 "%.2f", *(float *)value);
+        break;
+    }
+
+    nk_layout_space_push(ctx,
+                         nk_rect(
+                             1.0f + icon_w + label_w + slider_w,
+                             y,
+                             value_w,
+                             row_h * 2));
+
+    nk_label(ctx, buffer, NK_TEXT_LEFT);
+
+    return changed;
+}
 void obtener_gamma_del_servicio(float *b, float *c, float *g)
 {
     // 1. Forzamos al sistema a enviar la 'q' y cerrar el pipe
@@ -110,7 +249,7 @@ int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h
 int gammaDraw(struct nk_context *ctx, float y, float win_width); // Declaración de gammaDraw
 int pingDraw(struct nk_context *ctx, float y, float win_width, PingWorker *ping);
 int upDownDraw(struct nk_context *ctx, float y, float win_width); // Declaración de gammaDraw
-
+int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore);
 // DECLARACIÓN QUE TE FALTA:
 void enviar_comando_gamma(char cmd, float valor);
 #include <errno.h>
@@ -332,7 +471,7 @@ void zui_set_style(struct nk_context *ctx)
     // TEXTO
     ctx->style.text.color = phosphor_green;
 }
-void zui_render(struct nk_context *ctx, int win_width, int win_height)
+void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfig *bore_cfg)
 {
     uint64_t t; // Para medir el tiempo de ejecución de cada sección
     t = now_ns();
@@ -421,7 +560,12 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height)
         y = gammaDraw(ctx, y, win_width);
         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
-        int pos = metricsDraw(ctx, win_height - footer_h, win_width, footer_h);
+         y = boreDraw(ctx, y, win_width, bore_cfg);
+         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
+        t = now_ns();
+        int offsetBore = 160;
+        int pos = y - 30 ;
+        pos = metricsDraw(ctx, win_height - footer_h - offsetBore, win_width, footer_h);
         y = pos - 20;
         printf("metrics... %lu us\n", (now_ns() - t) / 1000);
         // Actualizamos y con la posición devuelta por metricsDraw
@@ -462,10 +606,10 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height)
         // =========================
         // 🔴 FOOTER ZONE
         // =========================
-        int footeroffset = 10;
+        int footeroffset = 30;
         miestilo.text_normal = nk_rgb(255, 0, 0); // Rojo para el texto del botón
         nk_fill_rect(canvas,
-                     nk_rect(0, win_height - footer_h - footeroffset, win_width, footer_h),
+                     nk_rect(0, win_height, win_width, footer_h),
                      0,
                      // nk_rgb(40, 40, 40));
 
@@ -490,8 +634,9 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height)
         // printf("Medidas middleh:%f \n", middle_h);
         // printf("winheightdESPUESLOGO:%f \n", win_height);
         // aqui offset para que los botones no se solapen con el footer
-        middle_h = middle_h - 80; // ajuste offset metricas + ping
-
+        //middle_h = middle_h - 80; // ajuste offset metricas + ping
+        //int offsetBore=160;
+        middle_h = middle_h - 80 - offsetBore;
         // Iniciamos el layout para 3 widgets
         nk_layout_space_begin(ctx, NK_STATIC, footer_h, 3);
 
@@ -946,5 +1091,169 @@ int upDownDraw(struct nk_context *ctx, float y, float win_width)
 
     nk_layout_space_end(ctx);
     return y - 30;
+}
+int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
+{
+    //int changed = 0;
+    int smoothness = bore->smoothness;
+    int burst = bore->bore;
+    int enabled = bore->penalty_offset;
+    printf("BORE: smoothness=%d | bore=%d | penalty_offset=%d\n",
+           smoothness,
+           burst,
+           enabled);
+    uint64_t t = now_ns();
+
+    float row_h = 10.0f;
+    int bore_enabled = 1;
+
+    bore_slider_factory(
+        ctx,
+        y,
+        win_width,
+        "BORE",
+        SLIDER_INT,
+        &bore_enabled,
+        0,
+        1,
+        1,
+        &g_hover.bright);
+
+    y += row_h;
+    /* =========================================
+       sched_burst_inherit_type
+       0 - 2
+       ========================================= */
+
+    int inherit = 2;
+
+    bore_slider_factory(
+        ctx,
+        y,
+        win_width,
+        "Inh",
+        SLIDER_INT,
+        &inherit,
+        0,
+        2,
+        1,
+        &g_hover.bright);
+
+    y += row_h;
+
+    /* =========================================
+       sched_burst_smoothness
+       0 - 3
+       ========================================= */
+
+    int smooth = 1;
+
+    bore_slider_factory(
+        ctx,
+        y,
+        win_width,
+        "smooth",
+        SLIDER_INT,
+        &smooth,
+        0,
+        3,
+        1,
+        &g_hover.bright);
+
+    y += row_h;
+
+    /* =========================================
+       sched_burst_penalty_offset
+       0 - 63
+       ========================================= */
+
+    int penalty = 24;
+
+    bore_slider_factory(
+        ctx,
+        y,
+        win_width,
+        "penOff",
+        SLIDER_INT,
+        &penalty,
+        0,
+        63,
+        1,
+        &g_hover.bright);
+
+    y += row_h;
+
+    /* =========================================
+       sched_burst_penalty_scale
+       0 - 4095
+       ========================================= */
+
+    int penaltyS = 1536;
+
+    bore_slider_factory(
+        ctx,
+        y,
+        win_width,
+        "penScl",
+        SLIDER_INT,
+        &penaltyS,
+        0,
+        4095,
+        1,
+        &g_hover.bright);
+
+    y += row_h;
+
+    /* =========================================
+       sched_burst_cache_lifetime
+
+       Kernel: 0 - 4294967295 ns
+       Slider: 0 - 4294 ms
+       Default: 75 ms
+       ========================================= */
+
+    uint32_t cache_ms = 75;
+
+    bore_slider_factory(
+        ctx,
+        y,
+        win_width,
+        "cache",
+        SLIDER_UINT,
+        &cache_ms,
+        0,
+        4294,
+        100,
+        &g_hover.bright);
+
+    uint32_t cache_lifetime =
+        cache_ms * 1000000U;
+
+    y += row_h;
+
+    /* =========================================
+       sched_burst_protect_slice_lv
+       ========================================= */
+
+    int protect_slice = 1;
+
+    bore_slider_factory(
+        ctx,
+        y,
+        win_width,
+        "protect",
+        SLIDER_INT,
+        &protect_slice,
+        0,
+        1,
+        1,
+        &g_hover.bright);
+
+    y += row_h;
+
+    printf("BoreDraw %lu us\n",
+           (now_ns() - t) / 1000);
+
+    return (int)y - 10;
 }
 #endif

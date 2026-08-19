@@ -1,3 +1,6 @@
+////////////////////////con bore ///////////////////////
+$ZSYS/bin/musl-gcc -static -march=native -O2 mainN23.c bore.c wlr-layer-shell-unstable-v1.c xdg-shell.c -o zmenun223 $(pkg-config --cflags --libs wayland-client cairo cairo-ft freetype2) -lz -lm -lpthread -s
+///////////////////////////////////////////////////////
 $ZSYS/bin/musl-gcc -static -march=native -O2 mainN23.c wlr-layer-shell-unstable-v1.c xdg-shell.c -o zmenun223 $(pkg-config --cflags --libs wayland-client cairo cairo-ft freetype2) -lz -lm -lpthread -s
 ///////////////compilar en void//////////////////////////
 $ZSYS/bin/musl-gcc -static mainN23.c wlr-layer-shell-unstable-v1.c xdg-shell.c -o zmenun223 $(pkg-config --cflags --libs wayland-client cairo cairo-ft freetype2) -lz -lm -lpthread

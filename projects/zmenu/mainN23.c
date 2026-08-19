@@ -47,6 +47,7 @@
 #undef NK_IMPLEMENTATION
 #include "zmetrics.h"
 #include "zui22.h"
+#include "bore.h"
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h" // Tienes que bajar este .h y ponerlo en tu carpeta
@@ -145,7 +146,15 @@ bool logo_dirty = true;
 static cairo_font_face_t *font3270_face = NULL;
 static FT_Library ft;
 static FT_Face face;
+
+///////////////////bore/////////////////////
+BoreConfig bore_cfg;
+int bore_enabled = 0;
+bool bore_available = false;
+int boreInit(void);
+
 static void zui_cairo_font(cairo_t *cr);
+
 static void zui_cairo_font(cairo_t *cr)
 {
     if (!font3270_face)
@@ -833,7 +842,7 @@ static void render_frame(struct wl_surface *surface)
 
     clock_gettime(CLOCK_MONOTONIC, &t0);
 
-    zui_render(&ctx, win_width, win_height);
+    zui_render(&ctx, win_width, win_height, &bore_cfg);
 
     clock_gettime(CLOCK_MONOTONIC, &t1);
 
@@ -1029,7 +1038,7 @@ int main(int argc, char **argv)
         win_height = atoi(argv[2]);
     }
     signal(SIGUSR1, handle_vol_signal);
-
+    boreInit();
     m_shared = mmap(NULL, sizeof(struct shared_metrics), PROT_READ | PROT_WRITE,
                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (m_shared == MAP_FAILED)
@@ -1231,4 +1240,19 @@ int refesco(struct wl_surface *surf)
         }
     }
     return 0;
+}
+
+int boreInit(void)
+{
+    bore_available =
+        bore_detect(&bore_enabled) == 1;
+
+    if (bore_available)
+    {
+        if (bore_read(&bore_cfg) == 0)
+        {
+            printf("BORE: configuracion cargada\n");
+            bore_print(&bore_cfg);
+        }
+    }
 }
