@@ -152,7 +152,7 @@ BoreConfig bore_cfg;
 int bore_enabled = 0;
 bool bore_available = false;
 int boreInit(void);
-
+int check_bore_with_cat(void); 
 static void zui_cairo_font(cairo_t *cr);
 
 static void zui_cairo_font(cairo_t *cr)
@@ -843,7 +843,7 @@ static void render_frame(struct wl_surface *surface)
     clock_gettime(CLOCK_MONOTONIC, &t0);
 
     zui_render(&ctx, win_width, win_height, &bore_cfg);
-
+    ///aqui///
     clock_gettime(CLOCK_MONOTONIC, &t1);
 
     perf.nuklear_ns = diff_ns(t0, t1);
@@ -1039,6 +1039,7 @@ int main(int argc, char **argv)
     }
     signal(SIGUSR1, handle_vol_signal);
     boreInit();
+    //printf("main23main, bore en Kernel=%d",bore_cfg.boreDisponible);
     m_shared = mmap(NULL, sizeof(struct shared_metrics), PROT_READ | PROT_WRITE,
                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (m_shared == MAP_FAILED)
@@ -1244,15 +1245,48 @@ int refesco(struct wl_surface *surf)
 
 int boreInit(void)
 {
-    bore_available =
-        bore_detect(&bore_enabled) == 1;
+    int resultado_detect = bore_detect(&bore_enabled);
+    printf("DEBUG: bore_detect devolvió: %d | bore_enabled vale: %d\n", resultado_detect, bore_enabled);
+
+    bore_available = (resultado_detect == 1);
 
     if (bore_available)
     {
+        bore_cfg.boreDisponible = 1;
+        printf("//////////////BOREDISPONIBLE//////////\n");
         if (bore_read(&bore_cfg) == 0)
         {
             printf("BORE: configuracion cargada\n");
             bore_print(&bore_cfg);
         }
     }
+    else
+    {
+        printf("DEBUG: bore_available es falso (0). No se cargó la configuración.\n");
+    }
+}
+int check_bore_with_cat(void)
+{
+    FILE *fp;
+    char buffer[128];
+    int value = -1;
+
+    // Ejecutar el comando en la terminal
+    fp = popen("cat /proc/sys/kernel/sched_bore", "r");
+    if (fp == NULL)
+    {
+        perror("Error al ejecutar el comando");
+        return -1;
+    }
+
+    // Leer la salida generada por el comando
+    if (fgets(buffer, sizeof(buffer), fp) != NULL)
+    {
+        // Convertir la cadena leída a un número entero
+        value = atoi(buffer);
+    }
+
+    // Cerrar el proceso hijo
+    pclose(fp);
+    return value;
 }

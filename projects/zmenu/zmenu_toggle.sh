@@ -11,5 +11,5 @@ else
     XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
     WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
     GSK_RENDERER=cairo \
-    ./zmenun223 400 768 >/dev/null 2>&1 &
+    ./zmenun223 400 768 >/tmp/zmenun223.log &
 fi

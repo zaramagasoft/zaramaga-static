@@ -75,7 +75,10 @@ int bore_detect(int *enabled)
     f = fopen("/proc/sys/kernel/sched_bore", "r");
 
     if (!f)
+    {
+
         return 0;
+    }
 
     if (fscanf(f, "%d", &value) != 1)
     {
@@ -104,7 +107,10 @@ int bore_read(BoreConfig *cfg)
     if (read_int(
             "/proc/sys/kernel/sched_bore",
             &cfg->bore) < 0)
+    {
+        //cfg->boreDisponible=1;
         return -1;
+    }
 
     if (read_int(
             "/proc/sys/kernel/sched_burst_inherit_type",
@@ -135,7 +141,7 @@ int bore_read(BoreConfig *cfg)
             "/proc/sys/kernel/sched_burst_protect_slice_lv",
             &cfg->protect_slice_lv) < 0)
         return -1;
-
+    cfg->boreDisponible = 1;
     return 0;
 }
 
@@ -277,7 +283,8 @@ void bore_print(const BoreConfig *cfg)
 
     printf("BORE configuration\n");
     printf("------------------\n");
-
+    printf("boreDisponibleeee            = %d\n",
+           cfg->boreDisponible);
     printf("sched_bore                   = %d\n",
            cfg->bore);
 

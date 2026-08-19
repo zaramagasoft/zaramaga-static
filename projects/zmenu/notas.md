@@ -24,6 +24,7 @@ sudo sh -c 'printf "%s\n" "alb ALL=(root) NOPASSWD: /usr/local/libexec/zmenu-bor
 sudo chmod 440 /etc/sudoers.d/zmenu-bore
 3. Comprueba que la configuración de sudo es válida
 sudo visudo -c
+
 ////////////////
 XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" ./zmenun223 400 760
 sudo mkdir -p /usr/local/libexec

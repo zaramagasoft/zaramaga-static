@@ -16,6 +16,7 @@ typedef struct
     int penalty_scale;
     unsigned long long cache_lifetime;
     int protect_slice_lv;
+    int boreDisponible;
 } BoreConfig;
 
 int bore_detect(int *enabled);

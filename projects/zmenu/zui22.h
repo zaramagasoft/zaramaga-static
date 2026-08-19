@@ -560,10 +560,22 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         y = gammaDraw(ctx, y, win_width);
         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
-        y = boreDraw(ctx, y, win_width, bore_cfg);
+        ///bore////
+        int offsetBore = 160;
+        if (bore_cfg->boreDisponible==1)
+        {
+            printf("bore en kernel ok DESDE ZUIRENDER\n");
+            y = boreDraw(ctx, y, win_width, bore_cfg);
+        }else
+        {
+            offsetBore=0;
+        }
+        
+        
+        
         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
-        int offsetBore = 160;
+        
         int pos = y - 30;
         pos = metricsDraw(ctx, win_height - footer_h - offsetBore, win_width, footer_h);
         y = pos - 20;
