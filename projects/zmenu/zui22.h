@@ -560,11 +560,11 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         y = gammaDraw(ctx, y, win_width);
         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
-         y = boreDraw(ctx, y, win_width, bore_cfg);
-         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
+        y = boreDraw(ctx, y, win_width, bore_cfg);
+        printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
         int offsetBore = 160;
-        int pos = y - 30 ;
+        int pos = y - 30;
         pos = metricsDraw(ctx, win_height - footer_h - offsetBore, win_width, footer_h);
         y = pos - 20;
         printf("metrics... %lu us\n", (now_ns() - t) / 1000);
@@ -634,8 +634,8 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         // printf("Medidas middleh:%f \n", middle_h);
         // printf("winheightdESPUESLOGO:%f \n", win_height);
         // aqui offset para que los botones no se solapen con el footer
-        //middle_h = middle_h - 80; // ajuste offset metricas + ping
-        //int offsetBore=160;
+        // middle_h = middle_h - 80; // ajuste offset metricas + ping
+        // int offsetBore=160;
         middle_h = middle_h - 80 - offsetBore;
         // Iniciamos el layout para 3 widgets
         nk_layout_space_begin(ctx, NK_STATIC, footer_h, 3);
@@ -1094,50 +1094,94 @@ int upDownDraw(struct nk_context *ctx, float y, float win_width)
 }
 int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 {
-    //int changed = 0;
-    int smoothness = bore->smoothness;
-    int burst = bore->bore;
-    int enabled = bore->penalty_offset;
-    printf("BORE: smoothness=%d | bore=%d | penalty_offset=%d\n",
-           smoothness,
-           burst,
-           enabled);
+    /*
+     * =========================================
+     * KERNEL -> UI
+     * =========================================
+     */
+
+    int bore_enabled = bore->bore;
+    int inherit = bore->inherit_type;
+    int smooth = bore->smoothness;
+    int penalty = bore->penalty_offset;
+    int penaltyS = bore->penalty_scale;
+    int protect_slice = bore->protect_slice_lv;
+
+    /*
+     * Kernel:
+     *
+     *     nanosegundos
+     *
+     * UI:
+     *
+     *     milisegundos
+     */
+
+    uint32_t cache_ms =
+        (uint32_t)(bore->cache_lifetime / 1000000ULL);
+
+    printf(
+        "BORE al inicio: on=%d | inherit=%d | smooth=%d\n"
+        "penalty=%d | penaltyScale=%d | cache-ms=%u | protect=%d\n",
+        bore_enabled,
+        inherit,
+        smooth,
+        penalty,
+        penaltyS,
+        cache_ms,
+        protect_slice);
+
     uint64_t t = now_ns();
 
     float row_h = 10.0f;
-    int bore_enabled = 1;
 
-    bore_slider_factory(
-        ctx,
-        y,
-        win_width,
-        "BORE",
-        SLIDER_INT,
-        &bore_enabled,
-        0,
-        1,
-        1,
-        &g_hover.bright);
+    /* =========================================
+       sched_bore
+       0 - 1
+       ========================================= */
+
+    if (bore_slider_factory(
+            ctx,
+            y,
+            win_width,
+            "BORE",
+            SLIDER_INT,
+            &bore_enabled,
+            0,
+            1,
+            1,
+            &g_hover.bright))
+    {
+        bore_set(
+            "sched_bore",
+            (unsigned long long)bore_enabled,
+            bore);
+    }
 
     y += row_h;
+
     /* =========================================
        sched_burst_inherit_type
        0 - 2
        ========================================= */
 
-    int inherit = 2;
-
-    bore_slider_factory(
-        ctx,
-        y,
-        win_width,
-        "Inh",
-        SLIDER_INT,
-        &inherit,
-        0,
-        2,
-        1,
-        &g_hover.bright);
+    if (bore_slider_factory(
+            ctx,
+            y,
+            win_width,
+            "Inh",
+            SLIDER_INT,
+            &inherit,
+            0,
+            2,
+            1,
+            &g_hover.bright))
+    {
+        bore_set(
+            "sched_burst_inherit_type",
+            (unsigned long long)inherit,
+            bore);
+    }
 
     y += row_h;
 
@@ -1146,19 +1190,23 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
        0 - 3
        ========================================= */
 
-    int smooth = 1;
-
-    bore_slider_factory(
-        ctx,
-        y,
-        win_width,
-        "smooth",
-        SLIDER_INT,
-        &smooth,
-        0,
-        3,
-        1,
-        &g_hover.bright);
+    if (bore_slider_factory(
+            ctx,
+            y,
+            win_width,
+            "smooth",
+            SLIDER_INT,
+            &smooth,
+            0,
+            3,
+            1,
+            &g_hover.bright))
+    {
+        bore_set(
+            "sched_burst_smoothness",
+            (unsigned long long)smooth,
+            bore);
+    }
 
     y += row_h;
 
@@ -1167,19 +1215,23 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
        0 - 63
        ========================================= */
 
-    int penalty = 24;
-
-    bore_slider_factory(
-        ctx,
-        y,
-        win_width,
-        "penOff",
-        SLIDER_INT,
-        &penalty,
-        0,
-        63,
-        1,
-        &g_hover.bright);
+    if (bore_slider_factory(
+            ctx,
+            y,
+            win_width,
+            "penOff",
+            SLIDER_INT,
+            &penalty,
+            0,
+            63,
+            1,
+            &g_hover.bright))
+    {
+        bore_set(
+            "sched_burst_penalty_offset",
+            (unsigned long long)penalty,
+            bore);
+    }
 
     y += row_h;
 
@@ -1188,71 +1240,105 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
        0 - 4095
        ========================================= */
 
-    int penaltyS = 1536;
-
-    bore_slider_factory(
-        ctx,
-        y,
-        win_width,
-        "penScl",
-        SLIDER_INT,
-        &penaltyS,
-        0,
-        4095,
-        1,
-        &g_hover.bright);
+    if (bore_slider_factory(
+            ctx,
+            y,
+            win_width,
+            "penScl",
+            SLIDER_INT,
+            &penaltyS,
+            0,
+            4095,
+            1,
+            &g_hover.bright))
+    {
+        bore_set(
+            "sched_burst_penalty_scale",
+            (unsigned long long)penaltyS,
+            bore);
+    }
 
     y += row_h;
 
     /* =========================================
        sched_burst_cache_lifetime
 
-       Kernel: 0 - 4294967295 ns
-       Slider: 0 - 4294 ms
-       Default: 75 ms
+       Kernel:
+           0 - 4294967295 ns
+
+       UI:
+           0 - 4294 ms
+
+       Paso:
+           100 ms
        ========================================= */
 
-    uint32_t cache_ms = 75;
+    if (bore_slider_factory(
+            ctx,
+            y,
+            win_width,
+            "cache",
+            SLIDER_UINT,
+            &cache_ms,
+            0,
+            4294,
+            1,
+            &g_hover.bright))
+    {
+        unsigned long long cache_ns =
+            (unsigned long long)cache_ms * 1000000ULL;
 
-    bore_slider_factory(
-        ctx,
-        y,
-        win_width,
-        "cache",
-        SLIDER_UINT,
-        &cache_ms,
-        0,
-        4294,
-        100,
-        &g_hover.bright);
-
-    uint32_t cache_lifetime =
-        cache_ms * 1000000U;
+        bore_set(
+            "sched_burst_cache_lifetime",
+            cache_ns,
+            bore);
+    }
 
     y += row_h;
 
     /* =========================================
        sched_burst_protect_slice_lv
+       0 - 1
        ========================================= */
 
-    int protect_slice = 1;
-
-    bore_slider_factory(
-        ctx,
-        y,
-        win_width,
-        "protect",
-        SLIDER_INT,
-        &protect_slice,
-        0,
-        1,
-        1,
-        &g_hover.bright);
+    if (bore_slider_factory(
+            ctx,
+            y,
+            win_width,
+            "protect",
+            SLIDER_INT,
+            &protect_slice,
+            0,
+            1,
+            1,
+            &g_hover.bright))
+    {
+        bore_set(
+            "sched_burst_protect_slice_lv",
+            (unsigned long long)protect_slice,
+            bore);
+    }
 
     y += row_h;
 
-    printf("BoreDraw %lu us\n",
-           (now_ns() - t) / 1000);
+    /* =========================================
+       DEBUG
+       ========================================= */
+
+    printf(
+        "BORE UI: on=%d | inherit=%d | smooth=%d | "
+        "penalty=%d | scale=%d | cache=%u ms | protect=%d\n",
+        bore_enabled,
+        inherit,
+        smooth,
+        penalty,
+        penaltyS,
+        cache_ms,
+        protect_slice);
+
+    printf(
+        "BoreDraw %lu us\n",
+        (now_ns() - t) / 1000);
 
     return (int)y - 10;
 }
