@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "bore.h"
@@ -213,8 +214,7 @@ int bore_set(const char *parameter,
              unsigned long long value,
              BoreConfig *cfg)
 {
-    char path[256];
-    FILE *f;
+    char command[512];
 
     if (!parameter)
         return -1;
@@ -226,34 +226,42 @@ int bore_set(const char *parameter,
         return -1;
 
     snprintf(
-        path,
-        sizeof(path),
-        "/proc/sys/kernel/%s",
-        parameter);
+        command,
+        sizeof(command),
+        "sudo -n /usr/local/libexec/zmenu-bore '%s' '%llu'",
+        parameter,
+        value);
 
-    f = fopen(path, "w");
+    printf(
+        "BORE SET: %s = %llu\n",
+        parameter,
+        value);
 
-    if (!f)
-        return -1;
+    int ret = system(command);
 
-    if (fprintf(f, "%llu\n", value) < 0)
+    if (ret != 0)
     {
-        fclose(f);
+        printf(
+            "BORE SET ERROR: helper ret=%d\n",
+            ret);
+
         return -1;
     }
 
-    fclose(f);
-
     /*
-     * Refresh configuration after changing
-     * the kernel parameter.
+     * Volvemos a leer los valores reales
+     * del kernel.
      */
-
     if (cfg)
     {
         if (bore_read(cfg) < 0)
             return -1;
     }
+
+    printf(
+        "BORE SET OK: %s = %llu\n",
+        parameter,
+        value);
 
     return 0;
 }
