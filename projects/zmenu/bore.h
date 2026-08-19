@@ -1,6 +1,12 @@
 #ifndef BORE_H
 #define BORE_H
-
+#define BORE_DEFAULT 1
+#define BORE_DEFAULT_INHERIT 2
+#define BORE_DEFAULT_SMOOTHNESS 1
+#define BORE_DEFAULT_PENALTY 24
+#define BORE_DEFAULT_SCALE 1536
+#define BORE_DEFAULT_CACHE_NS 75000000ULL
+#define BORE_DEFAULT_PROTECT 1
 typedef struct
 {
     int bore;

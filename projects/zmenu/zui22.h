@@ -1099,7 +1099,41 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
      * KERNEL -> UI
      * =========================================
      */
+    if (bore->bore==0)
+    {
+        printf("BOREEEEE IGUAL A CEROOOOOOOOO\n");
+        bore_set(
+            "sched_burst_inherit_type",
+            BORE_DEFAULT_INHERIT,
+            bore);
 
+        bore_set(
+            "sched_burst_smoothness",
+            BORE_DEFAULT_SMOOTHNESS,
+            bore);
+
+        bore_set(
+            "sched_burst_penalty_offset",
+            BORE_DEFAULT_PENALTY,
+            bore);
+
+        bore_set(
+            "sched_burst_penalty_scale",
+            BORE_DEFAULT_SCALE,
+            bore);
+
+        bore_set(
+            "sched_burst_cache_lifetime",
+            BORE_DEFAULT_CACHE_NS,
+            bore);
+
+        bore_set(
+            "sched_burst_protect_slice_lv",
+            BORE_DEFAULT_PROTECT,
+            bore);
+        /* code */
+    }
+    
     int bore_enabled = bore->bore;
     int inherit = bore->inherit_type;
     int smooth = bore->smoothness;
@@ -1156,6 +1190,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             "sched_bore",
             (unsigned long long)bore_enabled,
             bore);
+        printf("bore setter");    
     }
 
     y += row_h;
