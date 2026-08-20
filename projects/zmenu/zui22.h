@@ -78,6 +78,7 @@ static inline uint64_t now_ns(void)
 
     return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
+
 static int bore_slider_factory(
     struct nk_context *ctx,
     float y,
@@ -250,6 +251,7 @@ int gammaDraw(struct nk_context *ctx, float y, float win_width); // Declaración
 int pingDraw(struct nk_context *ctx, float y, float win_width, PingWorker *ping);
 int upDownDraw(struct nk_context *ctx, float y, float win_width); // Declaración de gammaDraw
 int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore);
+int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore);
 // DECLARACIÓN QUE TE FALTA:
 void enviar_comando_gamma(char cmd, float valor);
 #include <errno.h>
@@ -560,11 +562,12 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         y = gammaDraw(ctx, y, win_width);
         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
+        y=modeDraw(ctx,y,win_width,bore_cfg);
         ///bore////
         int offsetBore = 160;
         if (bore_cfg->boreDisponible==1)
         {
-            printf("bore en kernel ok DESDE ZUIRENDER\n");
+            //printf("bore en kernel ok DESDE ZUIRENDER\n");
             y = boreDraw(ctx, y, win_width, bore_cfg);
         }else
         {
@@ -1186,7 +1189,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
        0 - 1
        ========================================= */
 
-    if (bore_slider_factory(
+   /*  if (bore_slider_factory(
             ctx,
             y,
             win_width,
@@ -1203,7 +1206,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             (unsigned long long)bore_enabled,
             bore);
         printf("bore setter");    
-    }
+    } */
 
     y += row_h;
 
@@ -1388,5 +1391,72 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
         (now_ns() - t) / 1000);
 
     return (int)y - 10;
+}
+int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore){
+    
+    int offset = 0; // distancia a elemento superior gammadraw
+    float row_height = 30.0f; // La altura que reservamos para este bloque
+    float icon_w = 30.0f;
+    float label_w = 60.0f;
+    float value_w = 40.0f;
+    float slider_w = win_width - (1 * 2 + icon_w + label_w + value_w);
+    // float paddingM = 20.0f;
+    float slider_h = 55.0f;
+    y += offset;
+
+    float padding = 5.0f;
+    float gap = 10.0f;
+
+    float total_w = win_width - padding * 2.0f;
+    float btn_w = (total_w - gap * 4.0f) / 4.0f; ///por que seran 4 los elementos 
+
+    nk_layout_space_begin(ctx, NK_STATIC, row_height, 4);
+
+    /* GAME */
+    nk_layout_space_push(ctx,
+                         nk_rect(
+                             padding,
+                             y,
+                             btn_w-20,
+                             row_height));
+
+    nk_button_label(ctx, "\uf11b");
+
+    /* NORMAL */
+    nk_layout_space_push(ctx,
+                         nk_rect(
+                             padding + (btn_w-20 + gap) * 1,
+                             y,
+                             btn_w-10,
+                             row_height));
+
+    nk_button_label(ctx, "BAL");
+
+    /* ECO */
+    nk_layout_space_push(ctx,
+                         nk_rect(
+                             padding + (btn_w-15 + gap) * 2,
+                             y,
+                             btn_w,
+                             row_height));
+
+    nk_button_label(ctx, "ECO");
+  
+    /* BORE */
+    nk_layout_space_push(ctx,
+                         nk_rect(
+                             padding + (btn_w-10 + gap) * 3,
+                             y,
+                             btn_w+30,
+                             row_height));
+
+    nk_button_label(ctx, "BORE \uf013");
+
+    nk_layout_space_end(ctx);
+    int semaforo = 0;
+
+    ////return
+    y = y + row_height;
+    return (int)(y);
 }
 #endif
