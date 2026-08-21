@@ -1,3 +1,5 @@
+////////////toggle hoy//////////////////
+printf 'TOGGLE\n' | socat - UNIX-CONNECT:"$XDG_RUNTIME_DIR/zmenu.sock"
 ////////////lanzada de gamescope//////////vez zmenu_toggle.sh
 XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" WAYLAND_DISPLAY=wayland-1 gamescope -W 1920 -H 1080 -w 1920 -h 1080 -r 160 -f -e --mangoapp -- steam -steamos3 -gamepadui
 /////////////////////////////////////////

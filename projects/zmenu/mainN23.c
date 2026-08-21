@@ -53,6 +53,8 @@
 #include "stb_image.h" // Tienes que bajar este .h y ponerlo en tu carpeta
 #include "logo_data.h"
 
+//////////socket zmenu/////////////////////
+#define ZMENU_SOCKET "zmenu.sock"
 // ... resto de tu código (globales, render_frame, etc.) ...
 
 // ... resto de tus variables globales y funciones (draw_nuklear_to_cairo, etc) ...
@@ -140,7 +142,9 @@ ZuiHoverRects g_hover;
 #define DAMAGE_VOLUME (1 << 3)
 #define DAMAGE_PING (1 << 4)
 #define DAMAGE_METRICS (1 << 5)
-
+/// socket/////
+static int zmenu_socket_fd = -1;
+static char zmenu_socket_path[256];
 static uint32_t damage_flags = 0;
 bool logo_dirty = true;
 static cairo_font_face_t *font3270_face = NULL;
@@ -151,8 +155,13 @@ static FT_Face face;
 BoreConfig bore_cfg;
 int bore_enabled = 0;
 bool bore_available = false;
+
+static void render_empty_frame(struct wl_surface *surface); 
 int boreInit(void);
-int check_bore_with_cat(void); 
+int check_bore_with_cat(void);
+static int zmenu_socket_create(void);
+int zmenu_visible = 1;
+
 static void zui_cairo_font(cairo_t *cr);
 
 static void zui_cairo_font(cairo_t *cr)
@@ -355,7 +364,11 @@ void enviar_comando_gamma(char cmd, float valor)
 void prueba(void)
 {
     printf("ZaramagaOS: Cerrando...\n");
+    if (zmenu_socket_fd >= 0)
+        close(zmenu_socket_fd);
 
+    if (zmenu_socket_path[0])
+        unlink(zmenu_socket_path);
     /* Esperar al hilo */
     if (hilo)
     {
@@ -661,19 +674,114 @@ void draw_logo_shm(cairo_t *cr,
                    int max_w, int max_h)
 {
     if (!logo_surface)
+    {
+        printf("LOGO: logo_surface NULL\n");
         return;
+    }
 
-    float scale_x = (float)max_w / (float)logo_w;
-    float scale_y = (float)max_h / (float)logo_h;
-    float scale = (scale_x < scale_y) ? scale_x : scale_y;
+    cairo_status_t status =
+        cairo_surface_status(logo_surface);
 
+    printf(
+        "LOGO SURFACE: %p | %dx%d | status=%d\n",
+        (void *)logo_surface,
+        logo_w,
+        logo_h,
+        status);
+
+    if (status != CAIRO_STATUS_SUCCESS)
+    {
+        printf("LOGO: superficie Cairo inválida\n");
+        return;
+    }
+
+    /*
+     * Aseguramos que los datos de la superficie
+     * estén disponibles para lectura.
+     */
+    cairo_surface_flush(logo_surface);
+
+    unsigned char *data =
+        cairo_image_surface_get_data(logo_surface);
+
+    if (!data)
+    {
+        printf("LOGO: cairo_image_surface_get_data() NULL\n");
+        return;
+    }
+
+    int stride =
+        cairo_image_surface_get_stride(logo_surface);
+
+    /*
+     * Debug: primer píxel.
+     */
+    printf(
+        "LOGO PIXEL[0]: B=%u G=%u R=%u A=%u\n",
+        data[0],
+        data[1],
+        data[2],
+        data[3]);
+
+    /*
+     * Debug: píxel central.
+     */
+    int px = logo_w / 2;
+    int py = logo_h / 2;
+
+    unsigned char *p =
+        data + (py * stride) + (px * 4);
+
+    printf(
+        "LOGO CENTRO: B=%u G=%u R=%u A=%u\n",
+        p[0],
+        p[1],
+        p[2],
+        p[3]);
+
+    /*
+     * Calculamos escala manteniendo
+     * la relación de aspecto.
+     */
+    float scale_x =
+        (float)max_w / (float)logo_w;
+
+    float scale_y =
+        (float)max_h / (float)logo_h;
+
+    float scale =
+        (scale_x < scale_y)
+            ? scale_x
+            : scale_y;
+
+    /*
+     * Dibujamos el logo.
+     */
     cairo_save(cr);
 
-    cairo_translate(cr, x, y);
-    cairo_scale(cr, scale, scale);
+    cairo_translate(
+        cr,
+        x,
+        y);
 
-    cairo_set_source_surface(cr, logo_surface, 0, 0);
-    cairo_pattern_set_filter(cairo_get_source(cr), CAIRO_FILTER_GOOD);
+    cairo_scale(
+        cr,
+        scale,
+        scale);
+
+    cairo_set_source_surface(
+        cr,
+        logo_surface,
+        0,
+        0);
+
+    cairo_pattern_t *pattern =
+        cairo_get_source(cr);
+
+    cairo_pattern_set_filter(
+        pattern,
+        CAIRO_FILTER_GOOD);
+
     cairo_paint(cr);
 
     cairo_restore(cr);
@@ -688,218 +796,584 @@ void draw_nuklear_to_cairo(struct nk_context *ctx, cairo_t *cr)
 {
     uint64_t text_time = 0;
     int text_calls = 0;
+
     struct timespec t0, t1;
+
+    /*
+     * ============================================================
+     * MEDIDA TOTAL
+     * ============================================================
+     */
+
     clock_gettime(CLOCK_MONOTONIC, &t0);
 
-    text_calls++;
+    /*
+     * ============================================================
+     * ALTURA DEL LOGO
+     * ============================================================
+     */
+
+    int logo_height =
+        win_height * 0.15f;
+
+    /*
+     * ============================================================
+     * LIMPIEZA DEL BUFFER
+     *
+     * IMPORTANTE:
+     *
+     * NO limpiamos toda la superficie.
+     *
+     * El logo se conserva en la zona:
+     *
+     *     0 -> logo_height
+     *
+     * y Nuklear solamente se vuelve a pintar
+     * en la zona inferior.
+     *
+     * Cuando logo_dirty == true significa que
+     * acabamos de mostrar el menú y tenemos que
+     * reconstruir también el logo.
+     * ============================================================
+     */
+
+    cairo_save(cr);
+
+    cairo_set_operator(
+        cr,
+        CAIRO_OPERATOR_SOURCE);
+
+    cairo_set_source_rgba(
+        cr,
+        0.0,
+        0.0,
+        0.0,
+        0.0);
+    //cairo_paint(cr);
+    //cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+
+    /*
+     * Si el logo ya está pintado:
+     *
+     *     limpiar solamente debajo del logo.
+     *
+     * Si logo_dirty:
+     *
+     *     vamos a reconstruir el logo,
+     *     por lo que podemos limpiar todo.
+     */
+
+    if (logo_dirty)
+    {
+        cairo_rectangle(
+            cr,
+            0,
+            0,
+            win_width,
+            win_height);
+
+        cairo_fill(cr);
+    }
+    else
+    {
+        cairo_rectangle(
+            cr,
+            0,
+            logo_height,
+            win_width,
+            win_height - logo_height);
+
+        cairo_fill(cr);
+    }
+
+    cairo_restore(cr);
+
+    /*
+     * ============================================================
+     * RESTAURAR OPERADOR NORMAL
+     * ============================================================
+     */
+
+    cairo_set_operator(
+        cr,
+        CAIRO_OPERATOR_OVER);
+
+    /*
+     * ============================================================
+     * NUKLEAR
+     * ============================================================
+     */
+
     const struct nk_command *cmd;
-    cairo_set_operator(cr, CAIRO_OPERATOR_SOURCE);
-    cairo_set_source_rgba(cr, 0, 0, 0, 0);
-    cairo_paint(cr);
-    cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-    /* cairo_select_font_face(cr,
-                           "3270 Nerd Font Propo",
-                           CAIRO_FONT_SLANT_NORMAL,
-                           CAIRO_FONT_WEIGHT_NORMAL); */
 
     nk_foreach(cmd, ctx)
     {
-        // printf("Procesando Comando Tipo: %d\n", cmd->type);
-        // printf("Procesando: %s\n", get_command_name(cmd->type));
+        if (cmd->type == NK_COMMAND_RECT_FILLED)
+        {
+            const struct nk_command_rect_filled *r =
+                (const struct nk_command_rect_filled *)cmd;
+
+            if (r->y < logo_height)
+            {
+                printf(
+                    "!!! NUKLEAR PISA LOGO: "
+                    "x=%d y=%d w=%d h=%d "
+                    "rgba=%d,%d,%d,%d\n",
+                    r->x,
+                    r->y,
+                    r->w,
+                    r->h,
+                    r->color.r,
+                    r->color.g,
+                    r->color.b,
+                    r->color.a);
+            }
+        }
         switch (cmd->type)
         {
+            /*
+             * ========================================================
+             * RECT FILLED
+             * ========================================================
+             */
+
         case NK_COMMAND_RECT_FILLED:
         {
-            const struct nk_command_rect_filled *r = (const struct nk_command_rect_filled *)cmd;
-            cairo_set_source_rgba(cr, r->color.r / 255.0, r->color.g / 255.0, r->color.b / 255.0, r->color.a / 255.0);
-            cairo_rectangle(cr, r->x, r->y, r->w, r->h);
+            const struct nk_command_rect_filled *r =
+                (const struct nk_command_rect_filled *)cmd;
+
+            cairo_set_source_rgba(
+                cr,
+                r->color.r / 255.0,
+                r->color.g / 255.0,
+                r->color.b / 255.0,
+                r->color.a / 255.0);
+
+            cairo_rectangle(
+                cr,
+                r->x,
+                r->y,
+                r->w,
+                r->h);
+
             cairo_fill(cr);
-            // printf("Dibujando rect: R:%d G:%d B:%d A:%d\n", r->color.r, r->color.g, r->color.b, r->color.a);
         }
         break;
+
+            /*
+             * ========================================================
+             * RECT
+             * ========================================================
+             */
+
         case NK_COMMAND_RECT:
         {
-            const struct nk_command_rect *r = (const struct nk_command_rect *)cmd;
-            cairo_set_source_rgba(cr, r->color.r / 255.0, r->color.g / 255.0, r->color.b / 255.0, r->color.a / 255.0);
-            cairo_set_line_width(cr, r->line_thickness);
-            cairo_rectangle(cr, r->x, r->y, r->w, r->h);
+            const struct nk_command_rect *r =
+                (const struct nk_command_rect *)cmd;
+
+            cairo_set_source_rgba(
+                cr,
+                r->color.r / 255.0,
+                r->color.g / 255.0,
+                r->color.b / 255.0,
+                r->color.a / 255.0);
+
+            cairo_set_line_width(
+                cr,
+                r->line_thickness);
+
+            cairo_rectangle(
+                cr,
+                r->x,
+                r->y,
+                r->w,
+                r->h);
+
             cairo_stroke(cr);
         }
         break;
+
+            /*
+             * ========================================================
+             * TEXT
+             * ========================================================
+             */
+
         case NK_COMMAND_TEXT:
         {
+            const struct nk_command_text *t =
+                (const struct nk_command_text *)cmd;
 
-            const struct nk_command_text *t = (const struct nk_command_text *)cmd;
+            cairo_set_source_rgba(
+                cr,
+                t->foreground.r / 255.0,
+                t->foreground.g / 255.0,
+                t->foreground.b / 255.0,
+                t->foreground.a / 255.0);
 
-            cairo_set_source_rgba(cr,
-                                  t->foreground.r / 255.0,
-                                  t->foreground.g / 255.0,
-                                  t->foreground.b / 255.0,
-                                  t->foreground.a / 255.0);
-
-            float font_size = t->height;
+            float font_size =
+                t->height;
 
             if (win_height >= 700)
                 font_size *= 1.2f;
 
-            cairo_set_font_size(cr, font_size);
+            cairo_set_font_size(
+                cr,
+                font_size);
 
-            cairo_move_to(cr, t->x, t->y + t->height - 5);
-            cairo_show_text(cr, (const char *)t->string);
+            cairo_move_to(
+                cr,
+                t->x,
+                t->y + t->height - 5);
+
+            cairo_show_text(
+                cr,
+                (const char *)t->string);
         }
         break;
+
+            /*
+             * ========================================================
+             * SCISSOR
+             * ========================================================
+             */
+
         case NK_COMMAND_SCISSOR:
         {
-            const struct nk_command_scissor *s = (const struct nk_command_scissor *)cmd;
+            const struct nk_command_scissor *s =
+                (const struct nk_command_scissor *)cmd;
 
             cairo_reset_clip(cr);
-            cairo_rectangle(cr, s->x, s->y, s->w, s->h);
+
+            cairo_rectangle(
+                cr,
+                s->x,
+                s->y,
+                s->w,
+                s->h);
+
             cairo_clip(cr);
         }
         break;
+
+            /*
+             * ========================================================
+             * CIRCLE FILLED
+             * ========================================================
+             */
+
         case NK_COMMAND_CIRCLE_FILLED:
         {
-            const struct nk_command_circle_filled *c = (const struct nk_command_circle_filled *)cmd;
+            const struct nk_command_circle_filled *c =
+                (const struct nk_command_circle_filled *)cmd;
 
-            cairo_set_source_rgba(cr,
-                                  c->color.r / 255.0,
-                                  c->color.g / 255.0,
-                                  c->color.b / 255.0,
-                                  c->color.a / 255.0);
+            cairo_set_source_rgba(
+                cr,
+                c->color.r / 255.0,
+                c->color.g / 255.0,
+                c->color.b / 255.0,
+                c->color.a / 255.0);
 
-            cairo_arc(cr,
-                      c->x + c->w / 2.0,
-                      c->y + c->h / 2.0,
-                      c->w / 2.0,
-                      0, 2 * 3.1416);
+            cairo_arc(
+                cr,
+                c->x + c->w / 2.0,
+                c->y + c->h / 2.0,
+                c->w / 2.0,
+                0,
+                2 * 3.1416);
 
             cairo_fill(cr);
         }
         break;
+
+            /*
+             * ========================================================
+             * CUSTOM
+             * ========================================================
+             */
+
         case NK_COMMAND_CUSTOM:
         {
-            // Opcional: si ves que hay imágenes, ignóralas por ahora.
-            // Si el texto sigue sin salir, es porque el comando 15 no está llegando
-            // o el scissor (comando 1) está mal posicionado.
-            printf("Comando CUSTOM ignorado por Cairo: %d\n", cmd->type);
+            printf(
+                "Comando CUSTOM ignorado por Cairo: %d\n",
+                cmd->type);
         }
         break;
+
+            /*
+             * ========================================================
+             * OTROS
+             * ========================================================
+             */
+
         default:
-            printf("Comando  NUKLEAR por cairo ignorado: %d\n", cmd->type);
-            break;
+        {
+            printf(
+                "Comando NUKLEAR por cairo ignorado: %d\n",
+                cmd->type);
+        }
+        break;
         }
     }
-    clock_gettime(CLOCK_MONOTONIC, &t0);
-    // draw_logo_shm(cr, 90, 10);
-    int logo_height = win_height * 0.15f; // 15% arriba
-    if (logo_dirty)
+
+    /*
+     * ============================================================
+     * LOGO
+     * ============================================================
+     *
+     * SOLO se dibuja:
+     *
+     *     - primera vez
+     *     - después de hacer TOGGLE -> visible
+     *
+     * En los demás frames permanece físicamente
+     * en el buffer SHM.
+     * ============================================================
+     */
+
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t0);
+
+    if (zmenu_visible)
     {
+        text_calls++;
+
+        printf(
+            ">>> DRAW LOGO <<<\n");
+
         draw_logo_shm(
             cr,
-            (win_width / 2 + (logo_height / 3)) - (logo_height), // Centrado horizontalmente
+            (win_width / 2 + (logo_height / 3)) -
+                logo_height,
             0,
             win_width,
             logo_height);
-        logo_dirty = false;
-    }
-    /* draw_logo_shm(
-       cr,
-       (win_width / 2 + (logo_height / 3)) - (logo_height), // Centrado horizontalmente
-       0,
-       win_width,
-       logo_height);  */
 
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    text_time += diff_ns(t0, t1);
-    printf("LOGO CAIRO: %d llamadas, %lu ns\n",
-           text_calls,
-           text_time);
+        /*
+         * IMPORTANTE:
+         *
+         * NO ponemos logo_dirty = false aquí.
+         *
+         * render_frame() es quien guarda el estado
+         * y decide qué DAMAGE hacer.
+         */
+    }
+
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t1);
+
+    text_time +=
+        diff_ns(t0, t1);
+
+    printf(
+        "LOGO CAIRO: %d llamadas, %lu ns\n",
+        text_calls,
+        text_time);
 }
 
 // --- RENDERIZADO ---
 static void render_frame(struct wl_surface *surface)
 {
+    printf(
+        "RENDER FRAME | visible=%d | logo_dirty=%d\n",
+        zmenu_visible,
+        logo_dirty);
 
-    static struct timespec last_draw = {0, 0};
-    struct timespec now;
-    clock_gettime(CLOCK_MONOTONIC, &now);
-
-    // Calculamos la diferencia en milisegundos
-    long delta_ms = (now.tv_sec - last_draw.tv_sec) * 1000 +
-                    (now.tv_nsec - last_draw.tv_nsec) / 1000000;
-
-    // --- EL FILTRO ZARAMAGA ---
-    // Si han pasado menos de 33ms (aprox 30 FPS), ignoramos el render
-    // Puedes subirlo a 100ms si quieres que sea aún más ahorrador
-    if (delta_ms < 100)
-    {
-        return;
-    }
-    last_draw = now;
-
-    // zui_render(&ctx, win_width, win_height);
     struct timespec t0, t1;
 
-    clock_gettime(CLOCK_MONOTONIC, &t0);
+    /*
+     * =========================================
+     * NUKLEAR
+     * =========================================
+     */
 
-    zui_render(&ctx, win_width, win_height, &bore_cfg);
-    ///aqui///
-    clock_gettime(CLOCK_MONOTONIC, &t1);
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t0);
 
-    perf.nuklear_ns = diff_ns(t0, t1);
-    printf("Tiempo de renderizado Nuklear: %lu ns\n", diff_ns(t0, t1));
-    needs_redraw = false; // 🔥 IMPORTANTE: Solo renderizamos cuando realmente haya que hacerlo
+    zui_render(
+        &ctx,
+        win_width,
+        win_height,
+        &bore_cfg);
 
-    // draw_nuklear_to_cairo(&ctx, cr);
-    clock_gettime(CLOCK_MONOTONIC, &t0);
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t1);
 
-    draw_nuklear_to_cairo(&ctx, cr);
+    perf.nuklear_ns =
+        diff_ns(t0, t1);
 
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    perf.cairo_ns = diff_ns(t0, t1);
-    printf("Tiempo de renderizado Cairo: %lu ns\n", diff_ns(t0, t1));
-    // cairo_destroy(cr);
-    // cairo_surface_destroy(c_surf);
+    printf(
+        "Tiempo de renderizado Nuklear: %lu ns\n",
+        perf.nuklear_ns);
+
+    needs_redraw = false;
+
+    /*
+     * =========================================
+     * GUARDAMOS EL ESTADO DEL LOGO
+     * =========================================
+     *
+     * draw_nuklear_to_cairo() puede poner
+     * logo_dirty = false después de pintar.
+     *
+     * Por eso guardamos primero el estado.
+     */
+
+    bool logo_was_dirty = logo_dirty;
+
+    /*
+     * =========================================
+     * CAIRO
+     * =========================================
+     */
+
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t0);
+
+    draw_nuklear_to_cairo(
+        &ctx,
+        cr);
+
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t1);
+
+    perf.cairo_ns =
+        diff_ns(t0, t1);
+
+    printf(
+        "Tiempo de renderizado Cairo: %lu ns\n",
+        perf.cairo_ns);
+
+    /*
+     * Limpiar comandos de Nuklear
+     * después de convertirlos a Cairo.
+     */
+
     nk_clear(&ctx);
 
-    // wl_surface_attach(surface, buffer, 0, 0);
-    // wl_surface_damage(surface, 0, 0, win_width, win_height);
-    // wl_surface_commit(surface);
-    clock_gettime(CLOCK_MONOTONIC, &t0);
+    /*
+     * =========================================
+     * WAYLAND ATTACH
+     * =========================================
+     */
 
-    wl_surface_attach(surface, buffer, 0, 0);
-    // wl_surface_damage(surface, 0, 0, win_width, win_height);
-    int logo_height = win_height * 0.15f;
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t0);
 
-    wl_surface_damage(surface,
-                      0, logo_height,
-                      win_width, win_height);
-    /*   wl_surface_damage(
-          surface,
-          0,
-          logo_height,
-          win_width,
-          win_height - logo_height); */
-    // wl_surface_commit(surface);
+    wl_surface_attach(
+        surface,
+        buffer,
+        0,
+        0);
 
-    clock_gettime(CLOCK_MONOTONIC, &t1);
-    perf.commit_ns = diff_ns(t0, t1);
-    printf("Tiempo de commit: %lu ns\n", diff_ns(t0, t1));
-    // 🔥 LA MAGIA: Pedimos el callback antes del commit
-    struct wl_callback *cb = wl_surface_frame(surface);
-    wl_callback_add_listener(cb, &frame_listener, NULL);
+    /*
+     * =========================================
+     * ALTURA DEL LOGO
+     * =========================================
+     */
+
+    int logo_height =
+        win_height * 0.15f;
+
+    /*
+     * =========================================
+     * DAMAGE
+     * =========================================
+     *
+     * Si este frame acaba de recuperar
+     * el logo, dañamos TODO el buffer.
+     *
+     * Si no, solo dañamos la zona inferior.
+     */
+
+    if (logo_was_dirty)
+    {
+        printf("DAMAGE: incluyendo LOGO\n");
+
+        wl_surface_damage(
+            surface,
+            0,
+            0,
+            win_width,
+            win_height);
+    }
+    else
+    {
+        wl_surface_damage(
+            surface,
+            0,
+            logo_height,
+            win_width,
+            win_height - logo_height);
+    }
+
+    logo_dirty = false;
+
+    /*
+     * =========================================
+     * MEDIR DAMAGE / ATTACH
+     * =========================================
+     */
+
+    clock_gettime(
+        CLOCK_MONOTONIC,
+        &t1);
+
+    perf.commit_ns =
+        diff_ns(t0, t1);
+
+    printf(
+        "Tiempo de attach/damage: %lu ns\n",
+        perf.commit_ns);
+
+    /*
+     * =========================================
+     * FRAME CALLBACK
+     * =========================================
+     */
+
+    struct wl_callback *cb =
+        wl_surface_frame(surface);
+
+    wl_callback_add_listener(
+        cb,
+        &frame_listener,
+        NULL);
+
     frame_callback_pending = true;
 
-    wl_surface_commit(surface);
+    /*
+     * =========================================
+     * COMMIT
+     * =========================================
+     */
+
+    wl_surface_commit(
+        surface);
+
     needs_redraw = false;
+
+    /*
+     * =========================================
+     * ESTADÍSTICAS
+     * =========================================
+     */
+
     perf.render_ns =
         perf.nuklear_ns +
         perf.cairo_ns +
         perf.commit_ns;
-    printf("Tiempo total de renderizado: %lu ns\n",
-           perf.nuklear_ns +
-               perf.cairo_ns +
-               perf.commit_ns);
+
+    printf(
+        "Tiempo total de renderizado: %lu ns\n",
+        perf.render_ns);
 }
 
 static float text_get_width(nk_handle handle, float height, const char *text, int len)
@@ -1037,6 +1511,12 @@ int main(int argc, char **argv)
         win_width = atoi(argv[1]);
         win_height = atoi(argv[2]);
     }
+    if (zmenu_socket_create() < 0)
+    {
+        fprintf(stderr,
+                "No se pudo crear el socket de ZMenu\n");
+        return 1;
+    }
     signal(SIGUSR1, handle_vol_signal);
     boreInit();
     //printf("main23main, bore en Kernel=%d",bore_cfg.boreDisponible);
@@ -1161,88 +1641,468 @@ int wayinit(int win_width, int win_height, int *retFlag)
     *retFlag = 0;
     return 0;
 }
+// int refesco(struct wl_surface *surf)
+// {
+
+//     // printf("ZaramagaOS: Motor de refresco optimizado (CPU 0%%).\n");
+//     // fflush(stdout);
+//     // printf("ZaramagaOS: grenderes, %d).\n",g_hover.r_rendered);
+//     while (1)
+//     {
+//         // printf("refesco: needs_redraw=%d, g_hover.r_rendered=%d\n", needs_redraw, g_hover.r_rendered);
+//         while (wl_display_prepare_read(display) != 0)
+//         {
+//             wl_display_dispatch_pending(display);
+//         }
+//         wl_display_flush(display);
+
+//         //struct pollfd pfd = {.fd = wl_display_get_fd(display), .events = POLLIN};
+
+//         struct pollfd pfds[2];
+
+//         pfds[0].fd = wl_display_get_fd(display);
+//         pfds[0].events = POLLIN;
+
+//         pfds[1].fd = zmenu_socket_fd;
+//         pfds[1].events = POLLIN;
+
+//         // --- CAMBIO AQUÍ: Cálculo del Timeout para el Reloj ---
+//         struct timespec now;
+//         clock_gettime(CLOCK_REALTIME, &now);
+//         // Despertar cada minuto (60s - segundos actuales)
+//         // Añadimos 500ms de margen para asegurar que el sistema ya cambió el minuto
+//         /*  int timeout_ms = ((60 - (now.tv_sec % 60)) * 1000) + 500;
+
+//          int ret = poll(&pfd, 1, timeout_ms); */
+//         int ms_hasta_minuto = ((60 - (now.tv_sec % 60)) * 1000) + 500;
+
+//         // 2. Definimos el intervalo de las métricas (2 segundos)
+//         int ms_hasta_metricas = 2000;
+
+//         // 3. Elegimos el más pequeño de los dos
+//         int timeout_final = (ms_hasta_minuto < ms_hasta_metricas) ? ms_hasta_minuto : ms_hasta_metricas;
+
+//         // 4. Lanzamos el poll con el tiempo justo
+//         int ret = poll(&pfds, 1, timeout_final);
+
+//        /*  if (ret == 0)
+//         {
+//             // ¡TIMEOUT! Ha pasado un minuto.
+//             wl_display_cancel_read(display);
+//             needs_redraw = true; // Forzamos el render para actualizar la hora
+//         }
+//         else if (ret < 0)
+//         {
+//             if (errno == EINTR)
+//             {
+//                 wl_display_cancel_read(display);
+//                 if (configured)
+//                     render_frame(surf);
+//                 continue;
+//             }
+//             wl_display_cancel_read(display);
+//             break;
+//         }
+//         else if (pfd.revents & POLLIN)
+//         {
+//             wl_display_read_events(display);
+//         }
+//         else
+//         {
+//             wl_display_cancel_read(display);
+//         }
+
+//         wl_display_dispatch_pending(display);
+//         if (configured && needs_redraw)
+//         {
+//             // printf("refesco: needs_redraw=%d, g_hover.r_rendered=%d\n", needs_redraw, g_hover.r_rendered);
+
+//             render_frame(surf);
+//             needs_redraw = false;
+//         }
+//         if (configured && g_hover.r_rendered && !needs_redraw)
+//         {
+//             // printf("refesco: needs_redraw=%d, g_hover.r_rendered=%d\n", needs_redraw, g_hover.r_rendered);
+//             render_frame(surf);
+//             g_hover.r_rendered = false;
+//         } */
+//     }
+//     return 0;
+// }
 int refesco(struct wl_surface *surf)
 {
-
-    // printf("ZaramagaOS: Motor de refresco optimizado (CPU 0%%).\n");
-    // fflush(stdout);
-    // printf("ZaramagaOS: grenderes, %d).\n",g_hover.r_rendered);
     while (1)
     {
-        // printf("refesco: needs_redraw=%d, g_hover.r_rendered=%d\n", needs_redraw, g_hover.r_rendered);
+        /*
+         * =========================================
+         * WAYLAND: preparar lectura
+         * =========================================
+         */
+
         while (wl_display_prepare_read(display) != 0)
         {
             wl_display_dispatch_pending(display);
         }
+
         wl_display_flush(display);
 
-        struct pollfd pfd = {.fd = wl_display_get_fd(display), .events = POLLIN};
-        // struct pollfd pfd2 = {.fd = wl_display_get_fd(display), .events = POLLIN};
+        /*
+         * =========================================
+         * POLL
+         *
+         * pfds[0] = Wayland
+         * pfds[1] = ZMenu socket
+         * =========================================
+         */
 
-        // --- CAMBIO AQUÍ: Cálculo del Timeout para el Reloj ---
+        struct pollfd pfds[2];
+
+        pfds[0].fd =
+            wl_display_get_fd(display);
+
+        pfds[0].events =
+            POLLIN;
+
+        pfds[0].revents =
+            0;
+
+        pfds[1].fd =
+            zmenu_socket_fd;
+
+        pfds[1].events =
+            POLLIN;
+
+        pfds[1].revents =
+            0;
+
+        /*
+         * =========================================
+         * TIMEOUT
+         * =========================================
+         */
+
         struct timespec now;
-        clock_gettime(CLOCK_REALTIME, &now);
-        // Despertar cada minuto (60s - segundos actuales)
-        // Añadimos 500ms de margen para asegurar que el sistema ya cambió el minuto
-        /*  int timeout_ms = ((60 - (now.tv_sec % 60)) * 1000) + 500;
 
-         int ret = poll(&pfd, 1, timeout_ms); */
-        int ms_hasta_minuto = ((60 - (now.tv_sec % 60)) * 1000) + 500;
+        clock_gettime(
+            CLOCK_REALTIME,
+            &now);
 
-        // 2. Definimos el intervalo de las métricas (2 segundos)
-        int ms_hasta_metricas = 2000;
+        /*
+         * Despertar cuando cambie el minuto.
+         */
 
-        // 3. Elegimos el más pequeño de los dos
-        int timeout_final = (ms_hasta_minuto < ms_hasta_metricas) ? ms_hasta_minuto : ms_hasta_metricas;
+        int ms_hasta_minuto =
+            ((60 - (now.tv_sec % 60)) * 1000) + 500;
 
-        // 4. Lanzamos el poll con el tiempo justo
-        int ret = poll(&pfd, 1, timeout_final);
+        /*
+         * Intervalo de métricas.
+         */
+
+        int ms_hasta_metricas =
+            2000;
+
+        /*
+         * Elegimos el menor.
+         */
+
+        int timeout_final =
+            (ms_hasta_minuto < ms_hasta_metricas)
+                ? ms_hasta_minuto
+                : ms_hasta_metricas;
+
+        /*
+         * =========================================
+         * POLL
+         * =========================================
+         */
+
+        int ret =
+            poll(
+                pfds,
+                2,
+                timeout_final);
+
+        /*
+         * =========================================
+         * DEBUG
+         * =========================================
+         */
+
+        printf(
+            "POLL ret=%d | "
+            "wayland=%x | "
+            "socket=%x | "
+            "visible=%d\n",
+            ret,
+            pfds[0].revents,
+            pfds[1].revents,
+            zmenu_visible);
+
+        /*
+         * =========================================
+         * TIMEOUT
+         *
+         * IMPORTANTE:
+         * El timeout NO provoca render.
+         *
+         * Solo cancelamos la lectura Wayland.
+         * =========================================
+         */
 
         if (ret == 0)
         {
-            // ¡TIMEOUT! Ha pasado un minuto.
             wl_display_cancel_read(display);
-            needs_redraw = true; // Forzamos el render para actualizar la hora
         }
+
+        /*
+         * =========================================
+         * ERROR POLL
+         * =========================================
+         */
+
         else if (ret < 0)
         {
             if (errno == EINTR)
             {
                 wl_display_cancel_read(display);
-                if (configured)
-                    render_frame(surf);
+
+                /*
+                 * No forzamos render aquí.
+                 *
+                 * Si alguna señal pone
+                 * needs_redraw = true,
+                 * se procesará normalmente
+                 * en el siguiente ciclo.
+                 */
+
                 continue;
             }
+
             wl_display_cancel_read(display);
+
+            perror("poll");
+
             break;
         }
-        else if (pfd.revents & POLLIN)
-        {
-            wl_display_read_events(display);
-        }
+
+        /*
+         * =========================================
+         * EVENTOS
+         * =========================================
+         */
+
         else
         {
-            wl_display_cancel_read(display);
+            /*
+             * =====================================
+             * WAYLAND
+             * =====================================
+             */
+
+            if (pfds[0].revents & POLLIN)
+            {
+                wl_display_read_events(display);
+            }
+            else
+            {
+                wl_display_cancel_read(display);
+            }
+
+            /*
+             * =====================================
+             * ZMENU SOCKET
+             * =====================================
+             */
+
+            if (pfds[1].revents & POLLIN)
+            {
+                printf(
+                    "ZMENU SOCKET: POLLIN\n");
+
+                int client_fd =
+                    accept(
+                        zmenu_socket_fd,
+                        NULL,
+                        NULL);
+
+                if (client_fd >= 0)
+                {
+                    printf(
+                        "ZMENU SOCKET: cliente conectado\n");
+
+                    char buffer[64];
+
+                    ssize_t n =
+                        read(
+                            client_fd,
+                            buffer,
+                            sizeof(buffer) - 1);
+
+                    if (n > 0)
+                    {
+                        buffer[n] = '\0';
+
+                        printf(
+                            "ZMENU SOCKET RX: [%s]\n",
+                            buffer);
+
+                        /*
+                         * =================================
+                         * TOGGLE ZMENU
+                         * =================================
+                         */
+
+                        if (strncmp(
+                                buffer,
+                                "TOGGLE",
+                                6) == 0)
+                        {
+                            /*
+                             * Cambiamos visibilidad.
+                             */
+
+                            zmenu_visible =
+                                !zmenu_visible;
+
+                            printf(
+                                "TOGGLE -> visible=%d ANTES logo_dirty=%d\n",
+                                zmenu_visible,
+                                logo_dirty);
+
+                            /*
+                             * =================================
+                             * MOSTRAR
+                             * =================================
+                             *
+                             * render_empty_frame()
+                             * habrá limpiado completamente
+                             * el buffer.
+                             *
+                             * Por tanto, al volver a mostrar
+                             * debemos obligar a repintar
+                             * también el logo.
+                             */
+
+                            if (zmenu_visible)
+                            {
+                                logo_dirty = true;
+                            }
+
+                            /*
+                             * En ambos casos necesitamos
+                             * un frame:
+                             *
+                             * visible = 1
+                             *     -> render_frame()
+                             *
+                             * visible = 0
+                             *     -> render_empty_frame()
+                             */
+
+                            printf(
+                                "TOGGLE -> logo_dirty=%d\n",
+                                logo_dirty);
+                            needs_redraw = true;
+                        }
+                    }
+
+                    close(client_fd);
+                }
+                else
+                {
+                    perror(
+                        "ZMENU SOCKET: accept");
+                }
+            }
+
+            /*
+             * =====================================
+             * SOCKET ERROR
+             * =====================================
+             */
+
+            if (pfds[1].revents &
+                (POLLERR |
+                 POLLHUP |
+                 POLLNVAL))
+            {
+                printf(
+                    "ZMENU SOCKET ERROR: revents=%x\n",
+                    pfds[1].revents);
+            }
         }
+
+        /*
+         * =========================================
+         * WAYLAND PENDING
+         * =========================================
+         */
 
         wl_display_dispatch_pending(display);
-        if (configured && needs_redraw)
-        {
-            // printf("refesco: needs_redraw=%d, g_hover.r_rendered=%d\n", needs_redraw, g_hover.r_rendered);
 
-            render_frame(surf);
+        /*
+         * =========================================
+         * REDRAW
+         * =========================================
+         *
+         * Aquí decidimos qué tipo de frame
+         * necesitamos.
+         *
+         * =========================================
+         */
+
+        if (configured &&
+            needs_redraw)
+        {
+            if (zmenu_visible)
+            {
+                /*
+                 * ZMENU VISIBLE
+                 *
+                 * Render normal:
+                 *
+                 * Nuklear
+                 * Cairo
+                 * Logo
+                 * Commit
+                 */
+
+                render_frame(surf);
+            }
+            else
+            {
+                /*
+                 * ZMENU OCULTO
+                 *
+                 * Limpiamos completamente
+                 * el buffer.
+                 */
+
+                render_empty_frame(surf);
+            }
+
             needs_redraw = false;
         }
-        if (configured && g_hover.r_rendered && !needs_redraw)
+
+        /*
+         * =========================================
+         * HOVER / INPUT
+         * =========================================
+         */
+
+        if (configured &&
+            zmenu_visible &&
+            g_hover.r_rendered &&
+            !needs_redraw)
         {
-            // printf("refesco: needs_redraw=%d, g_hover.r_rendered=%d\n", needs_redraw, g_hover.r_rendered);
             render_frame(surf);
+
             g_hover.r_rendered = false;
         }
     }
+
     return 0;
 }
-
 int boreInit(void)
 {
     int resultado_detect = bore_detect(&bore_enabled);
@@ -1289,4 +2149,127 @@ int check_bore_with_cat(void)
     // Cerrar el proceso hijo
     pclose(fp);
     return value;
+}
+static int zmenu_socket_create(void)
+{
+    struct sockaddr_un addr;
+
+    const char *runtime = getenv("XDG_RUNTIME_DIR");
+
+    if (!runtime)
+    {
+        fprintf(stderr,
+                "ZMenu: XDG_RUNTIME_DIR no definido\n");
+        return -1;
+    }
+
+    snprintf(
+        zmenu_socket_path,
+        sizeof(zmenu_socket_path),
+        "%s/%s",
+        runtime,
+        ZMENU_SOCKET);
+
+    unlink(zmenu_socket_path);
+
+    zmenu_socket_fd = socket(
+        AF_UNIX,
+        SOCK_STREAM,
+        0);
+
+    if (zmenu_socket_fd < 0)
+    {
+        perror("ZMenu: socket");
+        return -1;
+    }
+
+    memset(&addr, 0, sizeof(addr));
+
+    addr.sun_family = AF_UNIX;
+
+    strncpy(
+        addr.sun_path,
+        zmenu_socket_path,
+        sizeof(addr.sun_path) - 1);
+
+    if (bind(
+            zmenu_socket_fd,
+            (struct sockaddr *)&addr,
+            sizeof(addr)) < 0)
+    {
+        perror("ZMenu: bind");
+        close(zmenu_socket_fd);
+        zmenu_socket_fd = -1;
+        return -1;
+    }
+
+    if (listen(zmenu_socket_fd, 4) < 0)
+    {
+        perror("ZMenu: listen");
+        close(zmenu_socket_fd);
+        unlink(zmenu_socket_path);
+        zmenu_socket_fd = -1;
+        return -1;
+    }
+
+    printf(
+        "ZMenu socket: %s\n",
+        zmenu_socket_path);
+
+    return zmenu_socket_fd;
+}
+static void render_empty_frame(struct wl_surface *surface)
+{
+    /*
+     * =========================================
+     * LIMPIAR BUFFER
+     * =========================================
+     */
+
+    cairo_save(cr);
+
+    cairo_set_operator(
+        cr,
+        CAIRO_OPERATOR_CLEAR);
+
+    cairo_paint(cr);
+
+    cairo_restore(cr);
+
+    /*
+     * =========================================
+     * WAYLAND
+     * =========================================
+     */
+
+    wl_surface_attach(
+        surface,
+        buffer,
+        0,
+        0);
+
+    wl_surface_damage(
+        surface,
+        0,
+        0,
+        win_width,
+        win_height);
+
+    /*
+     * Callback para mantener el ciclo Wayland.
+     */
+
+    struct wl_callback *cb =
+        wl_surface_frame(surface);
+
+    wl_callback_add_listener(
+        cb,
+        &frame_listener,
+        NULL);
+
+    frame_callback_pending = true;
+
+    wl_surface_commit(surface);
+
+    needs_redraw = false;
 }

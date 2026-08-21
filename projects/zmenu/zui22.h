@@ -29,7 +29,8 @@ static float sys_cpu = 0.0f;
 static float sys_mem_u = 0.0f;
 static float sys_mem_t = 0.0f;
 static int sys_temp = 0;
-
+extern int zmenu_visible;
+extern bool logo_dirty;
 // prueba puntero a struct compartida
 extern struct wl_surface *surfGlobal;
 struct shared_metrics
@@ -737,17 +738,8 @@ int logoDraw(struct nk_command_buffer *canvas,
              float win_width,
              float logo_h)
 {
-    static bool first = true;
-
-    if (first)
-    {
-        nk_fill_rect(canvas,
-                     nk_rect(0, y, win_width, logo_h),
-                     0,
-                     nk_rgba(40, 40, 40, 20));
-
-        first = false;
-    }
+    printf("logoDraw: dirty=%d y=%.1f h=%.1f\n",
+           logo_dirty, y, logo_h);
 
     return y + logo_h;
 }
