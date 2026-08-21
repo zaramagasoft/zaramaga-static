@@ -1392,71 +1392,239 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 
     return (int)y - 10;
 }
-int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore){
-    
-    int offset = 0; // distancia a elemento superior gammadraw
-    float row_height = 30.0f; // La altura que reservamos para este bloque
+int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
+{
+    int offset = 0;
+
+    float row_height = 30.0f;
+
     float icon_w = 30.0f;
     float label_w = 60.0f;
     float value_w = 40.0f;
-    float slider_w = win_width - (1 * 2 + icon_w + label_w + value_w);
-    // float paddingM = 20.0f;
+
+    float slider_w =
+        win_width - (1 * 2 + icon_w + label_w + value_w);
+
     float slider_h = 55.0f;
+
     y += offset;
 
     float padding = 5.0f;
     float gap = 10.0f;
 
     float total_w = win_width - padding * 2.0f;
-    float btn_w = (total_w - gap * 4.0f) / 4.0f; ///por que seran 4 los elementos 
 
-    nk_layout_space_begin(ctx, NK_STATIC, row_height, 4);
+    float btn_w =
+        (total_w - gap * 4.0f) / 4.0f;
 
-    /* GAME */
-    nk_layout_space_push(ctx,
-                         nk_rect(
-                             padding,
-                             y,
-                             btn_w-20,
-                             row_height));
+    /*
+     * =========================================
+     * MODO ACTUAL
+     *
+     * 0 = GAME
+     * 1 = BAL
+     * 2 = ECO
+     * =========================================
+     */
 
-    nk_button_label(ctx, "\uf11b");
+    static int cpu_mode = 1;
 
-    /* NORMAL */
-    nk_layout_space_push(ctx,
-                         nk_rect(
-                             padding + (btn_w-20 + gap) * 1,
-                             y,
-                             btn_w-10,
-                             row_height));
+    /*
+     * =========================================
+     * ESTILOS
+     * =========================================
+     */
 
-    nk_button_label(ctx, "BAL");
+    struct nk_style_button estilo_original;
+    struct nk_style_button estilo_activo;
 
-    /* ECO */
-    nk_layout_space_push(ctx,
-                         nk_rect(
-                             padding + (btn_w-15 + gap) * 2,
-                             y,
-                             btn_w,
-                             row_height));
+    estilo_original = ctx->style.button;
 
-    nk_button_label(ctx, "ECO");
-  
-    /* BORE */
-    nk_layout_space_push(ctx,
-                         nk_rect(
-                             padding + (btn_w-10 + gap) * 3,
-                             y,
-                             btn_w+30,
-                             row_height));
+    estilo_activo = estilo_original;
 
-    nk_button_label(ctx, "BORE \uf013");
+    estilo_activo.normal =
+        nk_style_item_color(nk_rgb(70, 70, 70));
+
+    estilo_activo.hover =
+        nk_style_item_color(nk_rgb(90, 90, 90));
+
+    estilo_activo.active =
+        nk_style_item_color(nk_rgb(110, 110, 110));
+
+    estilo_activo.text_normal =
+        nk_rgb(255, 255, 255);
+
+    estilo_activo.text_hover =
+        nk_rgb(255, 255, 255);
+
+    estilo_activo.text_active =
+        nk_rgb(255, 255, 255);
+
+    /*
+     * =========================================
+     * LAYOUT
+     * =========================================
+     */
+
+    nk_layout_space_begin(
+        ctx,
+        NK_STATIC,
+        row_height,
+        4);
+
+    /*
+     * =========================================
+     * GAME
+     * =========================================
+     */
+
+    nk_layout_space_push(
+        ctx,
+        nk_rect(
+            padding,
+            y,
+            btn_w - 20,
+            row_height));
+
+    ctx->style.button =
+        (cpu_mode == 0)
+            ? estilo_activo
+            : estilo_original;
+
+    if (nk_button_label(ctx, "\uf11b"))
+    {
+        printf("=== GAME MODE ===\n");
+
+        int ret = system(
+            "sudo -n /usr/local/libexec/zmenu-bore governor performance");
+
+        printf(
+            "GAME governor ret = %d\n",
+            ret);
+
+        printf("=== GAME MODE END ===\n");
+
+        cpu_mode = 0;
+    }
+
+    /*
+     * =========================================
+     * BALANCED
+     * =========================================
+     */
+
+    nk_layout_space_push(
+        ctx,
+        nk_rect(
+            padding + (btn_w - 20 + gap) * 1,
+            y,
+            btn_w - 10,
+            row_height));
+
+    ctx->style.button =
+        (cpu_mode == 1)
+            ? estilo_activo
+            : estilo_original;
+
+    if (nk_button_label(ctx, "BAL"))
+    {
+        printf("=== BALANCED MODE ===\n");
+
+        int ret = system(
+            "sudo -n /usr/local/libexec/zmenu-bore governor powersave");
+
+        printf(
+            "BAL governor ret = %d\n",
+            ret);
+
+        printf("=== BALANCED MODE END ===\n");
+
+        cpu_mode = 1;
+    }
+
+    /*
+     * =========================================
+     * ECO
+     * =========================================
+     */
+
+    nk_layout_space_push(
+        ctx,
+        nk_rect(
+            padding + (btn_w - 15 + gap) * 2,
+            y,
+            btn_w,
+            row_height));
+
+    ctx->style.button =
+        (cpu_mode == 2)
+            ? estilo_activo
+            : estilo_original;
+
+    if (nk_button_label(ctx, "ECO"))
+    {
+        printf("=== ECO MODE ===\n");
+
+        int ret = system(
+            "sudo -n /usr/local/libexec/zmenu-bore governor powersave");
+
+        printf(
+            "ECO governor ret = %d\n",
+            ret);
+
+        printf("=== ECO MODE END ===\n");
+
+        cpu_mode = 2;
+    }
+
+    /*
+     * =========================================
+     * BORE
+     * =========================================
+     */
+
+    nk_layout_space_push(
+        ctx,
+        nk_rect(
+            padding + (btn_w - 10 + gap) * 3,
+            y,
+            btn_w + 30,
+            row_height));
+
+    /*
+     * BORE siempre conserva el estilo normal
+     * por ahora.
+     */
+
+    ctx->style.button = estilo_original;
+
+    nk_button_label(
+        ctx,
+        "BORE \uf013");
+
+    /*
+     * =========================================
+     * FIN LAYOUT
+     * =========================================
+     */
 
     nk_layout_space_end(ctx);
-    int semaforo = 0;
 
-    ////return
-    y = y + row_height;
-    return (int)(y);
+    /*
+     * Restauramos SIEMPRE el estilo original
+     * para los widgets que vienen después.
+     */
+
+    ctx->style.button = estilo_original;
+
+    /*
+     * =========================================
+     * RETURN
+     * =========================================
+     */
+
+    y += row_height;
+
+    return (int)y;
 }
 #endif

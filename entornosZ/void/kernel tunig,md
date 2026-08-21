@@ -1,0 +1,84 @@
+kernel tunig
+PARA LTO make CC=clang LD=ld.lld LLVM=1 menuconfig
+make -j$(nproc) LLVM=1
+//////////////// limpiar flags zaramaga static
+env | grep -E '^(CFLAGS|CXXFLAGS|CPPFLAGS|LDFLAGS|CPATH|C_INCLUDE_PATH|CPLUS_INCLUDE_PATH|LIBRARY_PATH)='
+unset CFLAGS
+unset CXXFLAGS
+unset CPPFLAGS
+unset LDFLAGS
+unset CPATH
+unset C_INCLUDE_PATH
+unset CPLUS_INCLUDE_PATH
+unset LIBRARY_PATH
+unset EXTRA_CFLAGS
+unset LIBELF_FLAGS
+unset CC
+unset HOSTCC
+unset PKG_CONFIG_PATH
+//make localmodconfig// para drivers del equipo na mas
+ sudo make clean
+1.make olddefconfig
+2.time make -j$(nproc)     KCFLAGS="-O2 -pipe -march=native"
+3.make kernelrelease
+7.1.9-zosZRgccBore
+
+///scripts/config --set-str CONFIG_LOCALVERSION "-zos"
+7.1.8-zosZRgccBore
+
+//////////////////desde aqui////////////////
+//make kernelrelease
+//make olddefconfig
+//time make -j$(nproc)     KCFLAGS="-O2 -pipe -march=native"
+
+// sudo make modules_install
+4.sudo make modules_install INSTALL_MOD_STRIP=1
+
+5.sudo cp arch/x86/boot/bzImage /boot/vmlinuz-7.1.8-zos
+sudo cp arch/x86/boot/bzImage /boot/vmlinuz-7.1.8-zosZRgccBore
+sudo cp arch/x86/boot/bzImage /boot/vmlinuz-7.1.9-zosZRgccBore
+
+6.sudo cp System.map /boot/System.map-7.1.8-zos
+sudo cp System.map /boot/System.map-7.1.8-zosZRgccBore
+sudo cp System.map /boot/System.map-7.1.9-zosZRgccBore
+7.sudo cp .config /boot/config-7.1.8-zos
+sudo cp .config /boot/config-7.1.8-zosZRgccBore
+sudo cp .config /boot/config-7.1.9-zosZRgccBore
+8.sudo make headers_install INSTALL_HDR_PATH=/usr
+//9sudo dkms remove  nvidia -v 595.84 -k 7.1.8-zos
+10.sudo dkms install -m nvidia -v 595.84 -k 7.1.8-zos
+sudo dkms install -m nvidia -v 595.84 -k 7.1.8-zosZRgccBore
+//sudo dkms install --force nvidia/595.84 -k 7.1.8-zos
+///si no los pasa el /////
+///  507  sudo zstd --rm nvidia-modeset.ko
+///  508  sudo zstd --rm nvidia-uvm.ko
+///  509  sudo zstd --rm nvidia-drm.ko
+///  510  sudo zstd --rm nvidia.ko
+sudo depmod -a 7.1.8-zosZRgccBore
+sudo depmod -a 7.1.9-zosZRgccBore
+11.sudo depmod -a 7.1.8-zosBore
+sudo depmod -a 7.1.8-zosZRgcc
+12. sudo dracut --force --compress zstd /boot/initramfs-7.1.8-zos.img 7.1.8-zos
+sudo dracut --force --compress zstd /boot/initramfs-7.1.8-zosZRgcc.img 7.1.8-zosZRgcc
+sudo dracut --force --compress zstd /boot/initramfs-7.1.9-zosZRgcc.img 7.1.9-zosZRgcc
+sudo dracut --force --compress zstd \
+/boot/initramfs-7.1.9-zosZRgccBore.img \
+7.1.9-zosZRgccBore
+13.sudo grub-mkconfig -o /boot/grub/grub.cfg
+history
+//sudo dkms install nvidia/595.84 -k 7.1.8-zos
+
+dkms status
+sudo dkms install --force -m nvidia -v 595.91.07 -k 7.1.9-zosZRgccBore
+sudo dkms install --force -m xone -v 0.5.8 -k 7.1.9-zosZRgccBore
+
+
+sudo dracut --force --compress zstd \
+/boot/initramfs-7.1.9-zosZRgccBore.img \
+7.1.9-zosZRgccBore
+sudo reboot
+sudo dkms install --force xone/0.5.8 -k 7.1.8-zos
+sudo dkms install -m xone/0.5.8 -k 7.1.8-zosZRgcc
+
+
+//mods scripts/config --enable MODULE_COMPRESS_ZSTD

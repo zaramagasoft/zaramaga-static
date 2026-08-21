@@ -3,6 +3,43 @@
 #include <string.h>
 #include <errno.h>
 
+static int set_governor(const char *governor)
+{
+    if (strcmp(governor, "performance") != 0 &&
+        strcmp(governor, "powersave") != 0)
+        return 2;
+
+    char path[256];
+
+    for (int i = 0;; i++)
+    {
+        snprintf(
+            path,
+            sizeof(path),
+            "/sys/devices/system/cpu/cpufreq/policy%d/scaling_governor",
+            i);
+
+        FILE *f = fopen(path, "w");
+
+        if (!f)
+        {
+            if (errno == ENOENT)
+                break;
+
+            return 5;
+        }
+
+        if (fprintf(f, "%s\n", governor) < 0)
+        {
+            fclose(f);
+            return 6;
+        }
+
+        fclose(f);
+    }
+
+    return 0;
+}
 static int parameter_allowed(const char *p)
 {
     if (!p)
@@ -55,6 +92,23 @@ int main(int argc, char **argv)
         return 1;
 
     const char *parameter = argv[1];
+
+    /*
+     * =========================================
+     * CPU GOVERNOR
+     * =========================================
+     */
+
+    if (strcmp(parameter, "governor") == 0)
+    {
+        return set_governor(argv[2]);
+    }
+
+    /*
+     * =========================================
+     * BORE
+     * =========================================
+     */
 
     if (!parameter_allowed(parameter))
         return 2;
