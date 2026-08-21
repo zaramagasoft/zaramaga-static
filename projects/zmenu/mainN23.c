@@ -71,7 +71,8 @@ struct wl_surface *surf;
 struct wl_cursor_theme *cursor_theme;
 struct wl_cursor *default_cursor;
 struct wl_surface *cursor_surface;
-
+struct wl_region *input_region = NULL;
+struct wl_region *empty_region = NULL;
 bool configured = false;
 
 static int frame_count = 0;
@@ -1447,11 +1448,27 @@ static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl
 }
 static void noop() {}
 
-static void pointer_button(void *data, struct wl_pointer *ptr, uint32_t serial, uint32_t time, uint32_t button, uint32_t state)
+static void pointer_button(void *data,
+                           struct wl_pointer *ptr,
+                           uint32_t serial,
+                           uint32_t time,
+                           uint32_t button,
+                           uint32_t state)
 {
+    if (!zmenu_visible)
+        return;
+
     if (button == 272)
-        nk_input_button(&ctx, NK_BUTTON_LEFT, cur_x, cur_y, state == WL_POINTER_BUTTON_STATE_PRESSED);
-    render_frame((struct wl_surface *)data);
+    {
+        nk_input_button(
+            &ctx,
+            NK_BUTTON_LEFT,
+            cur_x,
+            cur_y,
+            state == WL_POINTER_BUTTON_STATE_PRESSED);
+    }
+
+    needs_redraw = true;
 }
 // 1. Crea estas funciones de apoyo para que no den problemas
 static void pointer_enter(void *data, struct wl_pointer *ptr, uint32_t serial, struct wl_surface *surf, wl_fixed_t x, wl_fixed_t y)
@@ -1749,9 +1766,6 @@ int refesco(struct wl_surface *surf)
         /*
          * =========================================
          * POLL
-         *
-         * pfds[0] = Wayland
-         * pfds[1] = ZMenu socket
          * =========================================
          */
 
@@ -1787,23 +1801,11 @@ int refesco(struct wl_surface *surf)
             CLOCK_REALTIME,
             &now);
 
-        /*
-         * Despertar cuando cambie el minuto.
-         */
-
         int ms_hasta_minuto =
             ((60 - (now.tv_sec % 60)) * 1000) + 500;
 
-        /*
-         * Intervalo de métricas.
-         */
-
         int ms_hasta_metricas =
             2000;
-
-        /*
-         * Elegimos el menor.
-         */
 
         int timeout_final =
             (ms_hasta_minuto < ms_hasta_metricas)
@@ -1822,12 +1824,6 @@ int refesco(struct wl_surface *surf)
                 2,
                 timeout_final);
 
-        /*
-         * =========================================
-         * DEBUG
-         * =========================================
-         */
-
         printf(
             "POLL ret=%d | "
             "wayland=%x | "
@@ -1841,11 +1837,6 @@ int refesco(struct wl_surface *surf)
         /*
          * =========================================
          * TIMEOUT
-         *
-         * IMPORTANTE:
-         * El timeout NO provoca render.
-         *
-         * Solo cancelamos la lectura Wayland.
          * =========================================
          */
 
@@ -1865,16 +1856,6 @@ int refesco(struct wl_surface *surf)
             if (errno == EINTR)
             {
                 wl_display_cancel_read(display);
-
-                /*
-                 * No forzamos render aquí.
-                 *
-                 * Si alguna señal pone
-                 * needs_redraw = true,
-                 * se procesará normalmente
-                 * en el siguiente ciclo.
-                 */
-
                 continue;
             }
 
@@ -1958,51 +1939,109 @@ int refesco(struct wl_surface *surf)
                                 6) == 0)
                         {
                             /*
-                             * Cambiamos visibilidad.
+                             * Cambiar visibilidad.
                              */
 
                             zmenu_visible =
                                 !zmenu_visible;
 
                             printf(
-                                "TOGGLE -> visible=%d ANTES logo_dirty=%d\n",
-                                zmenu_visible,
-                                logo_dirty);
+                                "TOGGLE -> visible=%d\n",
+                                zmenu_visible);
 
                             /*
                              * =================================
-                             * MOSTRAR
+                             * INPUT REGION
                              * =================================
-                             *
-                             * render_empty_frame()
-                             * habrá limpiado completamente
-                             * el buffer.
-                             *
-                             * Por tanto, al volver a mostrar
-                             * debemos obligar a repintar
-                             * también el logo.
                              */
 
                             if (zmenu_visible)
                             {
+                                /*
+                                 * ---------------------------------
+                                 * MOSTRAR
+                                 * ---------------------------------
+                                 *
+                                 * Volvemos a recibir input
+                                 * en toda la superficie.
+                                 */
+
+                                struct wl_region *region =
+                                    wl_compositor_create_region(
+                                        compositor);
+
+                                if (region)
+                                {
+                                    wl_region_add(
+                                        region,
+                                        0,
+                                        0,
+                                        win_width,
+                                        win_height);
+
+                                    wl_surface_set_input_region(
+                                        surf,
+                                        region);
+
+                                    wl_region_destroy(region);
+                                }
+
+                                /*
+                                 * Hay que reconstruir el logo.
+                                 */
+
                                 logo_dirty = true;
+
+                                printf(
+                                    "INPUT: región completa\n");
+                            }
+                            else
+                            {
+                                /*
+                                 * ---------------------------------
+                                 * OCULTAR
+                                 * ---------------------------------
+                                 *
+                                 * Región vacía.
+                                 *
+                                 * Esta superficie deja de recibir
+                                 * eventos de entrada.
+                                 */
+
+                                struct wl_region *region =
+                                    wl_compositor_create_region(
+                                        compositor);
+
+                                if (region)
+                                {
+                                    /*
+                                     * NO hacemos wl_region_add().
+                                     *
+                                     * Región vacía.
+                                     */
+
+                                    wl_surface_set_input_region(
+                                        surf,
+                                        region);
+
+                                    wl_region_destroy(region);
+                                }
+
+                                printf(
+                                    "INPUT: región vacía -> INPUT LIBERADO\n");
                             }
 
                             /*
-                             * En ambos casos necesitamos
-                             * un frame:
-                             *
-                             * visible = 1
-                             *     -> render_frame()
-                             *
-                             * visible = 0
-                             *     -> render_empty_frame()
+                             * =================================
+                             * NECESITAMOS NUEVO FRAME
+                             * =================================
                              */
+
+                            needs_redraw = true;
 
                             printf(
                                 "TOGGLE -> logo_dirty=%d\n",
                                 logo_dirty);
-                            needs_redraw = true;
                         }
                     }
 
@@ -2044,11 +2083,6 @@ int refesco(struct wl_surface *surf)
          * =========================================
          * REDRAW
          * =========================================
-         *
-         * Aquí decidimos qué tipo de frame
-         * necesitamos.
-         *
-         * =========================================
          */
 
         if (configured &&
@@ -2058,13 +2092,6 @@ int refesco(struct wl_surface *surf)
             {
                 /*
                  * ZMENU VISIBLE
-                 *
-                 * Render normal:
-                 *
-                 * Nuklear
-                 * Cairo
-                 * Logo
-                 * Commit
                  */
 
                 render_frame(surf);
@@ -2073,9 +2100,6 @@ int refesco(struct wl_surface *surf)
             {
                 /*
                  * ZMENU OCULTO
-                 *
-                 * Limpiamos completamente
-                 * el buffer.
                  */
 
                 render_empty_frame(surf);
