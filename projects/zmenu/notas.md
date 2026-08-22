@@ -28,6 +28,16 @@ sudo chmod 440 /etc/sudoers.d/zmenu-bore
 sudo visudo -c
 
 ////////////////
+[alb@Zos7900x ~]$ sudo chmod 0440 /etc/sudoers.d/99_zmenu-bore
+[alb@Zos7900x ~]$ sudo visudo -c
+/etc/sudoers: parsed OK
+/etc/sudoers.d/00_alb: parsed OK
+/etc/sudoers.d/99_zmenu-bore: parsed OK
+[alb@Zos7900x ~]$ 
+
+
+sudo EDITOR=nano visudo
+sudo chmod 0440 /etc/sudoers.d/99_zmenu-bore
 XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" ./zmenun223 400 760
 sudo mkdir -p /usr/local/libexec
 sudo install -m 755 zmenu-bore /usr/local/libexec/zmenu-bore

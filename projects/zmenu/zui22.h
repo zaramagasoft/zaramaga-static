@@ -21,6 +21,10 @@ extern ZMetrics *metricasZui;
 #include <fcntl.h> // Opcional, pero ayuda con estructuras de red    // Para strcat
 #define SOCKET_PATH "/tmp/zmetrics.sock"
 #include "zui_hover.h"
+///// globales /////
+struct nk_style_button bore_normal;
+struct nk_style_button bore_active;
+struct nk_style_button bore_disabled;
 // Variables de fecha/hora
 char time_str[10];
 char date_str[20];
@@ -30,6 +34,7 @@ static float sys_mem_u = 0.0f;
 static float sys_mem_t = 0.0f;
 static int sys_temp = 0;
 extern int zmenu_visible;
+static int cpu_mode = 1;
 extern bool logo_dirty;
 // prueba puntero a struct compartida
 extern struct wl_surface *surfGlobal;
@@ -71,6 +76,7 @@ typedef enum
     SLIDER_UINT,
     SLIDER_FLOAT
 } SliderType;
+
 static void z_reboot(void)
 {
     if (access("/run/systemd/system", F_OK) == 0)
@@ -94,7 +100,8 @@ static inline uint64_t now_ns(void)
 
     return (uint64_t)ts.tv_sec * 1000000000ULL + ts.tv_nsec;
 }
-
+/// definiciones ////
+static void sync_cpu_mode_from_governor(void);
 static int bore_slider_factory(
     struct nk_context *ctx,
     float y,
@@ -450,6 +457,76 @@ void zui_init_colors()
     phosphor_green = nk_rgb(51, 255, 51);
     dark_green = nk_rgb(20, 60, 20);
     obtener_gamma_del_servicio(&bright_value, &contrast_value, &gamma_value);
+    /*
+     * =========================
+     * BORE NORMAL
+     * =========================
+     */
+
+    bore_normal.normal =
+        nk_style_item_color(nk_rgb(25, 80, 25));
+
+    bore_normal.hover =
+        nk_style_item_color(nk_rgb(40, 110, 40));
+
+    bore_normal.active =
+        nk_style_item_color(nk_rgb(55, 140, 55));
+
+    bore_normal.text_normal =
+        phosphor_green;
+
+    bore_normal.text_hover =
+        phosphor_green;
+
+    bore_normal.text_active =
+        phosphor_green;
+
+    /*
+     * =========================
+     * BORE ACTIVO
+     * =========================
+     */
+    bore_active.normal =
+        nk_style_item_color(nk_rgb(70, 70, 70));
+
+    bore_active.hover =
+        nk_style_item_color(nk_rgb(90, 90, 90));
+
+    bore_active.active =
+        nk_style_item_color(nk_rgb(110, 110, 110));
+
+    bore_active.text_normal =
+        nk_rgb(255, 255, 255);
+
+    bore_active.text_hover =
+        nk_rgb(255, 255, 255);
+
+    bore_active.text_active =
+        nk_rgb(255, 255, 255);
+
+    /*
+     * =========================
+     * BORE DESHABILITADO
+     * =========================
+     */
+
+    bore_disabled.normal =
+        nk_style_item_color(nk_rgb(25, 25, 25));
+
+    bore_disabled.hover =
+        bore_disabled.normal;
+
+    bore_disabled.active =
+        bore_disabled.normal;
+
+    bore_disabled.text_normal =
+        nk_rgb(70, 70, 70);
+
+    bore_disabled.text_hover =
+        nk_rgb(70, 70, 70);
+
+    bore_disabled.text_active =
+        nk_rgb(70, 70, 70);
 }
 
 void zui_set_style(struct nk_context *ctx)
@@ -1434,7 +1511,7 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
      * =========================================
      */
 
-    static int cpu_mode = 1;
+    // static int cpu_mode = 1;
 
     /*
      * =========================================
@@ -1586,10 +1663,10 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 
     /*
      * =========================================
-     * BORE
+     * BOREBOTON
      * =========================================
      */
-
+    printf("bore activo...%d y disponible... %d \n", bore->bore, bore->boreDisponible);
     nk_layout_space_push(
         ctx,
         nk_rect(
@@ -1603,12 +1680,32 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
      * por ahora.
      */
 
-    ctx->style.button = estilo_original;
+    struct nk_style_button bore_test = ctx->style.button;
 
-    nk_button_label(
-        ctx,
-        "BORE \uf013");
+    bore_test.normal =
+        nk_style_item_color(nk_rgb(0, 155, 0));
 
+    bore_test.hover =
+        nk_style_item_color(nk_rgb(0, 255, 0));
+
+    bore_test.active =
+        nk_style_item_color(nk_rgb(255, 150, 150));
+
+    bore_test.text_normal =
+        nk_rgb(255, 255, 255);
+
+    bore_test.text_hover =
+        nk_rgb(155, 0, 0);
+
+    bore_test.text_active =
+        nk_rgb(255, 255 , 255);
+
+    ctx->style.button = bore_test;
+
+     if (nk_button_label(ctx, "BORE"))
+    {
+        printf("bore pulsaoooooooooo\n");
+    }
     /*
      * =========================================
      * FIN LAYOUT
@@ -1633,5 +1730,48 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
     y += row_height;
 
     return (int)y;
+}
+static void sync_cpu_mode_from_governor(void)
+{
+    FILE *f = fopen(
+        "/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor",
+        "r");
+
+    if (!f)
+    {
+        printf("GOVERNOR: no se pudo leer\n");
+        return;
+    }
+
+    char governor[32] = {0};
+
+    if (fgets(governor, sizeof(governor), f))
+    {
+        governor[strcspn(governor, "\n")] = '\0';
+
+        printf(
+            "GOVERNOR ACTUAL: [%s]\n",
+            governor);
+
+        if (strcmp(governor, "performance") == 0)
+        {
+            cpu_mode = 0; // GAME
+        }
+        else if (strcmp(governor, "powersave") == 0)
+        {
+            /*
+             * No cambiamos cpu_mode aquí.
+             *
+             * BAL y ECO usan ambos powersave.
+             * Conservamos el último estado lógico.
+             */
+        }
+    }
+
+    fclose(f);
+
+    printf(
+        "CPU MODE SINCRONIZADO: %d\n",
+        cpu_mode);
 }
 #endif

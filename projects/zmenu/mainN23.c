@@ -74,7 +74,7 @@ struct wl_surface *cursor_surface;
 struct wl_region *input_region = NULL;
 struct wl_region *empty_region = NULL;
 bool configured = false;
-
+static uint64_t last_pointer_render_ns = 0;
 static int frame_count = 0;
 uint32_t *shm_data_global;
 static int retFlag = 0;
@@ -157,7 +157,7 @@ BoreConfig bore_cfg;
 int bore_enabled = 0;
 bool bore_available = false;
 
-static void render_empty_frame(struct wl_surface *surface); 
+static void render_empty_frame(struct wl_surface *surface);
 int boreInit(void);
 int check_bore_with_cat(void);
 static int zmenu_socket_create(void);
@@ -850,8 +850,8 @@ void draw_nuklear_to_cairo(struct nk_context *ctx, cairo_t *cr)
         0.0,
         0.0,
         0.0);
-    //cairo_paint(cr);
-    //cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
+    // cairo_paint(cr);
+    // cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
 
     /*
      * Si el logo ya está pintado:
@@ -1390,6 +1390,15 @@ static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl
 
     // 1. Informamos a Nuklear de la nueva posición
     nk_input_motion(&ctx, cur_x, cur_y);
+       /*
+     * LIMITAR POINTER MOTION A 20 FPS
+     *
+     * 1000 ms / 20 = 50 ms
+     */
+    if ((uint32_t)(time - last_pointer_render_ns) < 50)
+        return;
+
+    last_pointer_render_ns = time;
 
     // 2. Comprobamos si el ratón está sobre algo que Nuklear reconozca
     // Esto evita que redibujes cuando el ratón está en el "espacio vacío"
@@ -1443,7 +1452,7 @@ static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl
     }
     {
         // printf("REBOOT HOVER \n");
-        needs_redraw = true;
+       // needs_redraw = true;
     }
 }
 static void noop() {}
@@ -1572,7 +1581,7 @@ int main(int argc, char **argv)
     }
     signal(SIGUSR1, handle_vol_signal);
     boreInit();
-    //printf("main23main, bore en Kernel=%d",bore_cfg.boreDisponible);
+    // printf("main23main, bore en Kernel=%d",bore_cfg.boreDisponible);
     m_shared = mmap(NULL, sizeof(struct shared_metrics), PROT_READ | PROT_WRITE,
                     MAP_SHARED | MAP_ANONYMOUS, -1, 0);
     if (m_shared == MAP_FAILED)
@@ -1652,9 +1661,9 @@ int wayinit(int win_width, int win_height, int *retFlag)
     nk_font_atlas_init_default(&atlas);
     nk_font_atlas_begin(&atlas);
     struct nk_font *jetbrains = nk_font_atlas_add_default(
-    &atlas,
-    18.0f,
-    NULL);
+        &atlas,
+        18.0f,
+        NULL);
     nk_font_atlas_bake(&atlas, &w, &h, NK_FONT_ATLAS_ALPHA8);
     nk_font_atlas_end(&atlas, nk_handle_id(0), NULL);
 
@@ -1880,6 +1889,11 @@ int refesco(struct wl_surface *surf)
 
                         if (zmenu_visible)
                         {
+                            /*
+                             * ZMenu acaba de hacerse visible.
+                             * Sincronizamos con el governor real.
+                             */
+                            sync_cpu_mode_from_governor();
                             // INPUT REGION: Toda la superficie
                             struct wl_region *region = wl_compositor_create_region(compositor);
                             if (region)
