@@ -1493,19 +1493,55 @@ static const struct wl_pointer_listener pointer_listener = {
     .axis_source = (void *)noop,
     .axis_stop = (void *)noop,
     .axis_discrete = (void *)noop};
-static void layer_surface_configure(void *data, struct zwlr_layer_surface_v1 *ls, uint32_t serial, uint32_t width, uint32_t height)
+static void layer_surface_configure(
+    void *data,
+    struct zwlr_layer_surface_v1 *ls,
+    uint32_t serial,
+    uint32_t width,
+    uint32_t height)
 {
-    zwlr_layer_surface_v1_ack_configure(ls, serial);
-    // printf("winheight en layer configre antes:%f \n", win_height);
+    printf(
+        "!!! CONFIGURE !!! visible=%d width=%u height=%u\n",
+        zmenu_visible,
+        width,
+        height);
+
+    zwlr_layer_surface_v1_ack_configure(
+        ls,
+        serial);
 
     win_width = width;
     win_height = height;
-    // needs_redraw = true;
-    //  ESTO ES VITAL: Sin esto el padre nunca dibujará
-    configured = true;
-    // printf(" despues layer configrewinheight:%f \n", win_height);
 
-    render_frame((struct wl_surface *)data);
+    configured = true;
+
+    /*
+     * IMPORTANTE:
+     * CONFIGURE no significa que tengamos que mostrar ZMenu.
+     *
+     * Wofi, otros surfaces, cambios del compositor, etc.
+     * pueden provocar un configure.
+     *
+     * Si ZMenu está oculto, NO renderizamos el menú.
+     */
+
+    if (!zmenu_visible)
+    {
+        printf(
+            "CONFIGURE -> ZMenu oculto, NO render\n");
+
+        needs_redraw = false;
+
+        return;
+    }
+
+    /*
+     * ZMenu visible:
+     * ahora sí necesitamos pintar.
+     */
+
+    logo_dirty = true;
+    needs_redraw = true;
 }
 
 static void global_registry_handler(void *data, struct wl_registry *reg, uint32_t id, const char *interface, uint32_t version)
@@ -1751,11 +1787,8 @@ int refesco(struct wl_surface *surf)
     while (1)
     {
         /*
-         * =========================================
-         * WAYLAND: preparar lectura
-         * =========================================
+         * 1. Preparar lectura de Wayland
          */
-
         while (wl_display_prepare_read(display) != 0)
         {
             wl_display_dispatch_pending(display);
@@ -1764,363 +1797,163 @@ int refesco(struct wl_surface *surf)
         wl_display_flush(display);
 
         /*
-         * =========================================
-         * POLL
-         * =========================================
+         * 2. Configurar POLL
          */
-
         struct pollfd pfds[2];
 
-        pfds[0].fd =
-            wl_display_get_fd(display);
+        pfds[0].fd = wl_display_get_fd(display);
+        pfds[0].events = POLLIN;
+        pfds[0].revents = 0;
 
-        pfds[0].events =
-            POLLIN;
-
-        pfds[0].revents =
-            0;
-
-        pfds[1].fd =
-            zmenu_socket_fd;
-
-        pfds[1].events =
-            POLLIN;
-
-        pfds[1].revents =
-            0;
+        pfds[1].fd = zmenu_socket_fd;
+        pfds[1].events = POLLIN;
+        pfds[1].revents = 0;
 
         /*
-         * =========================================
-         * TIMEOUT
-         * =========================================
+         * 3. Timeout dinámico
          */
-
         struct timespec now;
+        clock_gettime(CLOCK_REALTIME, &now);
 
-        clock_gettime(
-            CLOCK_REALTIME,
-            &now);
-
-        int ms_hasta_minuto =
-            ((60 - (now.tv_sec % 60)) * 1000) + 500;
-
-        int ms_hasta_metricas =
-            2000;
-
-        int timeout_final =
-            (ms_hasta_minuto < ms_hasta_metricas)
-                ? ms_hasta_minuto
-                : ms_hasta_metricas;
+        int ms_hasta_minuto = ((60 - (now.tv_sec % 60)) * 1000) + 500;
+        int ms_hasta_metricas = 2000;
+        int timeout_final = (ms_hasta_minuto < ms_hasta_metricas) ? ms_hasta_minuto : ms_hasta_metricas;
 
         /*
-         * =========================================
-         * POLL
-         * =========================================
+         * 4. Esperar eventos
          */
-
-        int ret =
-            poll(
-                pfds,
-                2,
-                timeout_final);
-
-        printf(
-            "POLL ret=%d | "
-            "wayland=%x | "
-            "socket=%x | "
-            "visible=%d\n",
-            ret,
-            pfds[0].revents,
-            pfds[1].revents,
-            zmenu_visible);
+        int ret = poll(pfds, 2, timeout_final);
 
         /*
-         * =========================================
-         * TIMEOUT
-         * =========================================
+         * 5. Gestión de lectura de Wayland (CRÍTICO)
+         *
+         * Si Wayland tiene datos listos, DEBEN leerse siempre,
+         * incluso si el socket IPC de zmenu también se activó.
          */
-
-        if (ret == 0)
+        if (ret > 0 && (pfds[0].revents & POLLIN))
+        {
+            wl_display_read_events(display);
+        }
+        else
         {
             wl_display_cancel_read(display);
         }
 
         /*
-         * =========================================
-         * ERROR POLL
-         * =========================================
+         * Manejo de errores o interrupciones de poll
          */
-
-        else if (ret < 0)
+        if (ret < 0)
         {
             if (errno == EINTR)
-            {
-                wl_display_cancel_read(display);
                 continue;
-            }
-
-            wl_display_cancel_read(display);
 
             perror("poll");
-
             break;
         }
 
         /*
-         * =========================================
-         * EVENTOS
-         * =========================================
+         * 6. Procesar eventos del Socket IPC (ZMENU)
          */
-
-        else
+        if (ret > 0 && (pfds[1].revents & POLLIN))
         {
-            /*
-             * =====================================
-             * WAYLAND
-             * =====================================
-             */
+            printf("ZMENU SOCKET: POLLIN\n");
 
-            if (pfds[0].revents & POLLIN)
+            int client_fd = accept(zmenu_socket_fd, NULL, NULL);
+
+            if (client_fd >= 0)
             {
-                wl_display_read_events(display);
+                // Poner socket de cliente en modo no-bloqueante
+                fcntl(client_fd, F_SETFL, O_NONBLOCK);
+
+                char buffer_sock[64];
+                ssize_t n = read(client_fd, buffer_sock, sizeof(buffer_sock) - 1);
+
+                if (n > 0)
+                {
+                    buffer_sock[n] = '\0';
+                    printf("ZMENU SOCKET RX: [%s]\n", buffer_sock);
+
+                    if (strncmp(buffer_sock, "TOGGLE", 6) == 0)
+                    {
+                        zmenu_visible = !zmenu_visible;
+                        printf("TOGGLE -> visible=%d\n", zmenu_visible);
+
+                        if (zmenu_visible)
+                        {
+                            // INPUT REGION: Toda la superficie
+                            struct wl_region *region = wl_compositor_create_region(compositor);
+                            if (region)
+                            {
+                                wl_region_add(region, 0, 0, win_width, win_height);
+                                wl_surface_set_input_region(surf, region);
+                                wl_region_destroy(region);
+                            }
+                            logo_dirty = true;
+                            printf("INPUT: región completa\n");
+                        }
+                        else
+                        {
+                            // INPUT REGION: Región vacía (libera el input)
+                            struct wl_region *region = wl_compositor_create_region(compositor);
+                            if (region)
+                            {
+                                wl_surface_set_input_region(surf, region);
+                                wl_region_destroy(region);
+                            }
+                            printf("INPUT: región vacía -> INPUT LIBERADO\n");
+                        }
+
+                        // Notificar el cambio de región al compositor inmediatamente
+                        wl_surface_commit(surf);
+
+                        // Si el ciclo de callbacks estaba suspendido, restauramos la bandera
+                        frame_callback_pending = false;
+                        needs_redraw = true;
+                    }
+                }
+                close(client_fd);
             }
             else
             {
-                wl_display_cancel_read(display);
-            }
-
-            /*
-             * =====================================
-             * ZMENU SOCKET
-             * =====================================
-             */
-
-            if (pfds[1].revents & POLLIN)
-            {
-                printf(
-                    "ZMENU SOCKET: POLLIN\n");
-
-                int client_fd =
-                    accept(
-                        zmenu_socket_fd,
-                        NULL,
-                        NULL);
-
-                if (client_fd >= 0)
-                {
-                    printf(
-                        "ZMENU SOCKET: cliente conectado\n");
-
-                    char buffer[64];
-
-                    ssize_t n =
-                        read(
-                            client_fd,
-                            buffer,
-                            sizeof(buffer) - 1);
-
-                    if (n > 0)
-                    {
-                        buffer[n] = '\0';
-
-                        printf(
-                            "ZMENU SOCKET RX: [%s]\n",
-                            buffer);
-
-                        /*
-                         * =================================
-                         * TOGGLE ZMENU
-                         * =================================
-                         */
-
-                        if (strncmp(
-                                buffer,
-                                "TOGGLE",
-                                6) == 0)
-                        {
-                            /*
-                             * Cambiar visibilidad.
-                             */
-
-                            zmenu_visible =
-                                !zmenu_visible;
-
-                            printf(
-                                "TOGGLE -> visible=%d\n",
-                                zmenu_visible);
-
-                            /*
-                             * =================================
-                             * INPUT REGION
-                             * =================================
-                             */
-
-                            if (zmenu_visible)
-                            {
-                                /*
-                                 * ---------------------------------
-                                 * MOSTRAR
-                                 * ---------------------------------
-                                 *
-                                 * Volvemos a recibir input
-                                 * en toda la superficie.
-                                 */
-
-                                struct wl_region *region =
-                                    wl_compositor_create_region(
-                                        compositor);
-
-                                if (region)
-                                {
-                                    wl_region_add(
-                                        region,
-                                        0,
-                                        0,
-                                        win_width,
-                                        win_height);
-
-                                    wl_surface_set_input_region(
-                                        surf,
-                                        region);
-
-                                    wl_region_destroy(region);
-                                }
-
-                                /*
-                                 * Hay que reconstruir el logo.
-                                 */
-
-                                logo_dirty = true;
-
-                                printf(
-                                    "INPUT: región completa\n");
-                            }
-                            else
-                            {
-                                /*
-                                 * ---------------------------------
-                                 * OCULTAR
-                                 * ---------------------------------
-                                 *
-                                 * Región vacía.
-                                 *
-                                 * Esta superficie deja de recibir
-                                 * eventos de entrada.
-                                 */
-
-                                struct wl_region *region =
-                                    wl_compositor_create_region(
-                                        compositor);
-
-                                if (region)
-                                {
-                                    /*
-                                     * NO hacemos wl_region_add().
-                                     *
-                                     * Región vacía.
-                                     */
-
-                                    wl_surface_set_input_region(
-                                        surf,
-                                        region);
-
-                                    wl_region_destroy(region);
-                                }
-
-                                printf(
-                                    "INPUT: región vacía -> INPUT LIBERADO\n");
-                            }
-
-                            /*
-                             * =================================
-                             * NECESITAMOS NUEVO FRAME
-                             * =================================
-                             */
-
-                            needs_redraw = true;
-
-                            printf(
-                                "TOGGLE -> logo_dirty=%d\n",
-                                logo_dirty);
-                        }
-                    }
-
-                    close(client_fd);
-                }
-                else
-                {
-                    perror(
-                        "ZMENU SOCKET: accept");
-                }
-            }
-
-            /*
-             * =====================================
-             * SOCKET ERROR
-             * =====================================
-             */
-
-            if (pfds[1].revents &
-                (POLLERR |
-                 POLLHUP |
-                 POLLNVAL))
-            {
-                printf(
-                    "ZMENU SOCKET ERROR: revents=%x\n",
-                    pfds[1].revents);
+                if (errno != EAGAIN && errno != EWOULDBLOCK)
+                    perror("ZMENU SOCKET: accept");
             }
         }
 
         /*
-         * =========================================
-         * WAYLAND PENDING
-         * =========================================
+         * 7. Socket Error Handling
          */
+        if (ret > 0 && (pfds[1].revents & (POLLERR | POLLHUP | POLLNVAL)))
+        {
+            printf("ZMENU SOCKET ERROR: revents=%x\n", pfds[1].revents);
+        }
 
+        /*
+         * 8. Procesar la cola de eventos recibida de Wayland
+         */
         wl_display_dispatch_pending(display);
 
         /*
-         * =========================================
-         * REDRAW
-         * =========================================
+         * 9. Renderizado
          */
-
-        if (configured &&
-            needs_redraw)
+        if (configured && needs_redraw && !frame_callback_pending)
         {
             if (zmenu_visible)
             {
-                /*
-                 * ZMENU VISIBLE
-                 */
-
                 render_frame(surf);
             }
             else
             {
-                /*
-                 * ZMENU OCULTO
-                 */
-
                 render_empty_frame(surf);
             }
-
-            needs_redraw = false;
         }
 
         /*
-         * =========================================
-         * HOVER / INPUT
-         * =========================================
+         * 10. Hover / Input Update
          */
-
-        if (configured &&
-            zmenu_visible &&
-            g_hover.r_rendered &&
-            !needs_redraw)
+        if (configured && zmenu_visible && g_hover.r_rendered && !needs_redraw && !frame_callback_pending)
         {
             render_frame(surf);
-
             g_hover.r_rendered = false;
         }
     }
