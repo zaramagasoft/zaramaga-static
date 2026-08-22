@@ -32,6 +32,7 @@ XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" WAYLAND_DISPLAY="$WAYLAND_DISPLAY" ./zmenun22
 sudo mkdir -p /usr/local/libexec
 sudo install -m 755 zmenu-bore /usr/local/libexec/zmenu-bore
  $ZSYS/bin/musl-gcc -static zmenu-bore.c -o zmenu-bore
+ con socat instalado ahora ojo
 //////////////////testeo/////////////////
 sudo     XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR"     WAYLAND_DISPLAY="$WAYLAND_DISPLAY"     ./zmenun223 400 760
 

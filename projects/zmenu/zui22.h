@@ -71,6 +71,21 @@ typedef enum
     SLIDER_UINT,
     SLIDER_FLOAT
 } SliderType;
+static void z_reboot(void)
+{
+    if (access("/run/systemd/system", F_OK) == 0)
+        system("systemctl reboot");
+    else
+        system("loginctl reboot");
+}
+
+static void z_poweroff(void)
+{
+    if (access("/run/systemd/system", F_OK) == 0)
+        system("systemctl poweroff");
+    else
+        system("loginctl poweroff");
+}
 
 static inline uint64_t now_ns(void)
 {
@@ -563,23 +578,22 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         y = gammaDraw(ctx, y, win_width);
         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
-        y=modeDraw(ctx,y,win_width,bore_cfg);
-        ///bore////
+        y = modeDraw(ctx, y, win_width, bore_cfg);
+        /// bore////
         int offsetBore = 160;
-        if (bore_cfg->boreDisponible==1)
+        if (bore_cfg->boreDisponible == 1)
         {
-            //printf("bore en kernel ok DESDE ZUIRENDER\n");
+            // printf("bore en kernel ok DESDE ZUIRENDER\n");
             y = boreDraw(ctx, y, win_width, bore_cfg);
-        }else
-        {
-            offsetBore=0;
         }
-        
-        
-        
+        else
+        {
+            offsetBore = 0;
+        }
+
         printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
-        
+
         int pos = y - 30;
         pos = metricsDraw(ctx, win_height - footer_h - offsetBore, win_width, footer_h);
         y = pos - 20;
@@ -709,10 +723,11 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
             if (nk_button_label(ctx, msg))
             {
                 if (show_confirm == 1)
-                    system("loginctl reboot");
+                    // system("loginctl reboot");
+                    z_reboot();
                 else
-                    system("loginctl poweroff");
-
+                    // system("loginctl poweroff");
+                    z_poweroff();
                 exit(0);
             }
 
@@ -1106,7 +1121,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
      * KERNEL -> UI
      * =========================================
      */
-    if (bore->bore==0)
+    if (bore->bore == 0)
     {
         printf("BOREEEEE IGUAL A CEROOOOOOOOO\n");
         bore_set(
@@ -1140,7 +1155,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             bore);
         /* code */
     }
-    
+
     int bore_enabled = bore->bore;
     int inherit = bore->inherit_type;
     int smooth = bore->smoothness;
@@ -1181,24 +1196,24 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
        0 - 1
        ========================================= */
 
-   /*  if (bore_slider_factory(
-            ctx,
-            y,
-            win_width,
-            "BORE",
-            SLIDER_INT,
-            &bore_enabled,
-            0,
-            1,
-            1,
-            &g_hover.bright))
-    {
-        bore_set(
-            "sched_bore",
-            (unsigned long long)bore_enabled,
-            bore);
-        printf("bore setter");    
-    } */
+    /*  if (bore_slider_factory(
+             ctx,
+             y,
+             win_width,
+             "BORE",
+             SLIDER_INT,
+             &bore_enabled,
+             0,
+             1,
+             1,
+             &g_hover.bright))
+     {
+         bore_set(
+             "sched_bore",
+             (unsigned long long)bore_enabled,
+             bore);
+         printf("bore setter");
+     } */
 
     y += row_h;
 
