@@ -17,8 +17,9 @@ typedef struct
     unsigned long long cache_lifetime;
     int protect_slice_lv;
     int boreDisponible;
+    int boost;
 } BoreConfig;
-
+static int set_boost(int enabled);
 int bore_detect(int *enabled);
 
 int bore_read(BoreConfig *cfg);

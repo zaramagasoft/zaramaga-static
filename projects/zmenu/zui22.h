@@ -1577,14 +1577,16 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 
     if (nk_button_label(ctx, "\uf11b"))
     {
-        printf("=== GAME MODE ===\n");
-
-        int ret = system(
+        int ret1 = system(
             "sudo -n /usr/local/libexec/zmenu-bore governor performance");
 
+        int ret2 = system(
+            "sudo -n /usr/local/libexec/zmenu-bore boost 1");
+
         printf(
-            "GAME governor ret = %d\n",
-            ret);
+            "GAME governor ret = %d, boost ret = %d\n",
+            ret1,
+            ret2);
 
         printf("=== GAME MODE END ===\n");
 
@@ -1614,15 +1616,18 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
     {
         printf("=== BALANCED MODE ===\n");
 
-        int ret = system(
+        int ret1 = system(
             "sudo -n /usr/local/libexec/zmenu-bore governor powersave");
 
+        int ret2 = system(
+            "sudo -n /usr/local/libexec/zmenu-bore boost 0");
+
         printf(
-            "BAL governor ret = %d\n",
-            ret);
+            "BAL governor ret = %d, boost ret = %d\n",
+            ret1,
+            ret2);
 
         printf("=== BALANCED MODE END ===\n");
-
         cpu_mode = 1;
     }
 
@@ -1649,12 +1654,16 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
     {
         printf("=== ECO MODE ===\n");
 
-        int ret = system(
+        int ret1 = system(
             "sudo -n /usr/local/libexec/zmenu-bore governor powersave");
 
+        int ret2 = system(
+            "sudo -n /usr/local/libexec/zmenu-bore boost 0");
+
         printf(
-            "ECO governor ret = %d\n",
-            ret);
+            "ECO governor ret = %d, boost ret = %d\n",
+            ret1,
+            ret2);
 
         printf("=== ECO MODE END ===\n");
 
@@ -1698,11 +1707,11 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
         nk_rgb(155, 0, 0);
 
     bore_test.text_active =
-        nk_rgb(255, 255 , 255);
+        nk_rgb(255, 255, 255);
 
     ctx->style.button = bore_test;
 
-     if (nk_button_label(ctx, "BORE"))
+    if (nk_button_label(ctx, "BORE"))
     {
         printf("bore pulsaoooooooooo\n");
     }

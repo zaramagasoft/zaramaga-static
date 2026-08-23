@@ -2,6 +2,40 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+static int set_boost(int enabled)
+{
+    printf("SET BOOST enabled=%d\n", enabled);
+    char path[256];
+
+    for (int i = 0;; i++)
+    {
+        snprintf(
+            path,
+            sizeof(path),
+            "/sys/devices/system/cpu/cpufreq/policy%d/boost",
+            i);
+
+        FILE *f = fopen(path, "w");
+
+        if (!f)
+        {
+            if (errno == ENOENT)
+                break;
+
+            return 5;
+        }
+
+        if (fprintf(f, "%d\n", enabled ? 1 : 0) < 0)
+        {
+            fclose(f);
+            return 6;
+        }
+
+        fclose(f);
+    }
+
+    return 0;
+}
 
 static int set_governor(const char *governor)
 {
@@ -103,7 +137,20 @@ int main(int argc, char **argv)
     {
         return set_governor(argv[2]);
     }
+    /*
+     * =========================================
+     * CPU BOOST
+     * =========================================
+     */
 
+    if (strcmp(parameter, "boost") == 0)
+    {
+        if (strcmp(argv[2], "0") != 0 &&
+            strcmp(argv[2], "1") != 0)
+            return 3;
+
+        return set_boost(atoi(argv[2]));
+    }
     /*
      * =========================================
      * BORE
