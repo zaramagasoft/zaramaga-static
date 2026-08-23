@@ -18,6 +18,7 @@ typedef struct
     int protect_slice_lv;
     int boreDisponible;
     int boost;
+    int showBoreMenu;
 } BoreConfig;
 static int set_boost(int enabled);
 int bore_detect(int *enabled);

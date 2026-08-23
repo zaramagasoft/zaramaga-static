@@ -25,6 +25,7 @@ extern ZMetrics *metricasZui;
 struct nk_style_button bore_normal;
 struct nk_style_button bore_active;
 struct nk_style_button bore_disabled;
+
 // Variables de fecha/hora
 char time_str[10];
 char date_str[20];
@@ -283,7 +284,7 @@ int gammaDraw(struct nk_context *ctx, float y, float win_width)
 {
     uint64_t t = now_ns();
     // obtener_gamma_del_servicio(&bright_value, &contrast_value, &gamma_value);
-    printf("gamma service %lu us\n", (now_ns() - t) / 1000);
+    //printf("gamma service %lu us\n", (now_ns() - t) / 1000);
     float row_h = 20.0f;
     int offset = 30;
     float row_height = 20.0f; // La altura que reservamos para este bloque
@@ -568,6 +569,11 @@ void zui_set_style(struct nk_context *ctx)
 }
 void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfig *bore_cfg)
 {
+    static uint64_t render_count = 0;
+
+    render_count++;
+
+    printf("RENDER %lu\n", render_count);
     uint64_t t; // Para medir el tiempo de ejecución de cada sección
     t = now_ns();
     estilo_original = ctx->style.button; // Guardamos el estilo original del botón
@@ -609,7 +615,7 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
     //   Dentro de tu zui_render o donde leas el volumen:
     // static uint32_t frame_count = 0;
     // frame_count++;
-    printf("antes de renderNukear en zui render %lu\n", (now_ns() - t) / 1000);
+    //printf("antes de renderNukear en zui render %lu\n", (now_ns() - t) / 1000);
 
     float v = vol_value;
     // --- ZONAS ---
@@ -636,52 +642,59 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         float y = 0;
         y = logoDraw(canvas, y, win_width, logo_h);
         // printf("logo      %6lu us\n", (now_ns() - t) / 1000);
-        printf("logo...... %lu us\n", (now_ns() - t) / 1000);
+      //  printf("logo...... %lu us\n", (now_ns() - t) / 1000);
         // printf("Después de logoDraw, y = %f\n", y);
         t = now_ns();
         y = kernelraw(ctx, y, win_width, middle_h);
         // printf("Después de kernelraw, y = %f\n", y);
-        printf("kernel.... %lu us\n", (now_ns() - t) / 1000);
+        //printf("kernel.... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
         y = datedraw(ctx, y, win_width);
         // printf("Después de datedraw, y = %f\n", y);
-        printf("date...... %lu us\n", (now_ns() - t) / 1000);
+        //printf("date...... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
         y = voldraw(ctx, y, win_width, middle_h);
         // printf("Después de voldraw, y = %f\n", y);
         //  printf("cpuZui %f\n", m_shared->cpu);
-        printf("vol....... %lu us\n", (now_ns() - t) / 1000);
+        //printf("vol....... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
         y = gammaDraw(ctx, y, win_width);
-        printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
+        //printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
         y = modeDraw(ctx, y, win_width, bore_cfg);
         /// bore////
-        int offsetBore = 160;
-        if (bore_cfg->boreDisponible == 1)
+        int offsetBore = 170;
+        if (bore_cfg->boreDisponible == 1 && bore_cfg->showBoreMenu == 1)
         {
+            static int last_show_bore = -1;
+
+            if (bore_cfg->showBoreMenu != last_show_bore)
+            {
+                printf("showBoreMenu = %d\n", bore_cfg->showBoreMenu);
+                last_show_bore = bore_cfg->showBoreMenu;
+            }
             // printf("bore en kernel ok DESDE ZUIRENDER\n");
             y = boreDraw(ctx, y, win_width, bore_cfg);
         }
         else
         {
-            offsetBore = 0;
+            offsetBore = 20;
         }
 
-        printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
+        //printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
         t = now_ns();
 
         int pos = y - 30;
         pos = metricsDraw(ctx, win_height - footer_h - offsetBore, win_width, footer_h);
         y = pos - 20;
-        printf("metrics... %lu us\n", (now_ns() - t) / 1000);
+        //printf("metrics... %lu us\n", (now_ns() - t) / 1000);
         // Actualizamos y con la posición devuelta por metricsDraw
         t = now_ns();
         int temping = ping->last_ping_ms; // aqui necesitamos damage ojo va pa todo
         // printf("pingZui %d\n", temping);
 
         y = pingDraw(ctx, y, win_width, ping);
-        printf("ping...... %lu us\n", (now_ns() - t) / 1000);
+        //printf("ping...... %lu us\n", (now_ns() - t) / 1000);
         y = upDownDraw(ctx, y, win_width);
         t = now_ns();
         // =========================
@@ -821,7 +834,7 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
 
         nk_layout_space_end(ctx);
     }
-    printf("botones... %lu us\n", (now_ns() - t) / 1000);
+    //printf("botones... %lu us\n", (now_ns() - t) / 1000);
     nk_end(ctx);
     // printf("todo layout %lu ns\n", now_ns() - t);
 }
@@ -830,8 +843,8 @@ int logoDraw(struct nk_command_buffer *canvas,
              float win_width,
              float logo_h)
 {
-    printf("logoDraw: dirty=%d y=%.1f h=%.1f\n",
-           logo_dirty, y, logo_h);
+    //printf("logoDraw: dirty=%d y=%.1f h=%.1f\n",
+   //   logo_dirty, y, logo_h);
 
     return y + logo_h;
 }
@@ -947,13 +960,13 @@ int kernelraw(struct nk_context *ctx, float y, float win_width, float middle_h)
 }
 int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h)
 {
-    printf("metricasZui=%p\n", (void *)metricasZui);
-    printf("ptr=%p cpu=%f ram=%f/%f temp=%d\n",
-           (void *)metricasZui,
-           metricasZui->cpu_usage,
-           metricasZui->mem_used_gb,
-           metricasZui->mem_total_gb,
-           metricasZui->temp_c);
+    //printf("metricasZui=%p\n", (void *)metricasZui);
+    //printf("ptr=%p cpu=%f ram=%f/%f temp=%d\n",
+    //       (void *)metricasZui,
+    //       metricasZui->cpu_usage,
+    //       metricasZui->mem_used_gb,
+    //       metricasZui->mem_total_gb,
+    //       metricasZui->temp_c);
     if (metricasZui == NULL || metricasZui->temp_c > 150) // Verificamos que metricasZui esté listo y tenga datos válidos
     {
         float row_height = 20.0f; // La altura que reservamos para este bloque
@@ -965,8 +978,8 @@ int metricsDraw(struct nk_context *ctx, float y, float win_width, float footer_h
 
         // Empujamos el rect en la posición 'y' actual
         nk_layout_space_push(ctx, nk_rect(0, y - 30, win_width * 0.75, row_height));
-        printf("Métricas en zui_render: CPU=%.1f%%, RAM=%.2f/%.2fGB, Temp=%d°C\n",
-               metricasZui->cpu_usage, metricasZui->mem_used_gb, metricasZui->mem_total_gb, metricasZui->temp_c);
+        // printf("Métricas en zui_render: CPU=%.1f%%, RAM=%.2f/%.2fGB, Temp=%d°C\n",
+        //        metricasZui->cpu_usage, metricasZui->mem_used_gb, metricasZui->mem_total_gb, metricasZui->temp_c);
 
         /* char icoReloj[60] = " \uf017 ";
         char icoCalendario[30] = "  \uf073 ";
@@ -1200,7 +1213,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
      */
     if (bore->bore == 0)
     {
-        printf("BOREEEEE IGUAL A CEROOOOOOOOO\n");
+      //  printf("BOREEEEE IGUAL A CEROOOOOOOOO\n");
         bore_set(
             "sched_burst_inherit_type",
             BORE_DEFAULT_INHERIT,
@@ -1253,16 +1266,16 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
     uint32_t cache_ms =
         (uint32_t)(bore->cache_lifetime / 1000000ULL);
 
-    printf(
-        "BORE al inicio: on=%d | inherit=%d | smooth=%d\n"
-        "penalty=%d | penaltyScale=%d | cache-ms=%u | protect=%d\n",
-        bore_enabled,
-        inherit,
-        smooth,
-        penalty,
-        penaltyS,
-        cache_ms,
-        protect_slice);
+    // printf(
+    //     "BORE al inicio: on=%d | inherit=%d | smooth=%d\n"
+    //     "penalty=%d | penaltyScale=%d | cache-ms=%u | protect=%d\n",
+    //     bore_enabled,
+    //     inherit,
+    //     smooth,
+    //     penalty,
+    //     penaltyS,
+    //     cache_ms,
+    //     protect_slice);
 
     uint64_t t = now_ns();
 
@@ -1459,20 +1472,20 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
        DEBUG
        ========================================= */
 
-    printf(
-        "BORE UI: on=%d | inherit=%d | smooth=%d | "
-        "penalty=%d | scale=%d | cache=%u ms | protect=%d\n",
-        bore_enabled,
-        inherit,
-        smooth,
-        penalty,
-        penaltyS,
-        cache_ms,
-        protect_slice);
+    // printf(
+    //     "BORE UI: on=%d | inherit=%d | smooth=%d | "
+    //     "penalty=%d | scale=%d | cache=%u ms | protect=%d\n",
+    //     bore_enabled,
+    //     inherit,
+    //     smooth,
+    //     penalty,
+    //     penaltyS,
+    //     cache_ms,
+    //     protect_slice);
 
-    printf(
-        "BoreDraw %lu us\n",
-        (now_ns() - t) / 1000);
+    // printf(
+    //     "BoreDraw %lu us\n",
+    //     (now_ns() - t) / 1000);
 
     return (int)y - 10;
 }
@@ -1583,12 +1596,12 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
         int ret2 = system(
             "sudo -n /usr/local/libexec/zmenu-bore boost 1");
 
-        printf(
-            "GAME governor ret = %d, boost ret = %d\n",
-            ret1,
-            ret2);
+        // printf(
+        //     "GAME governor ret = %d, boost ret = %d\n",
+        //     ret1,
+        //     ret2);
 
-        printf("=== GAME MODE END ===\n");
+        // printf("=== GAME MODE END ===\n");
 
         cpu_mode = 0;
     }
@@ -1614,7 +1627,7 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 
     if (nk_button_label(ctx, "BAL"))
     {
-        printf("=== BALANCED MODE ===\n");
+        //printf("=== BALANCED MODE ===\n");
 
         int ret1 = system(
             "sudo -n /usr/local/libexec/zmenu-bore governor powersave");
@@ -1622,12 +1635,12 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
         int ret2 = system(
             "sudo -n /usr/local/libexec/zmenu-bore boost 0");
 
-        printf(
-            "BAL governor ret = %d, boost ret = %d\n",
-            ret1,
-            ret2);
+        // printf(
+        //     "BAL governor ret = %d, boost ret = %d\n",
+        //     ret1,
+        //     ret2);
 
-        printf("=== BALANCED MODE END ===\n");
+        // printf("=== BALANCED MODE END ===\n");
         cpu_mode = 1;
     }
 
@@ -1652,7 +1665,7 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 
     if (nk_button_label(ctx, "ECO"))
     {
-        printf("=== ECO MODE ===\n");
+        //printf("=== ECO MODE ===\n");
 
         int ret1 = system(
             "sudo -n /usr/local/libexec/zmenu-bore governor powersave");
@@ -1660,12 +1673,12 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
         int ret2 = system(
             "sudo -n /usr/local/libexec/zmenu-bore boost 0");
 
-        printf(
-            "ECO governor ret = %d, boost ret = %d\n",
-            ret1,
-            ret2);
+        // printf(
+        //     "ECO governor ret = %d, boost ret = %d\n",
+        //     ret1,
+        //     ret2);
 
-        printf("=== ECO MODE END ===\n");
+        // printf("=== ECO MODE END ===\n");
 
         cpu_mode = 2;
     }
@@ -1675,7 +1688,7 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
      * BOREBOTON
      * =========================================
      */
-    printf("bore activo...%d y disponible... %d \n", bore->bore, bore->boreDisponible);
+    //printf("bore activo...%d y disponible... %d \n", bore->bore, bore->boreDisponible);
     nk_layout_space_push(
         ctx,
         nk_rect(
@@ -1713,7 +1726,9 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 
     if (nk_button_label(ctx, "BORE"))
     {
-        printf("bore pulsaoooooooooo\n");
+        bore->showBoreMenu = !bore->showBoreMenu;
+
+        printf("showBoreMenu = %d\n", bore->showBoreMenu);
     }
     /*
      * =========================================
@@ -1748,7 +1763,7 @@ static void sync_cpu_mode_from_governor(void)
 
     if (!f)
     {
-        printf("GOVERNOR: no se pudo leer\n");
+      //  printf("GOVERNOR: no se pudo leer\n");
         return;
     }
 
@@ -1758,9 +1773,9 @@ static void sync_cpu_mode_from_governor(void)
     {
         governor[strcspn(governor, "\n")] = '\0';
 
-        printf(
-            "GOVERNOR ACTUAL: [%s]\n",
-            governor);
+        // printf(
+        //     "GOVERNOR ACTUAL: [%s]\n",
+        //     governor);
 
         if (strcmp(governor, "performance") == 0)
         {
@@ -1779,8 +1794,8 @@ static void sync_cpu_mode_from_governor(void)
 
     fclose(f);
 
-    printf(
-        "CPU MODE SINCRONIZADO: %d\n",
-        cpu_mode);
+    // printf(
+    //     "CPU MODE SINCRONIZADO: %d\n",
+    //     cpu_mode);
 }
 #endif

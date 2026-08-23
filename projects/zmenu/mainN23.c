@@ -83,6 +83,7 @@ char *mi_buffer[1];
 pid_t pid_metrics = -1;
 pid_t pid_audio = -1;
 pthread_t hilo;
+static uint32_t last_motion_time = 0;
 
 int win_width = 300;
 int win_height = 1080;
@@ -310,17 +311,17 @@ static void *ping_thread(void *arg)
     int last_ping_ms = -1; // Variable local para almacenar el último ping
     while (ping->running)
     {
-        printf("Ping...\n");
+        //printf("Ping...\n");
         sleep(1);
         FILE *fp = popen("LC_ALL=C ping -c 1 -W 1 8.8.8.8 | grep time= | cut -d '=' -f 4 | cut -d ' ' -f 1", "r");
         if (fp)
         {
-            printf("Ping command executed successfully.\n");
+           // printf("Ping command executed successfully.\n");
             char buf[16];
             if (fgets(buf, sizeof(buf), fp))
             {
                 last_ping_ms = atoi(buf);
-                printf("Último ping: %d ms\n", last_ping_ms);
+                //printf("Último ping: %d ms\n", last_ping_ms);
                 ping->running = false;
                 // ping_stop(ping); // Aseguramos que el hilo siga corriendo
                 ping->last_ping_ms = last_ping_ms; // Guardamos el último ping en la estructura
@@ -330,13 +331,13 @@ static void *ping_thread(void *arg)
         sleep(1);
     }
 
-    printf("Fin del hilo\n");
+   //printf("Fin del hilo\n");
 
     return NULL;
 }
 void ping_start(PingWorker *ping)
 {
-    printf("Iniciando ping thread...\n");
+   // printf("Iniciando ping thread...\n");
     ping->running = true;
 
     pthread_create(
@@ -357,14 +358,14 @@ void enviar_comando_gamma(char cmd, float valor)
     FILE *f = fopen("/tmp/gamma_pipe", "w");
     if (f)
     {
-        fprintf(f, "%c %f\n", cmd, valor);
+     //   fprintf(f, "%c %f\n", cmd, valor);
         fclose(f);
     }
 }
 
 void prueba(void)
 {
-    printf("ZaramagaOS: Cerrando...\n");
+    //printf("ZaramagaOS: Cerrando...\n");
     if (zmenu_socket_fd >= 0)
         close(zmenu_socket_fd);
 
@@ -653,12 +654,12 @@ void start_zui_monitor()
         {
             if (strstr(linea, "sink") && strstr(linea, "change"))
             {
-                printf("Evento de volumen\n");
+                //printf("Evento de volumen\n");
                 fflush(stdout);
                 m_shared->volume = GetSystemVolume();
                 // El "Codazo" al padre
-                printf("Nuevo volumen = %d\n", m_shared->volume);
-                fflush(stdout);
+                //printf("Nuevo volumen = %d\n", m_shared->volume);
+                //fflush(stdout);
                 kill(getppid(), SIGUSR1);
 
                 // Pequeña pausa para no ametrallar al padre si mueves el slider rápido
@@ -676,23 +677,23 @@ void draw_logo_shm(cairo_t *cr,
 {
     if (!logo_surface)
     {
-        printf("LOGO: logo_surface NULL\n");
+        //printf("LOGO: logo_surface NULL\n");
         return;
     }
 
     cairo_status_t status =
         cairo_surface_status(logo_surface);
 
-    printf(
-        "LOGO SURFACE: %p | %dx%d | status=%d\n",
-        (void *)logo_surface,
-        logo_w,
-        logo_h,
-        status);
+    // printf(
+    //     "LOGO SURFACE: %p | %dx%d | status=%d\n",
+    //     (void *)logo_surface,
+    //     logo_w,
+    //     logo_h,
+    //     status);
 
     if (status != CAIRO_STATUS_SUCCESS)
     {
-        printf("LOGO: superficie Cairo inválida\n");
+      //  printf("LOGO: superficie Cairo inválida\n");
         return;
     }
 
@@ -707,7 +708,7 @@ void draw_logo_shm(cairo_t *cr,
 
     if (!data)
     {
-        printf("LOGO: cairo_image_surface_get_data() NULL\n");
+        //printf("LOGO: cairo_image_surface_get_data() NULL\n");
         return;
     }
 
@@ -717,12 +718,12 @@ void draw_logo_shm(cairo_t *cr,
     /*
      * Debug: primer píxel.
      */
-    printf(
-        "LOGO PIXEL[0]: B=%u G=%u R=%u A=%u\n",
-        data[0],
-        data[1],
-        data[2],
-        data[3]);
+    // printf(
+    //     "LOGO PIXEL[0]: B=%u G=%u R=%u A=%u\n",
+    //     data[0],
+    //     data[1],
+    //     data[2],
+    //     data[3]);
 
     /*
      * Debug: píxel central.
@@ -733,12 +734,12 @@ void draw_logo_shm(cairo_t *cr,
     unsigned char *p =
         data + (py * stride) + (px * 4);
 
-    printf(
-        "LOGO CENTRO: B=%u G=%u R=%u A=%u\n",
-        p[0],
-        p[1],
-        p[2],
-        p[3]);
+    // printf(
+    //     "LOGO CENTRO: B=%u G=%u R=%u A=%u\n",
+    //     p[0],
+    //     p[1],
+    //     p[2],
+    //     p[3]);
 
     /*
      * Calculamos escala manteniendo
@@ -916,18 +917,18 @@ void draw_nuklear_to_cairo(struct nk_context *ctx, cairo_t *cr)
 
             if (r->y < logo_height)
             {
-                printf(
-                    "!!! NUKLEAR PISA LOGO: "
-                    "x=%d y=%d w=%d h=%d "
-                    "rgba=%d,%d,%d,%d\n",
-                    r->x,
-                    r->y,
-                    r->w,
-                    r->h,
-                    r->color.r,
-                    r->color.g,
-                    r->color.b,
-                    r->color.a);
+                // printf(
+                //     "!!! NUKLEAR PISA LOGO: "
+                //     "x=%d y=%d w=%d h=%d "
+                //     "rgba=%d,%d,%d,%d\n",
+                //     r->x,
+                //     r->y,
+                //     r->w,
+                //     r->h,
+                //     r->color.r,
+                //     r->color.g,
+                //     r->color.b,
+                //     r->color.a);
             }
         }
         switch (cmd->type)
@@ -1095,9 +1096,9 @@ void draw_nuklear_to_cairo(struct nk_context *ctx, cairo_t *cr)
 
         case NK_COMMAND_CUSTOM:
         {
-            printf(
-                "Comando CUSTOM ignorado por Cairo: %d\n",
-                cmd->type);
+            // printf(
+            //     "Comando CUSTOM ignorado por Cairo: %d\n",
+            //     cmd->type);
         }
         break;
 
@@ -1109,9 +1110,9 @@ void draw_nuklear_to_cairo(struct nk_context *ctx, cairo_t *cr)
 
         default:
         {
-            printf(
-                "Comando NUKLEAR por cairo ignorado: %d\n",
-                cmd->type);
+            // printf(
+            //     "Comando NUKLEAR por cairo ignorado: %d\n",
+            //     cmd->type);
         }
         break;
         }
@@ -1140,8 +1141,8 @@ void draw_nuklear_to_cairo(struct nk_context *ctx, cairo_t *cr)
     {
         text_calls++;
 
-        printf(
-            ">>> DRAW LOGO <<<\n");
+        // printf(
+        //     ">>> DRAW LOGO <<<\n");
 
         draw_logo_shm(
             cr,
@@ -1168,19 +1169,19 @@ void draw_nuklear_to_cairo(struct nk_context *ctx, cairo_t *cr)
     text_time +=
         diff_ns(t0, t1);
 
-    printf(
-        "LOGO CAIRO: %d llamadas, %lu ns\n",
-        text_calls,
-        text_time);
+    // printf(
+    //     "LOGO CAIRO: %d llamadas, %lu ns\n",
+    //     text_calls,
+    //     text_time);
 }
 
 // --- RENDERIZADO ---
 static void render_frame(struct wl_surface *surface)
 {
-    printf(
-        "RENDER FRAME | visible=%d | logo_dirty=%d\n",
-        zmenu_visible,
-        logo_dirty);
+    // printf(
+    //     "RENDER FRAME | visible=%d | logo_dirty=%d\n",
+    //     zmenu_visible,
+    //     logo_dirty);
 
     struct timespec t0, t1;
 
@@ -1207,9 +1208,9 @@ static void render_frame(struct wl_surface *surface)
     perf.nuklear_ns =
         diff_ns(t0, t1);
 
-    printf(
-        "Tiempo de renderizado Nuklear: %lu ns\n",
-        perf.nuklear_ns);
+    // printf(
+    //     "Tiempo de renderizado Nuklear: %lu ns\n",
+    //     perf.nuklear_ns);
 
     needs_redraw = false;
 
@@ -1247,9 +1248,9 @@ static void render_frame(struct wl_surface *surface)
     perf.cairo_ns =
         diff_ns(t0, t1);
 
-    printf(
-        "Tiempo de renderizado Cairo: %lu ns\n",
-        perf.cairo_ns);
+    // printf(
+    //     "Tiempo de renderizado Cairo: %lu ns\n",
+    //     perf.cairo_ns);
 
     /*
      * Limpiar comandos de Nuklear
@@ -1296,7 +1297,7 @@ static void render_frame(struct wl_surface *surface)
 
     if (logo_was_dirty)
     {
-        printf("DAMAGE: incluyendo LOGO\n");
+        //printf("DAMAGE: incluyendo LOGO\n");
 
         wl_surface_damage(
             surface,
@@ -1330,9 +1331,9 @@ static void render_frame(struct wl_surface *surface)
     perf.commit_ns =
         diff_ns(t0, t1);
 
-    printf(
-        "Tiempo de attach/damage: %lu ns\n",
-        perf.commit_ns);
+    // printf(
+    //     "Tiempo de attach/damage: %lu ns\n",
+    //     perf.commit_ns);
 
     /*
      * =========================================
@@ -1372,9 +1373,9 @@ static void render_frame(struct wl_surface *surface)
         perf.cairo_ns +
         perf.commit_ns;
 
-    printf(
-        "Tiempo total de renderizado: %lu ns\n",
-        perf.render_ns);
+    // printf(
+    //     "Tiempo total de renderizado: %lu ns\n",
+    //     perf.render_ns);
 }
 
 static float text_get_width(nk_handle handle, float height, const char *text, int len)
@@ -1385,12 +1386,15 @@ static float text_get_width(nk_handle handle, float height, const char *text, in
 static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl_fixed_t x, wl_fixed_t y)
 {
 
+    
+    if (time - last_motion_time < 50)
+        return;
+    last_motion_time = time;
+    // 1. Informamos a Nuklear de la nueva posición
     cur_x = wl_fixed_to_int(x);
     cur_y = wl_fixed_to_int(y);
-
-    // 1. Informamos a Nuklear de la nueva posición
     nk_input_motion(&ctx, cur_x, cur_y);
-       /*
+    /*
      * LIMITAR POINTER MOTION A 20 FPS
      *
      * 1000 ms / 20 = 50 ms
@@ -1452,7 +1456,7 @@ static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl
     }
     {
         // printf("REBOOT HOVER \n");
-       // needs_redraw = true;
+        // needs_redraw = true;
     }
 }
 static void noop() {}
@@ -1509,11 +1513,11 @@ static void layer_surface_configure(
     uint32_t width,
     uint32_t height)
 {
-    printf(
-        "!!! CONFIGURE !!! visible=%d width=%u height=%u\n",
-        zmenu_visible,
-        width,
-        height);
+    // printf(
+    //     "!!! CONFIGURE !!! visible=%d width=%u height=%u\n",
+    //     zmenu_visible,
+    //     width,
+    //     height);
 
     zwlr_layer_surface_v1_ack_configure(
         ls,
@@ -1536,8 +1540,8 @@ static void layer_surface_configure(
 
     if (!zmenu_visible)
     {
-        printf(
-            "CONFIGURE -> ZMenu oculto, NO render\n");
+        // printf(
+        //     "CONFIGURE -> ZMenu oculto, NO render\n");
 
         needs_redraw = false;
 
@@ -1575,8 +1579,8 @@ int main(int argc, char **argv)
     }
     if (zmenu_socket_create() < 0)
     {
-        fprintf(stderr,
-                "No se pudo crear el socket de ZMenu\n");
+        // fprintf(stderr,
+        //         "No se pudo crear el socket de ZMenu\n");
         return 1;
     }
     signal(SIGUSR1, handle_vol_signal);
@@ -1865,7 +1869,7 @@ int refesco(struct wl_surface *surf)
          */
         if (ret > 0 && (pfds[1].revents & POLLIN))
         {
-            printf("ZMENU SOCKET: POLLIN\n");
+            //printf("ZMENU SOCKET: POLLIN\n");
 
             int client_fd = accept(zmenu_socket_fd, NULL, NULL);
 
@@ -1880,12 +1884,12 @@ int refesco(struct wl_surface *surf)
                 if (n > 0)
                 {
                     buffer_sock[n] = '\0';
-                    printf("ZMENU SOCKET RX: [%s]\n", buffer_sock);
+                    //printf("ZMENU SOCKET RX: [%s]\n", buffer_sock);
 
                     if (strncmp(buffer_sock, "TOGGLE", 6) == 0)
                     {
                         zmenu_visible = !zmenu_visible;
-                        printf("TOGGLE -> visible=%d\n", zmenu_visible);
+                      //  printf("TOGGLE -> visible=%d\n", zmenu_visible);
 
                         if (zmenu_visible)
                         {
@@ -1903,7 +1907,7 @@ int refesco(struct wl_surface *surf)
                                 wl_region_destroy(region);
                             }
                             logo_dirty = true;
-                            printf("INPUT: región completa\n");
+                            //printf("INPUT: región completa\n");
                         }
                         else
                         {
@@ -1914,7 +1918,7 @@ int refesco(struct wl_surface *surf)
                                 wl_surface_set_input_region(surf, region);
                                 wl_region_destroy(region);
                             }
-                            printf("INPUT: región vacía -> INPUT LIBERADO\n");
+                            //printf("INPUT: región vacía -> INPUT LIBERADO\n");
                         }
 
                         // Notificar el cambio de región al compositor inmediatamente
@@ -1939,7 +1943,7 @@ int refesco(struct wl_surface *surf)
          */
         if (ret > 0 && (pfds[1].revents & (POLLERR | POLLHUP | POLLNVAL)))
         {
-            printf("ZMENU SOCKET ERROR: revents=%x\n", pfds[1].revents);
+            //printf("ZMENU SOCKET ERROR: revents=%x\n", pfds[1].revents);
         }
 
         /*
@@ -1977,23 +1981,23 @@ int refesco(struct wl_surface *surf)
 int boreInit(void)
 {
     int resultado_detect = bore_detect(&bore_enabled);
-    printf("DEBUG: bore_detect devolvió: %d | bore_enabled vale: %d\n", resultado_detect, bore_enabled);
+    //printf("DEBUG: bore_detect devolvió: %d | bore_enabled vale: %d\n", resultado_detect, bore_enabled);
 
     bore_available = (resultado_detect == 1);
 
     if (bore_available)
     {
         bore_cfg.boreDisponible = 1;
-        printf("//////////////BOREDISPONIBLE//////////\n");
+      //  printf("//////////////BOREDISPONIBLE//////////\n");
         if (bore_read(&bore_cfg) == 0)
         {
-            printf("BORE: configuracion cargada\n");
+        //    printf("BORE: configuracion cargada\n");
             bore_print(&bore_cfg);
         }
     }
     else
     {
-        printf("DEBUG: bore_available es falso (0). No se cargó la configuración.\n");
+        //printf("DEBUG: bore_available es falso (0). No se cargó la configuración.\n");
     }
 }
 int check_bore_with_cat(void)
@@ -2083,9 +2087,9 @@ static int zmenu_socket_create(void)
         return -1;
     }
 
-    printf(
-        "ZMenu socket: %s\n",
-        zmenu_socket_path);
+    // printf(
+    //     "ZMenu socket: %s\n",
+    //     zmenu_socket_path);
 
     return zmenu_socket_fd;
 }
