@@ -1,3 +1,16 @@
+unset CFLAGS
+unset CXXFLAGS
+unset CPPFLAGS
+unset LDFLAGS
+unset CPATH
+unset C_INCLUDE_PATH
+unset CPLUS_INCLUDE_PATH
+unset LIBRARY_PATH
+unset EXTRA_CFLAGS
+unset LIBELF_FLAGS
+unset CC
+unset HOSTCC
+unset PKG_CONFIG_PATH
 1. Preparación del sistema y optimización global
 
 Instalar herramientas oficiales de compilación y empaquetado:
@@ -21,7 +34,8 @@ Bash
 mkdir -p ~/abs_build && cd ~/abs_build
 pkgctl repo clone --protocol=https sway
 cd sway
-
+makepkg -si
+makepkg -C -f -si --skippgpcheck
 (Opcional) Importar la clave GPG del mantenedor si da fallo de firma:
 Bash
 

@@ -14,13 +14,18 @@ typedef struct
     struct nk_rect exit;
     struct nk_rect power;
     struct nk_rect updown;
+    struct nk_rect game;
+    struct nk_rect balanced;
+    struct nk_rect eco;
+    struct nk_rect bore;
+    bool is_hovering_bore;
     bool is_hovering_ping;
     bool is_hovering_volume;
     bool is_hovering_bright;
     bool is_hovering_contrast;
     bool is_hovering_gamma;
     bool is_hovering_updown;
-    bool r_rendered; 
+    bool r_rendered;
 } ZuiHoverRects;
 
 extern ZuiHoverRects g_hover;

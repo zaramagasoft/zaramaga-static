@@ -311,17 +311,17 @@ static void *ping_thread(void *arg)
     int last_ping_ms = -1; // Variable local para almacenar el último ping
     while (ping->running)
     {
-        //printf("Ping...\n");
+        // printf("Ping...\n");
         sleep(1);
         FILE *fp = popen("LC_ALL=C ping -c 1 -W 1 8.8.8.8 | grep time= | cut -d '=' -f 4 | cut -d ' ' -f 1", "r");
         if (fp)
         {
-           // printf("Ping command executed successfully.\n");
+            // printf("Ping command executed successfully.\n");
             char buf[16];
             if (fgets(buf, sizeof(buf), fp))
             {
                 last_ping_ms = atoi(buf);
-                //printf("Último ping: %d ms\n", last_ping_ms);
+                // printf("Último ping: %d ms\n", last_ping_ms);
                 ping->running = false;
                 // ping_stop(ping); // Aseguramos que el hilo siga corriendo
                 ping->last_ping_ms = last_ping_ms; // Guardamos el último ping en la estructura
@@ -331,13 +331,13 @@ static void *ping_thread(void *arg)
         sleep(1);
     }
 
-   //printf("Fin del hilo\n");
+    // printf("Fin del hilo\n");
 
     return NULL;
 }
 void ping_start(PingWorker *ping)
 {
-   // printf("Iniciando ping thread...\n");
+    // printf("Iniciando ping thread...\n");
     ping->running = true;
 
     pthread_create(
@@ -358,14 +358,14 @@ void enviar_comando_gamma(char cmd, float valor)
     FILE *f = fopen("/tmp/gamma_pipe", "w");
     if (f)
     {
-     //   fprintf(f, "%c %f\n", cmd, valor);
+        //   fprintf(f, "%c %f\n", cmd, valor);
         fclose(f);
     }
 }
 
 void prueba(void)
 {
-    //printf("ZaramagaOS: Cerrando...\n");
+    // printf("ZaramagaOS: Cerrando...\n");
     if (zmenu_socket_fd >= 0)
         close(zmenu_socket_fd);
 
@@ -654,12 +654,12 @@ void start_zui_monitor()
         {
             if (strstr(linea, "sink") && strstr(linea, "change"))
             {
-                //printf("Evento de volumen\n");
+                // printf("Evento de volumen\n");
                 fflush(stdout);
                 m_shared->volume = GetSystemVolume();
                 // El "Codazo" al padre
-                //printf("Nuevo volumen = %d\n", m_shared->volume);
-                //fflush(stdout);
+                // printf("Nuevo volumen = %d\n", m_shared->volume);
+                // fflush(stdout);
                 kill(getppid(), SIGUSR1);
 
                 // Pequeña pausa para no ametrallar al padre si mueves el slider rápido
@@ -677,7 +677,7 @@ void draw_logo_shm(cairo_t *cr,
 {
     if (!logo_surface)
     {
-        //printf("LOGO: logo_surface NULL\n");
+        // printf("LOGO: logo_surface NULL\n");
         return;
     }
 
@@ -693,7 +693,7 @@ void draw_logo_shm(cairo_t *cr,
 
     if (status != CAIRO_STATUS_SUCCESS)
     {
-      //  printf("LOGO: superficie Cairo inválida\n");
+        //  printf("LOGO: superficie Cairo inválida\n");
         return;
     }
 
@@ -708,7 +708,7 @@ void draw_logo_shm(cairo_t *cr,
 
     if (!data)
     {
-        //printf("LOGO: cairo_image_surface_get_data() NULL\n");
+        // printf("LOGO: cairo_image_surface_get_data() NULL\n");
         return;
     }
 
@@ -1297,7 +1297,7 @@ static void render_frame(struct wl_surface *surface)
 
     if (logo_was_dirty)
     {
-        //printf("DAMAGE: incluyendo LOGO\n");
+        // printf("DAMAGE: incluyendo LOGO\n");
 
         wl_surface_damage(
             surface,
@@ -1383,20 +1383,101 @@ static float text_get_width(nk_handle handle, float height, const char *text, in
     return len * (height * 0.55f);
 }
 
-static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl_fixed_t x, wl_fixed_t y)
-{
+// static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl_fixed_t x, wl_fixed_t y)
+// {
 
-    
-    if (time - last_motion_time < 50)
-        return;
+//     last_motion_time = time;
+//     // 1. Informamos a Nuklear de la nueva posición
+//     cur_x = wl_fixed_to_int(x);
+//     cur_y = wl_fixed_to_int(y);
+//     nk_input_motion(&ctx, cur_x, cur_y);
+//     /*
+//      * LIMITAR POINTER MOTION A 20 FPS
+//      *
+//      * 1000 ms / 20 = 50 ms
+//      */
+//     if ((uint32_t)(time - last_pointer_render_ns) < 50)
+//         return;
+
+//     last_pointer_render_ns = time;
+
+//     // 2. Comprobamos si el ratón está sobre algo que Nuklear reconozca
+//     // Esto evita que redibujes cuando el ratón está en el "espacio vacío"
+//     /* if (nk_window_is_any_hovered(&ctx))
+//     {
+//         needs_redraw = true;
+//     }
+//     else
+//     {
+//         needs_redraw = false; // No hay interacción, no redibujamos
+//     } */
+
+//     if (nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.ping) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.volume) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bright) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.contrast) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.gamma) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.reboot) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.exit) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.power) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.updown) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore))
+//     {
+//         needs_redraw = true;
+//         // printf("PING HOVER\n");
+//     }
+//     else
+//     {
+//         needs_redraw = false;
+//         // g_hover.r_rendered = true; // Marcamos que no hay hover, para que el próximo frame se dibuje de nuevo
+//     }
+//     if (g_hover.is_hovering_ping)
+//     {
+//         // printf("PING HOVER \n");
+//         needs_redraw = true;
+//     }
+//     if (g_hover.is_hovering_volume)
+//     {
+//         // printf("VOLUME HOVER \n");
+//         needs_redraw = true;
+//     }
+//     if (g_hover.is_hovering_bright)
+//     {
+//         // printf("BRIGHT HOVER \n");
+//         needs_redraw = true;
+//     }
+//     if (g_hover.is_hovering_contrast)
+//     {
+//         // printf("CONTRAST HOVER \n");
+//         needs_redraw = true;
+//     }
+//     if (g_hover.is_hovering_gamma)
+//     {
+//         // printf("GAMMA HOVER \n");
+//         needs_redraw = true;
+//     }
+//     if (g_hover.is_hovering_updown)
+//     {
+//         // printf("UPDOWN HOVER \n");
+//         needs_redraw = true;
+//     }
+//      if (g_hover.is_hovering_bore)
+//     {
+//         // printf("UPDOWN HOVER \n");
+//         needs_redraw = true;
+//     }
+//     {
+//         // printf("REBOOT HOVER \n");
+//         // needs_redraw = true;
+//     }
+// }
+static void pointer_motion(
+    void *data,
+    struct wl_pointer *ptr,
+    uint32_t time,
+    wl_fixed_t x,
+    wl_fixed_t y)
+{
     last_motion_time = time;
-    // 1. Informamos a Nuklear de la nueva posición
+
     cur_x = wl_fixed_to_int(x);
     cur_y = wl_fixed_to_int(y);
+
     nk_input_motion(&ctx, cur_x, cur_y);
+
     /*
      * LIMITAR POINTER MOTION A 20 FPS
-     *
      * 1000 ms / 20 = 50 ms
      */
     if ((uint32_t)(time - last_pointer_render_ns) < 50)
@@ -1404,59 +1485,22 @@ static void pointer_motion(void *data, struct wl_pointer *ptr, uint32_t time, wl
 
     last_pointer_render_ns = time;
 
-    // 2. Comprobamos si el ratón está sobre algo que Nuklear reconozca
-    // Esto evita que redibujes cuando el ratón está en el "espacio vacío"
-    /* if (nk_window_is_any_hovered(&ctx))
+    if (nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.ping) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.volume) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bright) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.contrast) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.gamma) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.reboot) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.exit) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.power) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.updown) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore))
     {
         needs_redraw = true;
-    }
-    else
-    {
-        needs_redraw = false; // No hay interacción, no redibujamos
-    } */
-    if (nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.ping) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.volume) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bright) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.contrast) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.gamma) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.reboot) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.exit) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.power) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.updown))
-    {
-        needs_redraw = true;
-        // printf("PING HOVER\n");
     }
     else
     {
         needs_redraw = false;
-        // g_hover.r_rendered = true; // Marcamos que no hay hover, para que el próximo frame se dibuje de nuevo
-    }
-    if (g_hover.is_hovering_ping)
-    {
-        // printf("PING HOVER \n");
-        needs_redraw = true;
-    }
-    if (g_hover.is_hovering_volume)
-    {
-        // printf("VOLUME HOVER \n");
-        needs_redraw = true;
-    }
-    if (g_hover.is_hovering_bright)
-    {
-        // printf("BRIGHT HOVER \n");
-        needs_redraw = true;
-    }
-    if (g_hover.is_hovering_contrast)
-    {
-        // printf("CONTRAST HOVER \n");
-        needs_redraw = true;
-    }
-    if (g_hover.is_hovering_gamma)
-    {
-        // printf("GAMMA HOVER \n");
-        needs_redraw = true;
-    }
-    if (g_hover.is_hovering_updown)
-    {
-        // printf("UPDOWN HOVER \n");
-        needs_redraw = true;
-    }
-    {
-        // printf("REBOOT HOVER \n");
-        // needs_redraw = true;
     }
 }
 static void noop() {}
@@ -1473,15 +1517,23 @@ static void pointer_button(void *data,
 
     if (button == 272)
     {
+        bool pressed =
+            (state == WL_POINTER_BUTTON_STATE_PRESSED);
+
+        printf("POINTER %s x=%d y=%d\n",
+               pressed ? "PRESS" : "RELEASE",
+               cur_x,
+               cur_y);
+
         nk_input_button(
             &ctx,
             NK_BUTTON_LEFT,
             cur_x,
             cur_y,
-            state == WL_POINTER_BUTTON_STATE_PRESSED);
-    }
+            pressed);
 
-    needs_redraw = true;
+        needs_redraw = true;
+    }
 }
 // 1. Crea estas funciones de apoyo para que no den problemas
 static void pointer_enter(void *data, struct wl_pointer *ptr, uint32_t serial, struct wl_surface *surf, wl_fixed_t x, wl_fixed_t y)
@@ -1869,7 +1921,7 @@ int refesco(struct wl_surface *surf)
          */
         if (ret > 0 && (pfds[1].revents & POLLIN))
         {
-            //printf("ZMENU SOCKET: POLLIN\n");
+            // printf("ZMENU SOCKET: POLLIN\n");
 
             int client_fd = accept(zmenu_socket_fd, NULL, NULL);
 
@@ -1884,12 +1936,12 @@ int refesco(struct wl_surface *surf)
                 if (n > 0)
                 {
                     buffer_sock[n] = '\0';
-                    //printf("ZMENU SOCKET RX: [%s]\n", buffer_sock);
+                    // printf("ZMENU SOCKET RX: [%s]\n", buffer_sock);
 
                     if (strncmp(buffer_sock, "TOGGLE", 6) == 0)
                     {
                         zmenu_visible = !zmenu_visible;
-                      //  printf("TOGGLE -> visible=%d\n", zmenu_visible);
+                        //  printf("TOGGLE -> visible=%d\n", zmenu_visible);
 
                         if (zmenu_visible)
                         {
@@ -1907,7 +1959,7 @@ int refesco(struct wl_surface *surf)
                                 wl_region_destroy(region);
                             }
                             logo_dirty = true;
-                            //printf("INPUT: región completa\n");
+                            // printf("INPUT: región completa\n");
                         }
                         else
                         {
@@ -1918,7 +1970,7 @@ int refesco(struct wl_surface *surf)
                                 wl_surface_set_input_region(surf, region);
                                 wl_region_destroy(region);
                             }
-                            //printf("INPUT: región vacía -> INPUT LIBERADO\n");
+                            // printf("INPUT: región vacía -> INPUT LIBERADO\n");
                         }
 
                         // Notificar el cambio de región al compositor inmediatamente
@@ -1943,13 +1995,18 @@ int refesco(struct wl_surface *surf)
          */
         if (ret > 0 && (pfds[1].revents & (POLLERR | POLLHUP | POLLNVAL)))
         {
-            //printf("ZMENU SOCKET ERROR: revents=%x\n", pfds[1].revents);
+            // printf("ZMENU SOCKET ERROR: revents=%x\n", pfds[1].revents);
         }
 
         /*
          * 8. Procesar la cola de eventos recibida de Wayland
          */
+
+        nk_input_begin(&ctx);
+
         wl_display_dispatch_pending(display);
+
+        nk_input_end(&ctx);
 
         /*
          * 9. Renderizado
@@ -1981,23 +2038,23 @@ int refesco(struct wl_surface *surf)
 int boreInit(void)
 {
     int resultado_detect = bore_detect(&bore_enabled);
-    //printf("DEBUG: bore_detect devolvió: %d | bore_enabled vale: %d\n", resultado_detect, bore_enabled);
+    // printf("DEBUG: bore_detect devolvió: %d | bore_enabled vale: %d\n", resultado_detect, bore_enabled);
 
     bore_available = (resultado_detect == 1);
 
     if (bore_available)
     {
         bore_cfg.boreDisponible = 1;
-      //  printf("//////////////BOREDISPONIBLE//////////\n");
+        //  printf("//////////////BOREDISPONIBLE//////////\n");
         if (bore_read(&bore_cfg) == 0)
         {
-        //    printf("BORE: configuracion cargada\n");
+            //    printf("BORE: configuracion cargada\n");
             bore_print(&bore_cfg);
         }
     }
     else
     {
-        //printf("DEBUG: bore_available es falso (0). No se cargó la configuración.\n");
+        // printf("DEBUG: bore_available es falso (0). No se cargó la configuración.\n");
     }
 }
 int check_bore_with_cat(void)
