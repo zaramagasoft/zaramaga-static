@@ -11,6 +11,8 @@ unset LIBELF_FLAGS
 unset CC
 unset HOSTCC
 unset PKG_CONFIG_PATH
+unset CC CFLAGS CPPFLAGS C_INCLUDE_PATH CPLUS_INCLUDE_PATH CPATH LIBRARY_PATH PKG_CONFIG_PATH ZROOT ZSYS
+
 1. Preparación del sistema y optimización global
 
 Instalar herramientas oficiales de compilación y empaquetado:
@@ -35,7 +37,7 @@ mkdir -p ~/abs_build && cd ~/abs_build
 pkgctl repo clone --protocol=https sway
 cd sway
 makepkg -si
-makepkg -C -f -si --skippgpcheck
+makepkg -C -f -s --skippgpcheck
 (Opcional) Importar la clave GPG del mantenedor si da fallo de firma:
 Bash
 
