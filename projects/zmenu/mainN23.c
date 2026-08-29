@@ -574,27 +574,27 @@ int wayinit(int win_width, int win_height, int *retFlag);
         exit(0);
     }
 } */
-void start_zmetrics_monitor()
-{
-    pid_metrics = fork();
-    if (pid_metrics < 0)
-        return;
+// void start_zmetrics_monitor()
+// {
+//     pid_metrics = fork();
+//     if (pid_metrics < 0)
+//         return;
 
-    if (pid_metrics == 0)
-    {
-#include <sys/prctl.h>
-        prctl(PR_SET_PDEATHSIG, SIGTERM);
-        // HIJO: Solo vigila y avisa
-        signal(SIGUSR1, SIG_IGN);
-        FILE *fp = popen("./zmetrics-server", "r");
-        if (!fp)
-            exit(1);
+//     if (pid_metrics == 0)
+//     {
+// #include <sys/prctl.h>
+//         prctl(PR_SET_PDEATHSIG, SIGTERM);
+//         // HIJO: Solo vigila y avisa
+//         signal(SIGUSR1, SIG_IGN);
+//         FILE *fp = popen("./zmetrics-server", "r");
+//         if (!fp)
+//             exit(1);
 
-        pclose(fp);
-        exit(0);
-    }
-    // PADRE: Continúa su ejecución normal
-}
+//         pclose(fp);
+//         exit(0);
+//     }
+//     // PADRE: Continúa su ejecución normal
+// }
 
 /* void start_zui_monitor()
 {
@@ -1662,7 +1662,7 @@ int main(int argc, char **argv)
     start_zui_monitor();
     // start_zui_metrics_monitor(); // Iniciamos el monitor de volumen en un proceso aparte
     //  --- CONEXIÓN WAYLAND ---
-    start_zmetrics_monitor(); // Iniciamos el monitor de métricas en un proceso aparte
+    //start_zmetrics_monitor(); // Iniciamos el monitor de métricas en un proceso aparte
     int retVal = wayinit(win_width, win_height, &retFlag);
     if (retFlag == 1)
         return retVal;

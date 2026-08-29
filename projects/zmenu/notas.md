@@ -1,4 +1,4 @@
-////////////modo game to do ///////////////////////
+1. ////////////modo game to do ///////////////////////
 echo 1 | sudo tee /sys/devices/system/cpu/cpufreq/policy0/boost
 cat /sys/devices/system/cpu/cpufreq/policy0/boost
 y echo 0 para modo eco.
