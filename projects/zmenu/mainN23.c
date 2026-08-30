@@ -658,7 +658,7 @@ void start_zui_monitor()
                 fflush(stdout);
                 m_shared->volume = GetSystemVolume();
                 // El "Codazo" al padre
-                // printf("Nuevo volumen = %d\n", m_shared->volume);
+                 printf("Nuevo volumen = %d\n", m_shared->volume);
                 // fflush(stdout);
                 kill(getppid(), SIGUSR1);
 
@@ -1851,6 +1851,13 @@ int refesco(struct wl_surface *surf)
 {
     while (1)
     {
+          if (zmenu_visible && needs_redraw && configured)
+        {
+            /* code */
+             render_frame(surf);
+             needs_redraw=false;
+            printf("estoy en signal...\n");
+        }
         /*
          * 1. Preparar lectura de Wayland
          */
@@ -2031,6 +2038,8 @@ int refesco(struct wl_surface *surf)
             render_frame(surf);
             g_hover.r_rendered = false;
         }
+      
+        
     }
 
     return 0;
