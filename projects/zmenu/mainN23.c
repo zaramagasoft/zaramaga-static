@@ -12,7 +12,7 @@
 #include <wayland-client.h>
 #include <cairo.h>
 #include "wlr-layer-shell-unstable-v1.h"
-
+#include <wayland-cursor.h>
 #include <unistd.h>
 #include <errno.h>
 #include <poll.h>
@@ -68,11 +68,21 @@ struct wl_seat *seat;
 struct wl_buffer *buffer;
 struct nk_context ctx;
 struct wl_surface *surf;
+
+struct wl_surface *cursor_surface;
 struct wl_cursor_theme *cursor_theme;
 struct wl_cursor *default_cursor;
-struct wl_surface *cursor_surface;
+
 struct wl_region *input_region = NULL;
 struct wl_region *empty_region = NULL;
+// Cerca de tus globales (junto a struct wl_surface *surf):
+struct zwlr_layer_surface_v1 *g_layer_surface = NULL;
+// Variables globales para el cursor
+struct wl_cursor_theme *cursor_theme = NULL;
+struct wl_cursor *default_cursor = NULL;
+struct wl_surface *cursor_surface = NULL;
+uint32_t last_enter_serial = 0; // Guardar el serial del evento enter
+
 bool configured = false;
 static uint64_t last_pointer_render_ns = 0;
 static int frame_count = 0;
@@ -165,7 +175,21 @@ static int zmenu_socket_create(void);
 int zmenu_visible = 1;
 
 static void zui_cairo_font(cairo_t *cr);
-
+void init_cursor(void);
+void init_cursor(void)
+{
+    // Cargar el tema de cursores por defecto (tamaño 24)
+    cursor_theme = wl_cursor_theme_load(NULL, 24, shm);
+    if (cursor_theme)
+    {
+        default_cursor = wl_cursor_theme_get_cursor(cursor_theme, "left_ptr");
+    }
+    // Crear la superficie dedicada únicamente al dibujo del cursor
+    if (compositor)
+    {
+        cursor_surface = wl_compositor_create_surface(compositor);
+    }
+}
 static void zui_cairo_font(cairo_t *cr)
 {
     if (!font3270_face)
@@ -658,7 +682,7 @@ void start_zui_monitor()
                 fflush(stdout);
                 m_shared->volume = GetSystemVolume();
                 // El "Codazo" al padre
-                 printf("Nuevo volumen = %d\n", m_shared->volume);
+                // printf("Nuevo volumen = %d\n", m_shared->volume);
                 // fflush(stdout);
                 kill(getppid(), SIGUSR1);
 
@@ -1536,11 +1560,60 @@ static void pointer_button(void *data,
     }
 }
 // 1. Crea estas funciones de apoyo para que no den problemas
-static void pointer_enter(void *data, struct wl_pointer *ptr, uint32_t serial, struct wl_surface *surf, wl_fixed_t x, wl_fixed_t y)
-{
-    // No hacemos nada raro aquí, Nuklear se enterará en el próximo frame
-}
+// static void pointer_enter(void *data, struct wl_pointer *ptr, uint32_t serial, struct wl_surface *surf, wl_fixed_t x, wl_fixed_t y)
+// {
+//     last_enter_serial = serial;
 
+//     // 2. Asignar la imagen del cursor a la superficie del puntero
+//     if (default_cursor && default_cursor->images[0] && cursor_surface) {
+//         struct wl_cursor_image *image = default_cursor->images[0];
+//         struct wl_buffer *cursor_buffer = wl_cursor_image_get_buffer(image);
+
+//         if (cursor_buffer) {
+//             wl_surface_attach(cursor_surface, cursor_buffer, 0, 0);
+//             wl_surface_damage(cursor_surface, 0, 0, image->width, image->height);
+//             wl_surface_commit(cursor_surface);
+
+//             // Indicar a Gamescope que use esta superficie como cursor con su punto caliente (hotspot)
+//             wl_pointer_set_cursor(ptr, serial, cursor_surface,
+//                                  image->hotspot_x, image->hotspot_y);
+//         }
+//     }
+//     // No hacemos nada raro aquí, Nuklear se enterará en el próximo frame
+// }
+static void pointer_enter(void *data,
+                          struct wl_pointer *ptr,
+                          uint32_t serial,
+                          struct wl_surface *surf,
+                          wl_fixed_t x,
+                          wl_fixed_t y)
+{
+    last_enter_serial = serial;
+    struct wl_cursor_image *image = default_cursor->images[0];
+
+    struct wl_buffer *buffer =
+        wl_cursor_image_get_buffer(image);
+
+    wl_surface_attach(cursor_surface, buffer, 0, 0);
+
+    wl_surface_damage(
+        cursor_surface,
+        0, 0,
+        image->width,
+        image->height);
+
+    wl_surface_commit(cursor_surface);
+
+    wl_pointer_set_cursor(
+        ptr,
+        serial,
+        cursor_surface,
+        image->hotspot_x,
+        image->hotspot_y);
+    nk_input_motion(&ctx,
+                    wl_fixed_to_int(x),
+                    wl_fixed_to_int(y));
+}
 static void pointer_leave(void *data, struct wl_pointer *ptr, uint32_t serial, struct wl_surface *surf)
 {
     nk_input_begin(&ctx);
@@ -1662,7 +1735,7 @@ int main(int argc, char **argv)
     start_zui_monitor();
     // start_zui_metrics_monitor(); // Iniciamos el monitor de volumen en un proceso aparte
     //  --- CONEXIÓN WAYLAND ---
-    //start_zmetrics_monitor(); // Iniciamos el monitor de métricas en un proceso aparte
+    // start_zmetrics_monitor(); // Iniciamos el monitor de métricas en un proceso aparte
     int retVal = wayinit(win_width, win_height, &retFlag);
     if (retFlag == 1)
         return retVal;
@@ -1697,7 +1770,6 @@ int main(int argc, char **argv)
 }
 int wayinit(int win_width, int win_height, int *retFlag)
 {
-
     *retFlag = 1;
     display = wl_display_connect(NULL);
     if (!display)
@@ -1727,6 +1799,7 @@ int wayinit(int win_width, int win_height, int *retFlag)
     {
         nk_style_set_font(&ctx, &jetbrains->handle);
     }
+
     struct wl_surface *surfGlobal;
     // --- CONFIGURAR SUPERFICIE & LAYER SHELL ---
     surf = wl_compositor_create_surface(compositor);
@@ -1740,14 +1813,31 @@ int wayinit(int win_width, int win_height, int *retFlag)
     buffer = wl_shm_pool_create_buffer(pool, 0, win_width, win_height, win_width * 4, WL_SHM_FORMAT_ARGB8888);
     close(fd);
 
-    struct zwlr_layer_surface_v1 *ls = zwlr_layer_shell_v1_get_layer_surface(layer_shell, surf, NULL, ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY, "dock");
+    // --- CREACIÓN ÚNICA DEL LAYER SURFACE (ASIGNADO A LA VARIABLE GLOBAL) ---
+    g_layer_surface = zwlr_layer_shell_v1_get_layer_surface(
+        layer_shell,
+        surf,
+        NULL,
+        ZWLR_LAYER_SHELL_V1_LAYER_OVERLAY,
+        "dock");
+
     static const struct zwlr_layer_surface_v1_listener lsl = {layer_surface_configure, (void *)exit};
-    zwlr_layer_surface_v1_set_anchor(ls, ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT | ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP | ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM);
-    zwlr_layer_surface_v1_set_size(ls, win_width, win_height);
-    zwlr_layer_surface_v1_add_listener(ls, &lsl, surf);
-    struct wl_cursor_theme *cursor_theme;
-    struct wl_cursor *default_cursor;
-    struct wl_surface *cursor_surface;
+
+    // Configurar propiedades iniciales de la superficie de capa usando g_layer_surface
+    zwlr_layer_surface_v1_set_anchor(g_layer_surface, ZWLR_LAYER_SURFACE_V1_ANCHOR_LEFT | ZWLR_LAYER_SURFACE_V1_ANCHOR_TOP | ZWLR_LAYER_SURFACE_V1_ANCHOR_BOTTOM);
+    zwlr_layer_surface_v1_set_size(g_layer_surface, win_width, win_height);
+
+    // Establecer la interactividad inicial en NONE por defecto (hasta que se active el TOGGLE)
+    // En wayinit():
+    zwlr_layer_surface_v1_set_keyboard_interactivity(
+        g_layer_surface,
+        ZWLR_LAYER_SURFACE_V1_KEYBOARD_INTERACTIVITY_EXCLUSIVE);
+
+    zwlr_layer_surface_v1_add_listener(g_layer_surface, &lsl, surf);
+
+    cursor_theme = wl_cursor_theme_load(NULL, 24, shm);
+    default_cursor = wl_cursor_theme_get_cursor(cursor_theme, "left_ptr");
+    cursor_surface = wl_compositor_create_surface(compositor);
     if (seat)
     {
         struct wl_pointer *ptr = wl_seat_get_pointer(seat);
@@ -1755,7 +1845,7 @@ int wayinit(int win_width, int win_height, int *retFlag)
     }
 
     wl_surface_commit(surf);
-    // render_frame(surf);
+
     *retFlag = 0;
     return 0;
 }
@@ -1851,12 +1941,12 @@ int refesco(struct wl_surface *surf)
 {
     while (1)
     {
-          if (zmenu_visible && needs_redraw && configured)
+        if (zmenu_visible && needs_redraw && configured)
         {
             /* code */
-             render_frame(surf);
-             needs_redraw=false;
-            printf("estoy en signal...\n");
+            render_frame(surf);
+            needs_redraw = false;
+            // printf("estoy en signal...\n");
         }
         /*
          * 1. Preparar lectura de Wayland
@@ -1948,16 +2038,16 @@ int refesco(struct wl_surface *surf)
                     if (strncmp(buffer_sock, "TOGGLE", 6) == 0)
                     {
                         zmenu_visible = !zmenu_visible;
-                        //  printf("TOGGLE -> visible=%d\n", zmenu_visible);
 
                         if (zmenu_visible)
                         {
                             /*
-                             * ZMenu acaba de hacerse visible.
-                             * Sincronizamos con el governor real.
+                             * ZMENU VISIBLE:
+                             * 1. Capturar la Input Region completa
+                             * 2. Activar interactividad EXCLUSIVA (Tomar ratón/teclado de Gamescope)
                              */
                             sync_cpu_mode_from_governor();
-                            // INPUT REGION: Toda la superficie
+
                             struct wl_region *region = wl_compositor_create_region(compositor);
                             if (region)
                             {
@@ -1965,25 +2055,42 @@ int refesco(struct wl_surface *surf)
                                 wl_surface_set_input_region(surf, region);
                                 wl_region_destroy(region);
                             }
+
+                            if (g_layer_surface)
+                            {
+                                zwlr_layer_surface_v1_set_keyboard_interactivity(
+                                    g_layer_surface,
+                                    ZWLR_LAYER_SURFACE_V1_KEYBOARD_INTERACTIVITY_EXCLUSIVE);
+                            }
+
                             logo_dirty = true;
-                            // printf("INPUT: región completa\n");
                         }
                         else
                         {
-                            // INPUT REGION: Región vacía (libera el input)
-                            struct wl_region *region = wl_compositor_create_region(compositor);
-                            if (region)
+                            /*
+                             * ZMENU OCULTO:
+                             * 1. Eliminar la Input Region (NULL indica a Wayland que la superficie no acepta clics)
+                             * 2. Liberar la interactividad (NONE devuelve el grab a Zomboid)
+                             */
+                            wl_surface_set_input_region(surf, NULL);
+
+                            if (g_layer_surface)
                             {
-                                wl_surface_set_input_region(surf, region);
-                                wl_region_destroy(region);
+                                zwlr_layer_surface_v1_set_keyboard_interactivity(
+                                    g_layer_surface,
+                                    ZWLR_LAYER_SURFACE_V1_KEYBOARD_INTERACTIVITY_NONE);
                             }
-                            // printf("INPUT: región vacía -> INPUT LIBERADO\n");
+                            struct wl_region *empty_region = wl_compositor_create_region(compositor);
+                            if (empty_region)
+                            {
+                                wl_surface_set_input_region(surf, empty_region);
+                                wl_region_destroy(empty_region);
+                            }
                         }
 
-                        // Notificar el cambio de región al compositor inmediatamente
+                        // Notificar ambos cambios (región e interactividad) en un solo commit atómico
                         wl_surface_commit(surf);
 
-                        // Si el ciclo de callbacks estaba suspendido, restauramos la bandera
                         frame_callback_pending = false;
                         needs_redraw = true;
                     }
@@ -2038,8 +2145,6 @@ int refesco(struct wl_surface *surf)
             render_frame(surf);
             g_hover.r_rendered = false;
         }
-      
-        
     }
 
     return 0;
