@@ -51,6 +51,11 @@ sudo install -m 755 zmenu-bore /usr/local/libexec/zmenu-bore
 //////////////////testeo/////////////////
 sudo     XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR"     WAYLAND_DISPLAY="$WAYLAND_DISPLAY"     ./zmenun223 400 760
 
+
+////////////con grab ojo wayland cursor  /////////////
+//////////////////////////////////////////////////////
+$ZSYS/bin/musl-gcc -static -march=native -O2 mainN23.c bore.c wlr-layer-shell-unstable-v1.c xdg-shell.c -o zmenun223 $(pkg-config --cflags --libs wayland-client wayland-cursor cairo cairo-ft freetype2) -lz -lm -lpthread -s
+////////////////////////////////////////////////////////
 ////////////////////////con bore ///////////////////////
 $ZSYS/bin/musl-gcc -static -march=native -O2 mainN23.c bore.c wlr-layer-shell-unstable-v1.c xdg-shell.c -o zmenun223 $(pkg-config --cflags --libs wayland-client cairo cairo-ft freetype2) -lz -lm -lpthread -s
 ///////////////////////////////////////////////////////

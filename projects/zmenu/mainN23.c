@@ -382,7 +382,7 @@ void enviar_comando_gamma(char cmd, float valor)
     FILE *f = fopen("/tmp/gamma_pipe", "w");
     if (f)
     {
-        //   fprintf(f, "%c %f\n", cmd, valor);
+        fprintf(f, "%c %f\n", cmd, valor);
         fclose(f);
     }
 }
@@ -1603,6 +1603,7 @@ static void pointer_enter(void *data,
         image->height);
 
     wl_surface_commit(cursor_surface);
+     
 
     wl_pointer_set_cursor(
         ptr,
@@ -1613,11 +1614,29 @@ static void pointer_enter(void *data,
     nk_input_motion(&ctx,
                     wl_fixed_to_int(x),
                     wl_fixed_to_int(y));
+        if (g_layer_surface)
+    {
+        zwlr_layer_surface_v1_set_keyboard_interactivity(
+            g_layer_surface,
+            ZWLR_LAYER_SURFACE_V1_KEYBOARD_INTERACTIVITY_EXCLUSIVE);
+
+        wl_surface_commit(surf);
+    }
+   
 }
 static void pointer_leave(void *data, struct wl_pointer *ptr, uint32_t serial, struct wl_surface *surf)
 {
     nk_input_begin(&ctx);
     nk_input_end(&ctx); // Esto limpia el estado de los botones al salir
+
+    if (g_layer_surface)
+    {
+        zwlr_layer_surface_v1_set_keyboard_interactivity(
+            g_layer_surface,
+            ZWLR_LAYER_SURFACE_V1_KEYBOARD_INTERACTIVITY_NONE);
+
+        wl_surface_commit(surf);
+    }
 }
 
 // 2. Actualiza el listener
