@@ -1749,8 +1749,9 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 
     if (nk_button_label(ctx, "BORE"))
     {
+        printf("!!!!!!!! BORE CLICK !!!!!!!\n");
         bore->showBoreMenu = !bore->showBoreMenu;
-
+        
         printf("showBoreMenu = %d\n", bore->showBoreMenu);
     }
     /*

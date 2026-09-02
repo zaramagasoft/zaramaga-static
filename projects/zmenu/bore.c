@@ -102,15 +102,14 @@ int bore_read(BoreConfig *cfg)
     if (!cfg)
         return -1;
 
+    int showBoreMenu = cfg->showBoreMenu;
+
     memset(cfg, 0, sizeof(*cfg));
 
     if (read_int(
             "/proc/sys/kernel/sched_bore",
             &cfg->bore) < 0)
-    {
-        //cfg->boreDisponible=1;
         return -1;
-    }
 
     if (read_int(
             "/proc/sys/kernel/sched_burst_inherit_type",
@@ -138,10 +137,12 @@ int bore_read(BoreConfig *cfg)
         return -1;
 
     if (read_int(
-            "/proc/sys/kernel/sched_burst_protect_slice_lv",
-            &cfg->protect_slice_lv) < 0)
+            "/proc/sys/kernel/sched_burst_protect_slice_lv",&cfg->protect_slice_lv) < 0)
         return -1;
+
     cfg->boreDisponible = 1;
+    cfg->showBoreMenu = showBoreMenu;
+
     return 0;
 }
 
