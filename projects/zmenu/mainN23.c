@@ -1518,7 +1518,10 @@ static void pointer_motion(
         nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.exit) ||
         nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.power) ||
         nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.updown) ||
-        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore))
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.game) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.balanced) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.eco))
     {
         needs_redraw = true;
     }
@@ -1603,7 +1606,6 @@ static void pointer_enter(void *data,
         image->height);
 
     wl_surface_commit(cursor_surface);
-     
 
     wl_pointer_set_cursor(
         ptr,
@@ -1614,7 +1616,7 @@ static void pointer_enter(void *data,
     nk_input_motion(&ctx,
                     wl_fixed_to_int(x),
                     wl_fixed_to_int(y));
-        if (g_layer_surface)
+    if (g_layer_surface)
     {
         zwlr_layer_surface_v1_set_keyboard_interactivity(
             g_layer_surface,
@@ -1622,7 +1624,6 @@ static void pointer_enter(void *data,
 
         wl_surface_commit(surf);
     }
-   
 }
 static void pointer_leave(void *data, struct wl_pointer *ptr, uint32_t serial, struct wl_surface *surf)
 {

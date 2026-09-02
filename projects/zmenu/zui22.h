@@ -1491,6 +1491,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 }
 int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
 {
+    struct nk_rect bounds = nk_widget_bounds(ctx);
     int offset = 0;
 
     float row_height = 30.0f;
@@ -1518,7 +1519,7 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
      * =========================================
      * MODO ACTUAL
      *
-     * 0 = GAME
+     * 0 = GAME OJO TIENE BOOST
      * 1 = BAL
      * 2 = ECO
      * =========================================
@@ -1582,7 +1583,9 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             y,
             btn_w - 20,
             row_height));
+    bounds = nk_widget_bounds(ctx);
 
+    g_hover.game = bounds;
     ctx->style.button =
         (cpu_mode == 0)
             ? estilo_activo
@@ -1619,6 +1622,10 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             y,
             btn_w - 10,
             row_height));
+
+    bounds = nk_widget_bounds(ctx);
+
+    g_hover.balanced = bounds;
 
     ctx->style.button =
         (cpu_mode == 1)
@@ -1657,6 +1664,9 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             y,
             btn_w,
             row_height));
+    bounds = nk_widget_bounds(ctx);
+
+    g_hover.eco = bounds;
 
     ctx->style.button =
         (cpu_mode == 2)
@@ -1697,10 +1707,10 @@ int modeDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             y,
             btn_w + 30,
             row_height));
-    struct nk_rect bounds = nk_widget_bounds(ctx);
+    bounds = nk_widget_bounds(ctx);
 
     g_hover.bore = bounds;
-   
+
     /*
      * BORE siempre conserva el estilo normal
      * por ahora.
