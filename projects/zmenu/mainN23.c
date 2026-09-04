@@ -1521,7 +1521,12 @@ static void pointer_motion(
         nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore) ||
         nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.game) ||
         nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.balanced) ||
-        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.eco))
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.eco) || nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore_inherit) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore_smoothness) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore_penalty_offset) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore_penalty_scale) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore_cache) ||
+        nk_input_is_mouse_hovering_rect(&ctx.input, g_hover.bore_protect))
     {
         needs_redraw = true;
     }

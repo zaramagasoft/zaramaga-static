@@ -18,6 +18,12 @@ typedef struct
     struct nk_rect balanced;
     struct nk_rect eco;
     struct nk_rect bore;
+    struct nk_rect bore_inherit;
+    struct nk_rect bore_smoothness;
+    struct nk_rect bore_penalty_offset;
+    struct nk_rect bore_penalty_scale;
+    struct nk_rect bore_cache;
+    struct nk_rect bore_protect;
     bool is_hovering_bore;
     bool is_hovering_ping;
     bool is_hovering_volume;

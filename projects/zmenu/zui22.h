@@ -663,7 +663,7 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         t = now_ns();
         y = modeDraw(ctx, y, win_width, bore_cfg);
         /// bore////
-        int offsetBore = 170;
+        int offsetBore = 160;
         if (bore_cfg->boreDisponible == 1 && bore_cfg->showBoreMenu == 1)
         {
             static int last_show_bore = -1;
@@ -678,7 +678,7 @@ void zui_render(struct nk_context *ctx, int win_width, int win_height, BoreConfi
         }
         else
         {
-            offsetBore = 20;
+            offsetBore = 16;
         }
 
         // printf("gamma..... %lu us\n", (now_ns() - t) / 1000);
@@ -1322,7 +1322,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             0,
             2,
             1,
-            &g_hover.bright))
+            &g_hover.bore_inherit))
     {
         bore_set(
             "sched_burst_inherit_type",
@@ -1347,7 +1347,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             0,
             3,
             1,
-            &g_hover.bright))
+            &g_hover.bore_smoothness))
     {
         bore_set(
             "sched_burst_smoothness",
@@ -1372,7 +1372,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             0,
             63,
             1,
-            &g_hover.bright))
+            &g_hover.bore_penalty_offset))
     {
         bore_set(
             "sched_burst_penalty_offset",
@@ -1397,7 +1397,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             0,
             4095,
             1,
-            &g_hover.bright))
+            &g_hover.bore_penalty_scale))
     {
         bore_set(
             "sched_burst_penalty_scale",
@@ -1430,7 +1430,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             0,
             4294,
             1,
-            &g_hover.bright))
+            &g_hover.bore_cache))
     {
         unsigned long long cache_ns =
             (unsigned long long)cache_ms * 1000000ULL;
@@ -1458,7 +1458,7 @@ int boreDraw(struct nk_context *ctx, float y, float win_width, BoreConfig *bore)
             0,
             1,
             1,
-            &g_hover.bright))
+            &g_hover.bore_protect))
     {
         bore_set(
             "sched_burst_protect_slice_lv",
